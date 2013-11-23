@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="desert" tilewidth="32" tileheight="32" spacing="3" margin="2">
+  <image source="gfx/tileset.png" trans="ff00ff" width="456" height="211"/>
+  <tile id="8">
+   <properties>
+    <property name="wood" value="true"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="iron" value="true"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="silver" value="true"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="gold" value="true"/>
+   </properties>
+  </tile>
+  <tile id="36">
+   <properties>
+    <property name="rope" value="true"/>
+   </properties>
+  </tile>
+  <tile id="64">
+   <properties>
+    <property name="tool1" value="true"/>
+   </properties>
+  </tile>
+  <tile id="76">
+   <properties>
+    <property name="teleport" value="20-20"/>
+   </properties>
+  </tile>
+  <tile id="77">
+   <properties>
+    <property name="tool2" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Capa de Patrones 1" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt0zsOg0AQA9A5DiBR8klLAvc/EivRIlbpdtArXuPKLjxGxAhACl3RVwwN9KyZirliaaDnPzvW4lt8ku9YbrKMO/a4/nAk35H5H1tcn3jya6AnAAAAAAAA8C4nrDu6FQ==
+  </data>
+ </layer>
+ <layer name="objects" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt0zEOwyAQRFHaxPYxUvoQqSPn/sdJjxYjWZidiX7xGpDQDAt7KWWHjUMgA+7zFsgAZNkEMsDTJpDhqq9ABndrYOT5r4kdovXs+1WcSc/nxi71/tKg1KGnzrxU6yP6zOrRmku9ryy689HvS6VLdr6rfZw7zPIMZGca1cGty9ksXLr03pBLj9Y8nP8JAAAAkOkRyM5ED+8OAP7PD8hmq0w=
+  </data>
+ </layer>
+</map>

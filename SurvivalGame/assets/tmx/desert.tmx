@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="40" height="40" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="Desert" tilewidth="32" tileheight="32" spacing="3" margin="2">
+  <image source="gfx/desert_tiled.png" width="281" height="211"/>
+  <tile id="30">
+   <properties>
+    <property name="cactus" value="true"/>
+   </properties>
+  </tile>
+  <tile id="31">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="37">
+   <properties>
+    <property name="plant" value="true"/>
+   </properties>
+  </tile>
+  <tile id="38">
+   <properties>
+    <property name="plant" value="true"/>
+   </properties>
+  </tile>
+  <tile id="39">
+   <properties>
+    <property name="pick" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="49" name="new" tilewidth="32" tileheight="32">
+  <image source="gfx/tileeyl5.png" trans="ff00ff" width="1024" height="512"/>
+ </tileset>
+ <tileset firstgid="561" name="aas" tilewidth="32" tileheight="32">
+  <image source="gfx/pirate-themed-tilee.png" trans="ff00ff" width="512" height="512"/>
+ </tileset>
+ <layer name="Ground" width="40" height="40">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+2WawuCMBSGT/mhi5BdIMuoVtaHLor//9d1hIkyzLa1zVPsw4MgZ+7Zu+FOAgCJJTJkhkTIHHlqfONgkVzwK98dLc7HNMaIfpQos1ojMbLp0aMr1wEyRALB24bHFtTO9g6ZIFMkdJDTCTkrkPbkd0HuyJWoXyqZp0k/RtxPJb/qHsiI+r1DPJfU/MRcqfn1vb83vn+yPAz4jThjqO+iLgLJuor9l34R1P1FtdYuQsm6tnE6fjHU/cUCWX5gJVnXNs72+XMJA7u9rClHV3Pp9GYuvHL+lPl3Nu+f1ND8ssj4lU4Fr/V+/+fX7C8o+olZUvcriPu5zE+nN3Pp9y8wAg6/gpgV9X7K77HHo8YLj9CC7AAZAAA=
+  </data>
+ </layer>
+ <layer name="plants" width="40" height="40">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA+3VKw4AIAwE0Z6ksvc/IhYEnyBg24x4frJNwM3MAUgLgYYq2LLGZrdN0VFrfd2V5dYAgL3Z+63wt2Rystdq659dijI2V2gHAACjBppWjxsAGQAA
+  </data>
+ </layer>
+</map>

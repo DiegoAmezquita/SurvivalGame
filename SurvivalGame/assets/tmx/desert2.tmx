@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="new" tilewidth="32" tileheight="32">
+  <image source="gfx/tileeyl5.png" trans="ff00ff" width="1024" height="512"/>
+ </tileset>
+ <layer name="Ground" width="20" height="20">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAA52TTU5CQRCEh6MoRvZ6AsXoHo7gCQTjv+gVVPbqEUQu4Ane8ydRlyTumZ3/ifWS6VAWPYlx8YXmzXRNd01PUQuhAGWiyOCtl/QbM989ZkIIs6AO5sK0RhXXM2ctgMW011iCxjJoghXSu0Q8TnuaKX8sei3Qdvooa5Nc+39DeutOfRugA7pg0/FO9Uakp/5W8Qk4BWegL7XPI7cRfn8zbfamoL1XiAfgGgxJr2IV62uidw4uHH3be4v4DtyDh6THmiV983yNsqb5vMY+RtF5oZhztlDjNtgBu2AP7IMDcAh64Agch+nZNh3zjmvP1cd3abUwkbzz9PRe2adn8AW+HX/ZW51JO0/v4h18gE+ZK/aRe9ceKx7Bk5ypfsVMLV6fr+BNPFO/LE/fCu/z4Lp5lrgm9VVrVLgWvnObAT3fzuK54rfK6/w+cv4yf+1fe+B3/x9+AOVxUUhABgAA
+  </data>
+ </layer>
+</map>

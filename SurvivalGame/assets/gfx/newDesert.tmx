@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="desert" tilewidth="32" tileheight="32" spacing="3" margin="2">
+  <image source="gfx/new_desert_tiled.png" trans="ff00ff" width="351" height="211"/>
+  <tile id="8">
+   <properties>
+    <property name="tool1" value="true"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="tool2" value="true"/>
+   </properties>
+  </tile>
+  <tile id="45">
+   <properties>
+    <property name="plant" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Capa de Patrones 1" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJzt0CsOgDAQRdE6JB8Lkh1QEva/MorAoGjSwIgjjp28OzmllD+2F0MxFlOxNbi5/uB4dPyxoRUdseiIRcc3upf6wB33j2tE7LjMlZYAmwEAAAAAAADgBMJwXgI=
+  </data>
+ </layer>
+ <layer name="objects" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztzqERADAIBLC37RzsPyMrtII7RER8KkkBfDoLDgAw7S44AAAAAAAAAO8aa1xfaw==
+  </data>
+ </layer>
+</map>
