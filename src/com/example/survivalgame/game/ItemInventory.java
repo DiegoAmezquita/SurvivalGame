@@ -1,4 +1,4 @@
-package com.example.survivalgame;
+package com.example.survivalgame.game;
 
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
@@ -8,6 +8,8 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
+
+import com.example.survivalgame.ResourcesManager;
 
 public class ItemInventory extends Rectangle {
 

@@ -1,9 +1,13 @@
-package com.example.survivalgame;
+package com.example.survivalgame.game;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+import com.example.survivalgame.ResourcesManager;
+import com.example.survivalgame.Util;
+import com.example.survivalgame.Util.Direction;
 
 /**
  * @author Mateusz Mysliwiec
@@ -19,13 +23,11 @@ public abstract class Player extends AnimatedSprite {
 
 	private int footContacts = 0;
 
-	enum Direction {
-		UP, DOWN, LEFT, RIGHT, UPRIGHT,UPLEFT,DOWNRIGHT,DOWNLEFT, NONE;
-	}
-	
 	Rectangle feet;
 
 	Direction directionMove;
+
+	Direction directionPointing;
 
 	// ---------------------------------------------
 	// CONSTRUCTOR
@@ -34,11 +36,12 @@ public abstract class Player extends AnimatedSprite {
 	public Player(float pX, float pY, VertexBufferObjectManager vbo, Camera camera) {
 		super(pX, pY, ResourcesManager.getInstance().player_region, vbo);
 		setScale(2);
-		
-		feet = new Rectangle(0,  this.getHeight()-this.getHeight()/3, this.getWidth(), this.getHeight()/3, vbo);
+
+		feet = new Rectangle(0, this.getHeight() - this.getHeight() / 3, this.getWidth(), this.getHeight() / 3, vbo);
 		attachChild(feet);
 		feet.setVisible(false);
 		camera.setChaseEntity(this);
+		directionPointing = Direction.RIGHT;
 	}
 
 	// ---------------------------------------------
@@ -47,65 +50,69 @@ public abstract class Player extends AnimatedSprite {
 
 	public void setRunningUp() {
 		if (directionMove != Direction.UP) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 12, 15, true);
 			directionMove = Direction.UP;
+			directionPointing = Direction.UP;
 		}
 	}
-	
+
 	public void setRunningUpRight() {
-//		if (directionMove != Direction.UPRIGHT) {
-//			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-//			animate(PLAYER_ANIMATE, 18, 23, true);
-//			directionMove = Direction.UPRIGHT;
-//		}
+		// if (directionMove != Direction.UPRIGHT) {
+		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+		// animate(PLAYER_ANIMATE, 18, 23, true);
+		// directionMove = Direction.UPRIGHT;
+		// }
 	}
-	
+
 	public void setRunningUpLeft() {
-//		if (directionMove != Direction.UPLEFT) {
-//			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-//			animate(PLAYER_ANIMATE, 30, 35, true);
-//			directionMove = Direction.UPLEFT;
-//		}
+		// if (directionMove != Direction.UPLEFT) {
+		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+		// animate(PLAYER_ANIMATE, 30, 35, true);
+		// directionMove = Direction.UPLEFT;
+		// }
 	}
 
 	public void setRunningDown() {
 		if (directionMove != Direction.DOWN) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 0, 3, true);
 			directionMove = Direction.DOWN;
+			directionPointing = Direction.DOWN;
 		}
 	}
-	
+
 	public void setRunningDownRight() {
-//		if (directionMove != Direction.DOWNRIGHT) {
-//			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-//			animate(PLAYER_ANIMATE, 6, 11, true);
-//			directionMove = Direction.DOWNRIGHT;
-//		}
+		// if (directionMove != Direction.DOWNRIGHT) {
+		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+		// animate(PLAYER_ANIMATE, 6, 11, true);
+		// directionMove = Direction.DOWNRIGHT;
+		// }
 	}
-	
+
 	public void setRunningDownLeft() {
-//		if (directionMove != Direction.DOWNLEFT) {
-//			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-//			animate(PLAYER_ANIMATE, 42, 47, true);
-//			directionMove = Direction.DOWNLEFT;
-//		}
+		// if (directionMove != Direction.DOWNLEFT) {
+		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+		// animate(PLAYER_ANIMATE, 42, 47, true);
+		// directionMove = Direction.DOWNLEFT;
+		// }
 	}
 
 	public void setRunningLeft() {
 		if (directionMove != Direction.LEFT) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 4, 7, true);
 			directionMove = Direction.LEFT;
+			directionPointing = Direction.LEFT;
 		}
 	}
 
 	public void setRunningRight() {
 		if (directionMove != Direction.RIGHT) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
+			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 8, 11, true);
 			directionMove = Direction.RIGHT;
+			directionPointing = Direction.RIGHT;
 		}
 	}
 

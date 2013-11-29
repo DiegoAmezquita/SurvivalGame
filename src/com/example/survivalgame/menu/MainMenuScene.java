@@ -1,4 +1,4 @@
-package com.example.survivalgame;
+package com.example.survivalgame.menu;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.menu.MenuScene;
@@ -10,6 +10,8 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.util.GLState;
 
 
+import com.example.survivalgame.BaseScene;
+import com.example.survivalgame.SceneManager;
 import com.example.survivalgame.SceneManager.SceneType;
 
 public class MainMenuScene extends BaseScene implements IOnMenuItemClickListener {

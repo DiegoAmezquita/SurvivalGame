@@ -1,4 +1,4 @@
-package com.example.survivalgame;
+package com.example.survivalgame.game;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
@@ -9,13 +9,16 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
+import com.example.survivalgame.ResourcesManager;
 
 public class GameHUD extends HUD {
 
-	Camera camera;
+	Camera mCamera;
+	GameScene mGameScene;
 
-	public GameHUD(Camera camera, ResourcesManager resourcesManager,VertexBufferObjectManager vbom) {
-		this.camera = camera;
+	public GameHUD(Camera camera, ResourcesManager resourcesManager, VertexBufferObjectManager vbom, GameScene gameScene) {
+		this.mCamera = camera;
+		this.mGameScene = gameScene;
 
 		Text lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
 		lifeText.setScale(0.5f);
@@ -27,10 +30,10 @@ public class GameHUD extends HUD {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
-//					camera.setHUD(inventoryHud);
-//					populateInventory();
-//					movementOnScreenControl.setVisible(false);
-//					movementOnScreenControl.setIgnoreUpdate(true);
+					mCamera.setHUD(mGameScene.inventoryHud);
+					mGameScene.populateInventory();
+					mGameScene.movementOnScreenControl.setVisible(false);
+					mGameScene.movementOnScreenControl.setIgnoreUpdate(true);
 					return true;
 				} else {
 					return false;
@@ -45,10 +48,10 @@ public class GameHUD extends HUD {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
-//					speed = 1.2f;
+					mGameScene.actionButtonA();
 					return true;
 				} else if (pSceneTouchEvent.isActionUp()) {
-//					speed = 1.0f;
+					mGameScene.releaseButtonA();
 					return true;
 				} else {
 					return false;
@@ -61,8 +64,10 @@ public class GameHUD extends HUD {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
-//					bullet.setPosition(player.getX() + player.getWidth() / 2, player.getY() + player.getHeight() / 2);
-//					bulletDirection = player.directionMove;
+					mGameScene.actionButtonB();
+					return true;
+				} else if (pSceneTouchEvent.isActionUp()) {
+					mGameScene.releaseButtonB();
 					return true;
 				} else {
 					return false;

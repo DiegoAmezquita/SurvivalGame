@@ -5,6 +5,9 @@ import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.ui.IGameInterface.OnCreateSceneCallback;
 
+import com.example.survivalgame.game.GameScene;
+import com.example.survivalgame.menu.MainMenuScene;
+
 /**
  * @author Mateusz Mysliwiec
  * @author www.matim-dev.com
