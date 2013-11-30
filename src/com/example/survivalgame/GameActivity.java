@@ -12,7 +12,10 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.andengine.entity.scene.Scene;
+import org.andengine.opengl.shader.ShaderProgramManager;
 import org.andengine.ui.activity.BaseGameActivity;
+
+import com.example.survivalgame.util.SpotLight;
 
 import android.view.KeyEvent;
 
@@ -28,7 +31,7 @@ public class GameActivity extends BaseGameActivity {
 	private SmoothCamera camera;
 
 	public EngineOptions onCreateEngineOptions() {
-		camera = new SmoothCamera(0, 0, 800, 480,1000,1000,1);
+		camera = new SmoothCamera(0, 0, 800, 480, 1000, 1000, 1);
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new FillResolutionPolicy(), this.camera);
 		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
 		engineOptions.getRenderOptions().setDithering(true);
@@ -45,6 +48,10 @@ public class GameActivity extends BaseGameActivity {
 	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws IOException {
 		ResourcesManager.prepareManager(mEngine, this, camera, getVertexBufferObjectManager());
 		resourcesManager = ResourcesManager.getInstance();
+
+		ShaderProgramManager shaderProgramManager = this.getShaderProgramManager();
+		shaderProgramManager.loadShaderProgram(SpotLight.getInstance());
+
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 

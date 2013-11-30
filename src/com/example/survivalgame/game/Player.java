@@ -6,7 +6,6 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.example.survivalgame.ResourcesManager;
-import com.example.survivalgame.Util;
 import com.example.survivalgame.Util.Direction;
 
 /**

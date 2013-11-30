@@ -10,6 +10,8 @@ import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnScreenControlListener;
 import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
 import org.andengine.engine.handler.IUpdateHandler;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -30,7 +32,7 @@ import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
 import com.example.survivalgame.TextureGameManager;
 import com.example.survivalgame.SceneManager.SceneType;
-import com.example.survivalgame.Util.Direction;
+import com.example.survivalgame.util.SpotLight;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
@@ -38,6 +40,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	private GameHUD gameHUD;
 	private Player player;
 	private MapGame map;
+
+	Rectangle blockScreen;
 
 	public AnalogOnScreenControl movementOnScreenControl;
 
@@ -234,6 +238,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		attachChild(rightLimit);
 	}
 
+	public void createInitialBuildings() {
+		Building building = new Building(-300, -300, vbom);
+		attachChild(building);
+
+	}
+
 	public void init() {
 
 		collisionManager = CollisionManager.getInstance();
@@ -271,12 +281,38 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void createScene() {
 		init();
 		createBackground();
+
 		createHUD();
 		createMap();
 		createPlayer();
 		createControl();
 		createInventory();
 		createLimits();
+		createInitialBuildings();
+
+		Rectangle rec = new Rectangle(400, 240, 800, 480, vbom);
+		rec.setColor(Color.WHITE);
+		rec.setShaderProgram(SpotLight.getInstance());
+		attachChild(rec);
+
+		blockScreen = new Rectangle(-1000, -1000, 2000, 2000, vbom);
+		blockScreen.setColor(Color.BLACK);
+		attachChild(blockScreen);
+		camera.setHUD(null);
+		movementOnScreenControl.setVisible(false);
+
+		registerUpdateHandler(new TimerHandler(0.01f, true, new ITimerCallback() {
+			@Override
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				blockScreen.setAlpha(blockScreen.getAlpha() - 0.005f);
+				if (blockScreen.getAlpha() <= 0) {
+					camera.setHUD(gameHUD);
+					movementOnScreenControl.setVisible(true);
+					detachChild(blockScreen);
+					unregisterUpdateHandler(pTimerHandler);
+				}
+			}
+		}));
 
 		registerUpdateHandler(new IUpdateHandler() {
 			@Override

@@ -5,7 +5,6 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
 
-import com.example.survivalgame.Util;
 import com.example.survivalgame.Util.Direction;
 
 public class Bullet extends Rectangle {
