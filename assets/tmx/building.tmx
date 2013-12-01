@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="desert" tilewidth="32" tileheight="32" spacing="3" margin="2">
+  <image source="gfx/tileset.png" trans="ff00ff" width="456" height="211"/>
+  <tile id="8">
+   <properties>
+    <property name="pick-wood" value="true"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="pick-iron" value="true"/>
+   </properties>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="pick-silver" value="true"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="pick-gold" value="true"/>
+   </properties>
+  </tile>
+  <tile id="36">
+   <properties>
+    <property name="pick-rope" value="true"/>
+   </properties>
+  </tile>
+  <tile id="64">
+   <properties>
+    <property name="pick-tool1" value="true"/>
+   </properties>
+  </tile>
+  <tile id="76">
+   <properties>
+    <property name="teleport" value="-750,-250"/>
+   </properties>
+  </tile>
+  <tile id="77">
+   <properties>
+    <property name="pick-tool2" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Capa de Patrones 1" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJzTZWBg0CUSawCxJhBrERAzBWIzIDYnIOYExM5A7EJAjNp4MPsDAK+yEtk=
+  </data>
+ </layer>
+</map>

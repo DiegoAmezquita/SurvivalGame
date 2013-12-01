@@ -20,15 +20,13 @@ import com.example.survivalgame.TextureGameManager;
 
 public class MapGame {
 
-	GameScene mGameScene;
 	CollisionManager collisionManager;
 	TextureGameManager textureManager;
 	VertexBufferObjectManager vbom;
 
 	private TMXTiledMap mTMXTiledMap;
 
-	public MapGame(GameScene gameScene, String path, Activity activity, Engine engine, VertexBufferObjectManager vbom) {
-		this.mGameScene = gameScene;
+	public MapGame(String path, Activity activity, Engine engine, VertexBufferObjectManager vbom) {
 		collisionManager = CollisionManager.getInstance();
 		textureManager = TextureGameManager.getInstance();
 		this.vbom = vbom;

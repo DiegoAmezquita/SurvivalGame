@@ -6,8 +6,6 @@ import org.andengine.opengl.shader.exception.ShaderProgramLinkException;
 import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.vbo.attribute.VertexBufferObjectAttributes;
 
-import com.example.survivalgame.MainActivity;
-
 import android.opengl.GLES20;
 
 public class SpotLight extends ShaderProgram {
@@ -23,11 +21,11 @@ public class SpotLight extends ShaderProgram {
 
 	public static final String FRAGMENTSHADER = "precision highp float;\n" + "varying vec4 " + ShaderProgramConstants.VARYING_COLOR + ";\n" + "uniform vec4 " + SpotLight.UNIFORM_DATA + ";\n"
 			+ "void main() {\n" + "vec4 color = " + ShaderProgramConstants.VARYING_COLOR + ";\n" + "vec4 data = " + SpotLight.UNIFORM_DATA + ";\n"
-			+ "float xSquared = pow((data.x - gl_FragCoord.x)/737.0, 2.0);\n" + "float ySquared = pow((data.y - gl_FragCoord.y)/737.0, 2.0);\n" + "float distance = sqrt(xSquared + ySquared);\n"
+			+ "float xSquared = pow((data.x - gl_FragCoord.x)/300.0, 2.0);\n" + "float ySquared = pow((data.y - gl_FragCoord.y)/300.0, 2.0);\n" + "float distance = sqrt(xSquared + ySquared);\n"
 			+ "float radius = data.z;\n"
 
-			+ "if (distance < radius){ \n" + "color.w = 0.0;}\n" + "else{ \n" + "float opacity = (distance-radius)/radius; \n" + "if(opacity >= data.w) \n" + "{opacity = data.w;} \n"
-			+ "color.w = opacity;}\n" +
+			+ "if (distance < radius){ \n" + "color.w = distance;" + "}\n" + "else{ \n" + "float opacity = (distance-radius)/radius; \n" + "if(opacity >= data.w) \n" + "{opacity = data.w;} \n"
+			+ "color.w = distance;}\n" +
 
 			"       gl_FragColor = color;\n" + "}";
 
@@ -80,7 +78,7 @@ public class SpotLight extends ShaderProgram {
 
 		GLES20.glUniformMatrix4fv(SpotLight.sUniformModelViewPositionMatrixLocation, 1, false, pGLState.getModelViewProjectionGLMatrix(), 0);
 
-		GLES20.glUniform4f(SpotLight.sUniformData, MainActivity.mCentreX, MainActivity.mCentreY, MainActivity.mRadius / MainActivity.mWidth, MainActivity.borderValue);
+		GLES20.glUniform4f(SpotLight.sUniformData, Util.widthScreen / 2, Util.heightScreen / 2, 0.174860644f, 0.95f);
 	}
 
 	@Override

@@ -16,7 +16,9 @@ import org.andengine.opengl.shader.ShaderProgramManager;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import com.example.survivalgame.util.SpotLight;
+import com.example.survivalgame.util.Util;
 
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 
 /**
@@ -31,6 +33,12 @@ public class GameActivity extends BaseGameActivity {
 	private SmoothCamera camera;
 
 	public EngineOptions onCreateEngineOptions() {
+		final DisplayMetrics displayMetrics = new DisplayMetrics();
+		this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		Util.widthScreen = displayMetrics.widthPixels;
+		Util.heightScreen = displayMetrics.heightPixels;
+		
+		
 		camera = new SmoothCamera(0, 0, 800, 480, 1000, 1000, 1);
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new FillResolutionPolicy(), this.camera);
 		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);

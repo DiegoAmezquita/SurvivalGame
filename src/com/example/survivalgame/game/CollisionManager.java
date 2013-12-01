@@ -40,6 +40,7 @@ public class CollisionManager {
 		doors.add(shape);
 	}
 	
+	
 	public boolean checkCollisionObstacles(RectangularShape shape){
 		for (int i = 0; i < obstacles.size(); i++) {
 			if(shape.collidesWith(obstacles.get(i))){
@@ -53,6 +54,15 @@ public class CollisionManager {
 		for (int i = 0; i < items.size(); i++) {
 			if(shape.collidesWith(items.get(i))&&items.get(i).hasParent()){
 				return items.get(i);
+			}
+		}
+		return null;
+	}
+	
+	public RectangularShape checkDoor(RectangularShape shape){
+		for (int i = 0; i < doors.size(); i++) {
+			if(shape.collidesWith(doors.get(i))){
+				return doors.get(i);
 			}
 		}
 		return null;
