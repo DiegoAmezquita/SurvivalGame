@@ -17,6 +17,8 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.shape.RectangularShape;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.extension.tmx.TMXLayer;
@@ -62,7 +64,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	CollisionManager collisionManager;
 
 	BulletsPool bulletsPool;
-	
+
 	RectangularShape itemToPick;
 
 	private void createBackground() {
@@ -164,13 +166,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		};
 		player.setCurrentTileIndex(8);
 
-		
-//		player.shadow.setPosition(player);
-		player.shadow.setPosition(player.getX(), player.getY()+player.getHeight()*1.3f);
+		// player.shadow.setPosition(player);
+		player.shadow.setPosition(player.getX(), player.getY() + player.getHeight() * 1.3f);
 		attachChild(player.shadow);
-		
+
 		attachChild(player);
-		
+
 	}
 
 	public void createControl() {
@@ -273,9 +274,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void checkPickItem() {
 		itemToPick = collisionManager.checkPickItem(player.feet);
-		if(itemToPick!=null){
+		if (itemToPick != null) {
 			gameHUD.showButtonC();
-		}else{
+		} else {
 			gameHUD.hideButtonC();
 		}
 	}
@@ -318,6 +319,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			}
 		}));
 	}
+	
+	public void createLight(float pX, float pY){
+		Sprite light = new Sprite(pX, pY, resourcesManager.light_region, vbom);
+		light.setBlendingEnabled(true);
+		light.setBlendFunctionSource(GLES20.GL_DST_COLOR);
+		light.setAlpha(0.0f);
+		light.setZIndex(0);
+		
+		attachChild(light);
+	}
 
 	@Override
 	public void createScene() {
@@ -326,15 +337,33 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		createHUD();
 		createMap();
 		createInitialBuildings();
-		createPlayer();
-		createControl();
-		createInventory();
-		createLimits();
+		
 
 		blockScreen = new Rectangle(-1000, -1000, 2000, 2000, vbom);
 		blockScreen.setColor(Color.BLACK);
 		blockScreen.setVisible(false);
 		attachChild(blockScreen);
+
+		Rectangle rec = new Rectangle(-500, -500, 1000, 2000, vbom);
+		attachChild(rec);
+		rec.setColor(0.01f, 0.01f, 0.01f, 0.9f);
+
+		createLight(100, 300);
+		createLight(100, 300);
+		createLight(100, 300);
+		
+		createLight(100, 500);
+		createLight(100, 500);
+		
+		createLight(100, 700);
+		
+		createPlayer();
+		createControl();
+		createInventory();
+		createLimits();
+		
+		
+		// pScene.attachChild(light2);
 
 		registerUpdateHandler(new IUpdateHandler() {
 			@Override
@@ -366,25 +395,27 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 				checkPickItem();
 
-//				if (checkCollision) {
-//					Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
-//					if (door != null) {
-//						checkCollision = false;
-//						String[] relocation = ((String) door.getUserData()).split(",");
-//						if (relocation[0].equals("teleport")) {
-//							beforeEntrancePosition.x = player.getX();
-//							beforeEntrancePosition.y = player.getX();
-//							teleportToPosition.x = Float.parseFloat(relocation[1]);
-//							teleportToPosition.y = Float.parseFloat(relocation[2]);
-//							blockScreenToTeleport();
-//						} else {
-//							teleportToPosition.x = beforeEntrancePosition.x;
-//							teleportToPosition.y = beforeEntrancePosition.y;
-//							blockScreenToTeleport();
-//						}
-//						moveAllowed = false;
-//					}
-//				}
+				// if (checkCollision) {
+				// Rectangle door = (Rectangle)
+				// collisionManager.checkDoor(player.feet);
+				// if (door != null) {
+				// checkCollision = false;
+				// String[] relocation = ((String)
+				// door.getUserData()).split(",");
+				// if (relocation[0].equals("teleport")) {
+				// beforeEntrancePosition.x = player.getX();
+				// beforeEntrancePosition.y = player.getX();
+				// teleportToPosition.x = Float.parseFloat(relocation[1]);
+				// teleportToPosition.y = Float.parseFloat(relocation[2]);
+				// blockScreenToTeleport();
+				// } else {
+				// teleportToPosition.x = beforeEntrancePosition.x;
+				// teleportToPosition.y = beforeEntrancePosition.y;
+				// blockScreenToTeleport();
+				// }
+				// moveAllowed = false;
+				// }
+				// }
 
 				bulletsPool.updateBullets();
 
@@ -413,7 +444,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void releaseButtonB() {
 
 	}
-	
+
 	public void actionButtonC() {
 		pickItem();
 	}
@@ -421,8 +452,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void releaseButtonC() {
 
 	}
-	
-	public void pickItem(){
+
+	public void pickItem() {
 		if (itemToPick != null) {
 			String key = (String) itemToPick.getUserData();
 			if (inventoryPlayer.containsKey(key)) {

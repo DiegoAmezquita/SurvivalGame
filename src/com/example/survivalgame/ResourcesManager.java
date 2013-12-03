@@ -1,5 +1,7 @@
 package com.example.survivalgame;
 
+import java.io.IOException;
+
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.opengl.font.Font;
@@ -12,8 +14,10 @@ import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
+import org.andengine.opengl.texture.bitmap.AssetBitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.debug.Debug;
 
@@ -46,6 +50,10 @@ public class ResourcesManager {
 	public ITextureRegion menu_background_region;
 	public ITextureRegion play_region;
 	public ITextureRegion options_region;
+	
+	public ITextureRegion light_region;
+	
+	public ITexture lightTest;
 
 	private BuildableBitmapTextureAtlas menuTextureAtlas;
 
@@ -128,7 +136,7 @@ public class ResourcesManager {
 
 	private void loadGameGraphics() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
-		gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 1024, 1024, TextureOptions.BILINEAR);
+		gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		gameTextureAtlas.clearTextureAtlasSources();
 		gameTextureAtlas.addEmptyTextureAtlasSource(0, 0, 1024, 1024);
@@ -143,7 +151,16 @@ public class ResourcesManager {
 		
 		mOnScreenButton = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "button.png");
 		
+		light_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "light2.png");
 		
+		try {
+			lightTest = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "light2.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			
+			light_region = TextureRegionFactory.extractFromTexture(this.lightTest);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		mFirstAid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "first_aid.png");
 		//
