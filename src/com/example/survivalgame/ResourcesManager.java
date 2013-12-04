@@ -124,7 +124,7 @@ public class ResourcesManager {
 
 	private void loadMenuFonts() {
 		FontFactory.setAssetBasePath("font/");
-		final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "font.ttf", 50, true, Color.WHITE, 2, Color.BLACK);
 		font.load();
@@ -151,10 +151,10 @@ public class ResourcesManager {
 		
 		mOnScreenButton = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "button.png");
 		
-		light_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "light2.png");
+		light_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "light.png");
 		
 		try {
-			lightTest = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "light2.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			lightTest = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "light.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			
 			light_region = TextureRegionFactory.extractFromTexture(this.lightTest);
 		} catch (IOException e1) {

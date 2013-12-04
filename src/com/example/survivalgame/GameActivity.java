@@ -19,6 +19,7 @@ import com.example.survivalgame.util.SpotLight;
 import com.example.survivalgame.util.Util;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 
 /**
@@ -38,13 +39,18 @@ public class GameActivity extends BaseGameActivity {
 		Util.widthScreen = displayMetrics.widthPixels;
 		Util.heightScreen = displayMetrics.heightPixels;
 		
-		
 		camera = new SmoothCamera(0, 0, 800, 480, 1000, 1000, 1);
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new FillResolutionPolicy(), this.camera);
 		engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
 		engineOptions.getRenderOptions().setDithering(true);
 		engineOptions.getTouchOptions().setNeedsMultiTouch(true);
 		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
+		
+		
+		Util.ratioWidth = Util.widthScreen/camera.getWidth();
+		Util.ratioHeight = Util.heightScreen/camera.getHeight();
+		
+		
 		return engineOptions;
 	}
 

@@ -17,7 +17,6 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.shape.RectangularShape;
-import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -45,11 +44,17 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	Rectangle blockScreen;
 
+	int bulletCounter = 20;
+
 	boolean blocking = true;
 
 	boolean moveAllowed = true;
 
 	boolean checkCollision = true;
+
+	float hourOfDay;
+
+	Sprite light;
 
 	public AnalogOnScreenControl movementOnScreenControl;
 	private static final String TAG = "GAME";
@@ -72,7 +77,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	private void createHUD() {
-		gameHUD = new GameHUD(camera, resourcesManager, vbom, this);
+		gameHUD = new GameHUD(camera, vbom, this);
+		gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
 	}
 
 	public void createInventory() {
@@ -124,7 +130,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 			int position = checkAlreadyLoaded(entry.getKey());
 			if (position == -1) {
-				ItemInventory itemTest = new ItemInventory(180, posInventoryItemY, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), resourcesManager, vbom);
+				ItemInventory itemTest = new ItemInventory(180, posInventoryItemY, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), resourcesManager,
+						vbom);
 				itemTest.setQuantity(entry.getValue());
 				inventoryHud.attachChild(itemTest);
 				itemsAlreadyLoaded.add(itemTest);
@@ -177,8 +184,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void createControl() {
 		final float x1 = 20;
 		final float y1 = 470 - resourcesManager.mOnScreenControlBaseTextureRegion.getHeight();
-		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion, 0.1f, vbom,
-				new IAnalogOnScreenControlListener() {
+		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion,
+				0.1f, vbom, new IAnalogOnScreenControlListener() {
 					@Override
 					public void onControlChange(final BaseOnScreenControl pBaseOnScreenControl, final float pValueX, final float pValueY) {
 
@@ -269,7 +276,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		collisionManager = CollisionManager.getInstance();
 		itemsAlreadyLoaded = new ArrayList<ItemInventory>();
 		inventoryPlayer = new HashMap<String, Integer>();
-		bulletsPool = new BulletsPool(10, vbom);
+		bulletsPool = new BulletsPool(bulletCounter, vbom);
+		
+
 	}
 
 	public void checkPickItem() {
@@ -282,10 +291,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void fireBullet() {
-		Bullet bullet = bulletsPool.getBullet();
-		bullet.setBusy();
-		bullet.setPosAndDir(player.getX(), player.getY(), player.directionPointing);
-		attachChild(bullet);
+		if (bulletCounter > 0) {
+			Bullet bullet = bulletsPool.getBullet();
+			bullet.setBusy();
+			bullet.setPosAndDir(player.getX(), player.getY(), player.directionPointing);
+			attachChild(bullet);
+			bulletCounter--;
+			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+		}
 	}
 
 	public void blockScreenToTeleport() {
@@ -319,15 +332,34 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			}
 		}));
 	}
-	
-	public void createLight(float pX, float pY){
-		Sprite light = new Sprite(pX, pY, resourcesManager.light_region, vbom);
+
+	public void createLight() {
+		light = new Sprite(-200, -400, resourcesManager.light_region, vbom);
 		light.setBlendingEnabled(true);
 		light.setBlendFunctionSource(GLES20.GL_DST_COLOR);
 		light.setAlpha(0.0f);
+		// light.setScale(1.5f);
 		light.setZIndex(0);
-		
+
+		Sprite light2 = new Sprite(0, 0, resourcesManager.light_region, vbom);
+		light2.setBlendingEnabled(true);
+		light2.setBlendFunctionSource(GLES20.GL_DST_COLOR);
+		light2.setAlpha(0.0f);
+		// light2.setScale(1.5f);
+		light2.setZIndex(0);
+
+		Sprite light3 = new Sprite(0, 0, resourcesManager.light_region, vbom);
+		light3.setBlendingEnabled(true);
+		light3.setBlendFunctionSource(GLES20.GL_DST_COLOR);
+		light3.setAlpha(0.0f);
+		// light2.setScale(1.5f);
+		light3.setZIndex(0);
+
+		light.attachChild(light2);
+		light.attachChild(light3);
+
 		attachChild(light);
+
 	}
 
 	@Override
@@ -337,32 +369,26 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		createHUD();
 		createMap();
 		createInitialBuildings();
-		
 
 		blockScreen = new Rectangle(-1000, -1000, 2000, 2000, vbom);
 		blockScreen.setColor(Color.BLACK);
 		blockScreen.setVisible(false);
 		attachChild(blockScreen);
 
-		Rectangle rec = new Rectangle(-500, -500, 1000, 2000, vbom);
-		attachChild(rec);
-		rec.setColor(0.01f, 0.01f, 0.01f, 0.9f);
+		// Rectangle rec = new Rectangle(0, 0, map.getWidth(), map.getHeight(),
+		// vbom);
+		// rec.setColor(0.01f, 0.01f, 0.01f, 0.0f);
+		// rec.setShaderProgram(SpotLight.getInstance());
+		// attachChild(rec);
 
-		createLight(100, 300);
-		createLight(100, 300);
-		createLight(100, 300);
-		
-		createLight(100, 500);
-		createLight(100, 500);
-		
-		createLight(100, 700);
-		
+		// createLight();
+
 		createPlayer();
 		createControl();
 		createInventory();
 		createLimits();
-		
-		
+		startTimerDay();
+
 		// pScene.attachChild(light2);
 
 		registerUpdateHandler(new IUpdateHandler() {
@@ -382,6 +408,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 				if (moveAllowed) {
 					player.setX(player.getX() + x);
 					player.setY(player.getY() + y);
+
+					// light.setPosition((player.getX()+player.getWidth()/2)-(light.getWidth()/2),
+					// (player.getY()+player.getHeight()/2)-(light.getHeight()/2));
 				}
 
 				if (collisionManager.checkCollisionObstacles(player.feet)) {
@@ -395,27 +424,25 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 				checkPickItem();
 
-				// if (checkCollision) {
-				// Rectangle door = (Rectangle)
-				// collisionManager.checkDoor(player.feet);
-				// if (door != null) {
-				// checkCollision = false;
-				// String[] relocation = ((String)
-				// door.getUserData()).split(",");
-				// if (relocation[0].equals("teleport")) {
-				// beforeEntrancePosition.x = player.getX();
-				// beforeEntrancePosition.y = player.getX();
-				// teleportToPosition.x = Float.parseFloat(relocation[1]);
-				// teleportToPosition.y = Float.parseFloat(relocation[2]);
-				// blockScreenToTeleport();
-				// } else {
-				// teleportToPosition.x = beforeEntrancePosition.x;
-				// teleportToPosition.y = beforeEntrancePosition.y;
-				// blockScreenToTeleport();
-				// }
-				// moveAllowed = false;
-				// }
-				// }
+				if (checkCollision) {
+					Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
+					if (door != null) {
+						checkCollision = false;
+						String[] relocation = ((String) door.getUserData()).split(",");
+						if (relocation[0].equals("teleport")) {
+							beforeEntrancePosition.x = player.getX();
+							beforeEntrancePosition.y = player.getX();
+							teleportToPosition.x = Float.parseFloat(relocation[1]);
+							teleportToPosition.y = Float.parseFloat(relocation[2]);
+							blockScreenToTeleport();
+						} else {
+							teleportToPosition.x = beforeEntrancePosition.x;
+							teleportToPosition.y = beforeEntrancePosition.y;
+							blockScreenToTeleport();
+						}
+						moveAllowed = false;
+					}
+				}
 
 				bulletsPool.updateBullets();
 
@@ -446,11 +473,39 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void actionButtonC() {
+		// gameHUD.nightRect.setVisible(!gameHUD.nightRect.isVisible());
 		pickItem();
 	}
 
 	public void releaseButtonC() {
 
+	}
+
+	public void startTimerDay() {
+		registerUpdateHandler(new TimerHandler(0.01f, true, new ITimerCallback() {
+			@Override
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				if (hourOfDay > 24) {
+					hourOfDay = 0;
+				}
+
+				if (hourOfDay > 18 || hourOfDay < 6) {
+					Util.radio = Util.radio + 0.005f;
+					if (Util.radio > 0.95f) {
+						Util.radio = 0.95f;
+					}
+
+				} else {
+					Util.radio = Util.radio - 0.005f;
+					if (Util.radio < 0.0f) {
+						Util.radio = 0.0f;
+					}
+				}
+
+				gameHUD.timeDay.setText("Hour: " + ((int) hourOfDay));
+				hourOfDay += 0.005f;
+			}
+		}));
 	}
 
 	public void pickItem() {
@@ -465,6 +520,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			detachChild(itemToPick);
 			itemToPick = null;
 			gameHUD.hideButtonC();
+			bulletCounter++;
+			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
 		}
 	}
 

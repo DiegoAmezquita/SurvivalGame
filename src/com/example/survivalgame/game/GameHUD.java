@@ -11,7 +11,10 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
+import android.util.Log;
+
 import com.example.survivalgame.ResourcesManager;
+import com.example.survivalgame.util.Popup;
 import com.example.survivalgame.util.SpotLight;
 
 public class GameHUD extends HUD {
@@ -21,20 +24,46 @@ public class GameHUD extends HUD {
 
 	Sprite buttonC;
 
-	public GameHUD(Camera camera, ResourcesManager resourcesManager, VertexBufferObjectManager vbom, GameScene gameScene) {
+	Rectangle nightRect;
+
+	Text timeDay;
+
+	Text bulletCounter;
+
+	VertexBufferObjectManager vbom;
+
+	ResourcesManager resourcesManager;
+
+	public GameHUD(Camera camera, VertexBufferObjectManager vbom, GameScene gameScene) {
 		this.mCamera = camera;
 		this.mGameScene = gameScene;
+		this.vbom = vbom;
 
-		// Rectangle rec = new Rectangle(0, 0, 800, 480, vbom);
-		// rec.setColor(Color.BLACK);
-		// rec.setShaderProgram(SpotLight.getInstance());
-		// attachChild(rec);
+		resourcesManager = ResourcesManager.getInstance();
+
+		nightRect = new Rectangle(0, 0, 800, 480, vbom);
+		nightRect.setColor(Color.BLACK);
+		nightRect.setShaderProgram(SpotLight.getInstance());
+		attachChild(nightRect);
 
 		Text lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
 		lifeText.setScale(0.5f);
 		lifeText.setText("Life: 100%");
 		lifeText.setPosition(-50, -10);
 		attachChild(lifeText);
+
+		timeDay = new Text(5, 5, resourcesManager.font, "Hour: 24", new TextOptions(HorizontalAlign.LEFT), vbom);
+		timeDay.setScale(0.5f);
+		timeDay.setText("Hour: 24");
+		timeDay.setPosition(400 - timeDay.getWidth() / 2, -10);
+		attachChild(timeDay);
+
+		bulletCounter = new Text(5, 5, resourcesManager.font, "Bullet: 99", new TextOptions(HorizontalAlign.LEFT), vbom);
+		bulletCounter.setScale(0.5f);
+		bulletCounter.setText("Bullets: 99");
+		bulletCounter.setPosition(800 - timeDay.getWidth(), -10);
+
+		attachChild(bulletCounter);
 
 		Text menuText = new Text(390, 470, resourcesManager.font, "Inventory", new TextOptions(HorizontalAlign.LEFT), vbom) {
 			@Override
@@ -118,6 +147,19 @@ public class GameHUD extends HUD {
 		camera.setHUD(this);
 
 		hideButtonC();
+		
+		createPopupConversation(400, 240);
+	}
+
+	public void createPopupConversation(float pX, float pY) {
+		Popup popup = new Popup(pX, pY,  vbom);
+		attachChild(popup);
+		popup.changeText("Soy Maximus");
+		registerTouchArea(popup);
+		
+
+		
+
 	}
 
 	public void showButtonC() {

@@ -36,28 +36,21 @@ public class MapGame {
 	public void loadMap(String path, Activity activity, Engine engine) {
 		try {
 
-			final TMXLoader tmxLoader = new TMXLoader(activity.getAssets(), engine.getTextureManager(), TextureOptions.BILINEAR_PREMULTIPLYALPHA, vbom, new ITMXTilePropertiesListener() {
+			final TMXLoader tmxLoader = new TMXLoader(activity.getAssets(), engine.getTextureManager(), TextureOptions.BILINEAR_PREMULTIPLYALPHA, vbom,
+					new ITMXTilePropertiesListener() {
 
-				@Override
-				public void onTMXTileWithPropertiesCreated(TMXTiledMap pTMXTiledMap, TMXLayer pTMXLayer, TMXTile pTMXTile, TMXProperties<TMXTileProperty> pTMXTileProperties) {
+						@Override
+						public void onTMXTileWithPropertiesCreated(TMXTiledMap pTMXTiledMap, TMXLayer pTMXLayer, TMXTile pTMXTile, TMXProperties<TMXTileProperty> pTMXTileProperties) {
 
-					if (!pTMXTileProperties.isEmpty()) {
-						String nameProperty = pTMXTileProperties.get(0).getName();
-						if (nameProperty.equals("teleport")) {
-							Sprite teleport = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
-							String value = pTMXTileProperties.get(0).getValue();
-							textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-							teleport.setUserData(nameProperty + "," + value.split("-")[0] + "," + value.split("-")[1]);
-							collisionManager.addDoor(teleport);
-						} else {
-							textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-							Sprite item = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
-							item.setUserData(nameProperty);
-							collisionManager.addItem(item);
+							if (!pTMXTileProperties.isEmpty()) {
+								String nameProperty = pTMXTileProperties.get(0).getName();
+								textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
+								Sprite item = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
+								item.setUserData(nameProperty);
+								collisionManager.addItem(item);
+							}
 						}
-					}
-				}
-			});
+					});
 			this.mTMXTiledMap = tmxLoader.loadFromAsset(path);
 
 		} catch (final TMXLoadException e) {
