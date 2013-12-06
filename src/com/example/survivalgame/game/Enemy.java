@@ -3,7 +3,6 @@ package com.example.survivalgame.game;
 import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
 
 import android.util.Log;
 
@@ -46,12 +45,12 @@ public class Enemy extends AnimatedSprite {
 		beforeMoveX = getX();
 		beforeMoveY = getY();
 
-		setRunningDown();
+		directionMove = Direction.NONE;
+
 	}
 
 	public void setRunningUp() {
 		if (directionMove != Direction.UP) {
-			Log.v("GAME", "UP");
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 36, 38, true);
 			directionMove = Direction.UP;
@@ -61,7 +60,6 @@ public class Enemy extends AnimatedSprite {
 
 	public void setRunningDown() {
 		if (directionMove != Direction.DOWN) {
-			Log.v("GAME", "DOWN");
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 0, 2, true);
 			directionMove = Direction.DOWN;
@@ -71,7 +69,6 @@ public class Enemy extends AnimatedSprite {
 
 	public void setRunningLeft() {
 		if (directionMove != Direction.LEFT) {
-			Log.v("GAME", "LEFT");
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 12, 14, true);
 			directionMove = Direction.LEFT;
@@ -81,7 +78,6 @@ public class Enemy extends AnimatedSprite {
 
 	public void setRunningRight() {
 		if (directionMove != Direction.RIGHT) {
-			Log.v("GAME", "RIGHT");
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 24, 26, true);
 			directionMove = Direction.RIGHT;
@@ -122,37 +118,37 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void stopRunning() {
-		// stopAnimation();
-		// if (directionMove != null)
-		// switch (directionMove) {
-		// case UP:
-		// setCurrentTileIndex(37);
-		// break;
-		// case DOWN:
-		// setCurrentTileIndex(1);
-		// break;
-		// case RIGHT:
-		// setCurrentTileIndex(25);
-		// break;
-		// case LEFT:
-		// setCurrentTileIndex(13);
-		// break;
-		// case UPRIGHT:
-		// setCurrentTileIndex(23);
-		// break;
-		// case UPLEFT:
-		// setCurrentTileIndex(35);
-		// break;
-		// case DOWNRIGHT:
-		// setCurrentTileIndex(11);
-		// break;
-		// case DOWNLEFT:
-		// setCurrentTileIndex(47);
-		// break;
-		// default:
-		// break;
-		// }
-		// directionMove = Direction.NONE;
+		stopAnimation();
+		if (directionMove != null)
+			switch (directionMove) {
+			case UP:
+				setCurrentTileIndex(37);
+				break;
+			case DOWN:
+				setCurrentTileIndex(1);
+				break;
+			case RIGHT:
+				setCurrentTileIndex(25);
+				break;
+			case LEFT:
+				setCurrentTileIndex(13);
+				break;
+			case UPRIGHT:
+				setCurrentTileIndex(23);
+				break;
+			case UPLEFT:
+				setCurrentTileIndex(35);
+				break;
+			case DOWNRIGHT:
+				setCurrentTileIndex(11);
+				break;
+			case DOWNLEFT:
+				setCurrentTileIndex(47);
+				break;
+			default:
+				break;
+			}
+		directionMove = Direction.NONE;
 	}
 
 	public void chaseEntity(RectangularShape shape) {
@@ -169,10 +165,8 @@ public class Enemy extends AnimatedSprite {
 
 			if (shapeX > centerX) {
 				setX(getX() + speed);
-				// setRunningRight();
 			} else if (shapeX < centerX) {
 				setX(getX() - speed);
-				// setRunningLeft();
 			}
 
 			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
@@ -181,15 +175,16 @@ public class Enemy extends AnimatedSprite {
 
 			if (shapeY > centerY) {
 				setY(getY() + speed);
-				// setRunningDown();
 			} else if (shapeY < centerY) {
 				setY(getY() - speed);
-				// setRunningUp();
 			}
 
 			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
 				setY(beforeMoveY);
 			}
+			
+			setZIndex((int) getY());
+			
 		} else {
 			Log.v("GAME", "Se detiene");
 			stopRunning();
@@ -212,31 +207,31 @@ public class Enemy extends AnimatedSprite {
 		distance = (float) Math.sqrt(distance);
 
 		if (distanceX > 0) {
-			if(distanceY>0){
-				if(distanceX>distanceY){
+			if (distanceY > 0) {
+				if (distanceX > distanceY) {
 					setRunningLeft();
-				}else{
+				} else {
 					setRunningUp();
 				}
-			}else{
-				if(distanceX>(distanceY*-1)){
+			} else {
+				if (distanceX > (distanceY * -1)) {
 					setRunningLeft();
-				}else{
+				} else {
 					setRunningDown();
 				}
 			}
-			
+
 		} else {
-			if(distanceY>0){
-				if((distanceX*-1)>distanceY){
+			if (distanceY > 0) {
+				if ((distanceX * -1) > distanceY) {
 					setRunningRight();
-				}else{
+				} else {
 					setRunningUp();
 				}
-			}else{
-				if((distanceX*-1)>(distanceY*-1)){
+			} else {
+				if ((distanceX * -1) > (distanceY * -1)) {
 					setRunningRight();
-				}else{
+				} else {
 					setRunningDown();
 				}
 			}

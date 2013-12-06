@@ -76,8 +76,8 @@ public class GameHUD extends HUD {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
-					mCamera.setHUD(mGameScene.inventoryHud);
-					mGameScene.populateInventory();
+					mCamera.setHUD(mGameScene.inventoryHUD);
+					mGameScene.inventoryHUD.populateInventory();
 					mGameScene.movementOnScreenControl.setVisible(false);
 					mGameScene.movementOnScreenControl.setIgnoreUpdate(true);
 					return true;

@@ -1,11 +1,5 @@
 package com.example.survivalgame.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnScreenControlListener;
 import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
@@ -18,11 +12,8 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.entity.text.Text;
-import org.andengine.entity.text.TextOptions;
 import org.andengine.extension.tmx.TMXLayer;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
 import android.graphics.PointF;
@@ -31,14 +22,13 @@ import android.util.Log;
 
 import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
-import com.example.survivalgame.TextureGameManager;
 import com.example.survivalgame.SceneManager.SceneType;
 import com.example.survivalgame.util.Util;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
-	public HUD inventoryHud;
-	private GameHUD gameHUD;
+	public GameHUD gameHUD;
+	public InventoryHUD inventoryHUD;
 	private Player player;
 	private MapGame map;
 
@@ -62,9 +52,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	private static final String TAG = "GAME";
 	float x = 0, y = 0;
 	float speed = 1.0f;
-	HashMap<String, Integer> inventoryPlayer;
-	ArrayList<ItemInventory> itemsAlreadyLoaded;
-	int posInventoryItemY = 100;
+
 	PointF beforeEntrancePosition;
 	PointF teleportToPosition;
 	Rectangle enterBuilding;
@@ -73,6 +61,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	BulletsPool bulletsPool;
 
 	EnemiesPool enemiesPool;
+
+	InventoryPlayer inventoryPlayer;
 
 	RectangularShape itemToPick;
 
@@ -91,77 +81,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
 	}
 
-	public void createInventory() {
-		inventoryHud = new HUD();
-
-		Rectangle background = new Rectangle(0, 0, 800, 480, vbom);
-		background.setColor(Color.BLACK);
-		inventoryHud.attachChild(background);
-
-		Rectangle menuBorder = new Rectangle(0, 0, 500, 300, vbom);
-		menuBorder.setPosition(400 - menuBorder.getWidth() / 2, 240 - menuBorder.getHeight() / 2);
-		inventoryHud.attachChild(menuBorder);
-
-		Rectangle menuBackground = new Rectangle(0, 0, 490, 290, vbom);
-		menuBackground.setColor(Color.BLACK);
-		menuBackground.setPosition(400 - menuBackground.getWidth() / 2, 240 - menuBackground.getHeight() / 2);
-		inventoryHud.attachChild(menuBackground);
-
-		Text inventoryText = new Text(20, 5, resourcesManager.font, "Inventario", new TextOptions(HorizontalAlign.LEFT), vbom);
-		inventoryText.setPosition(400 - inventoryText.getWidth() / 2, 240 - inventoryText.getHeight() / 2);
-		inventoryHud.attachChild(inventoryText);
-
-		Text closeText = new Text(390, 470, resourcesManager.font, "Close", new TextOptions(HorizontalAlign.LEFT), vbom) {
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if (pSceneTouchEvent.isActionDown()) {
-					camera.setHUD(gameHUD);
-					movementOnScreenControl.setVisible(true);
-					movementOnScreenControl.setIgnoreUpdate(false);
-				}
-				return true;
-			}
-		};
-
-		inventoryHud.registerTouchArea(closeText);
-		closeText.setScale(0.7f);
-		closeText.setPosition(400 - closeText.getWidth() / 2, 390 - closeText.getHeight());
-
-		inventoryHud.attachChild(closeText);
-
-	}
-
-	public void populateInventory() {
-		Iterator<Map.Entry<String, Integer>> entries = inventoryPlayer.entrySet().iterator();
-
-		while (entries.hasNext()) {
-			Map.Entry<String, Integer> entry = entries.next();
-			Log.v(TAG, "Key = " + entry.getKey() + ", Value = " + entry.getValue());
-
-			int position = checkAlreadyLoaded(entry.getKey());
-			if (position == -1) {
-				ItemInventory itemTest = new ItemInventory(180, posInventoryItemY, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), resourcesManager,
-						vbom);
-				itemTest.setQuantity(entry.getValue());
-				inventoryHud.attachChild(itemTest);
-				itemsAlreadyLoaded.add(itemTest);
-				posInventoryItemY += 40;
-			} else {
-				ItemInventory itemTempo = itemsAlreadyLoaded.get(position);
-				itemTempo.setQuantity(entry.getValue());
-				itemsAlreadyLoaded.set(position, itemTempo);
-			}
-
-		}
-	}
-
-	public int checkAlreadyLoaded(String key) {
-		for (int i = 0; i < itemsAlreadyLoaded.size(); i++) {
-			if (itemsAlreadyLoaded.get(i).name.equals(key)) {
-				return i;
-			}
-		}
-		return -1;
+	private void createInventoryHUD() {
+		inventoryHUD = new InventoryHUD(camera, this, vbom);
 	}
 
 	public void createMap() {
@@ -194,8 +115,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void createControl() {
 		final float x1 = 20;
 		final float y1 = 450 - resourcesManager.mOnScreenControlBaseTextureRegion.getHeight();
-		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion,
-				0.1f, vbom, new IAnalogOnScreenControlListener() {
+		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion, 0.1f, vbom,
+				new IAnalogOnScreenControlListener() {
 					@Override
 					public void onControlChange(final BaseOnScreenControl pBaseOnScreenControl, final float pValueX, final float pValueY) {
 
@@ -286,11 +207,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		teleportToPosition = new PointF();
 
 		collisionManager = CollisionManager.getInstance();
-		itemsAlreadyLoaded = new ArrayList<ItemInventory>();
-		inventoryPlayer = new HashMap<String, Integer>();
+
 		bulletsPool = new BulletsPool(bulletCounter, vbom);
 
 		enemiesPool = new EnemiesPool(20, this, vbom);
+
+		inventoryPlayer = InventoryPlayer.getInstance();
 
 	}
 
@@ -396,6 +318,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		init();
 		createBackground();
 		createHUD();
+		createInventoryHUD();
 		createMap();
 		createInitialBuildings();
 
@@ -414,7 +337,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		createPlayer();
 		createControl();
-		createInventory();
 		createLimits();
 		startTimerDay();
 		createInitialEnemies();
@@ -442,9 +364,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 						player.setY(player.getY() + y);
 						player.setZIndex((int) player.getY());
 						player.shadow.setZIndex((int) player.getY());
-
-						// light.setPosition((player.getX()+player.getWidth()/2)-(light.getWidth()/2),
-						// (player.getY()+player.getHeight()/2)-(light.getHeight()/2));
 					}
 
 					if (collisionManager.checkCollisionObstacles(player.feet)) {
@@ -553,11 +472,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void pickItem() {
 		if (itemToPick != null) {
 			String key = (String) itemToPick.getUserData();
-			if (inventoryPlayer.containsKey(key)) {
-				int value = inventoryPlayer.get(key) + 1;
-				inventoryPlayer.put(key, value);
+			if (inventoryPlayer.inventory.containsKey(key)) {
+				int value = inventoryPlayer.inventory.get(key) + 1;
+				inventoryPlayer.inventory.put(key, value);
 			} else {
-				inventoryPlayer.put(key, 1);
+				inventoryPlayer.inventory.put(key, 1);
 			}
 			detachChild(itemToPick);
 			itemToPick = null;
@@ -591,29 +510,32 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void damagePlayer() {
 		if (timeElapsedBetweenDamage == 2) {
-			timeElapsedBetweenDamage = 0;
-			registerUpdateHandler(new TimerHandler(1f, true, new ITimerCallback() {
-				@Override
-				public void onTimePassed(TimerHandler pTimerHandler) {
-					timeElapsedBetweenDamage++;
-					if (timeElapsedBetweenDamage == 2) {
-						life = life - 10;
-						gameHUD.lifeText.setText("Life: " + life+"%");
-						unregisterUpdateHandler(pTimerHandler);
-						if (life == 0) {
-							endGame();
+			life = life - 10;
+			gameHUD.lifeText.setText("Life: " + life + "%");
+			if (life == 0) {
+				endGame();
+			} else {
+				timeElapsedBetweenDamage = 0;
+				registerUpdateHandler(new TimerHandler(1f, true, new ITimerCallback() {
+					@Override
+					public void onTimePassed(TimerHandler pTimerHandler) {
+						timeElapsedBetweenDamage++;
+						if (timeElapsedBetweenDamage == 2) {
+							unregisterUpdateHandler(pTimerHandler);
 						}
 					}
-
-				}
-			}));
+				}));
+			}
 		}
-
 	}
 
 	public void endGame() {
 		gameHUD.createPopupConversation(400, 240);
 		gameOver = true;
+	}
+	
+	public void useItem(ItemInventory item){
+		
 	}
 
 	@Override
