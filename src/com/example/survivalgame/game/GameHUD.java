@@ -1,5 +1,7 @@
 package com.example.survivalgame.game;
 
+import java.util.ArrayList;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.entity.primitive.Rectangle;
@@ -11,7 +13,6 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
-import android.util.Log;
 
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Popup;
@@ -29,10 +30,14 @@ public class GameHUD extends HUD {
 	Text timeDay;
 
 	Text bulletCounter;
+	
+	Text lifeText;
 
 	VertexBufferObjectManager vbom;
 
 	ResourcesManager resourcesManager;
+
+	ArrayList<Popup> arrayPopups;
 
 	public GameHUD(Camera camera, VertexBufferObjectManager vbom, GameScene gameScene) {
 		this.mCamera = camera;
@@ -41,12 +46,14 @@ public class GameHUD extends HUD {
 
 		resourcesManager = ResourcesManager.getInstance();
 
+		arrayPopups = new ArrayList<Popup>();
+
 		nightRect = new Rectangle(0, 0, 800, 480, vbom);
 		nightRect.setColor(Color.BLACK);
 		nightRect.setShaderProgram(SpotLight.getInstance());
 		attachChild(nightRect);
 
-		Text lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
+		lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
 		lifeText.setScale(0.5f);
 		lifeText.setText("Life: 100%");
 		lifeText.setPosition(-50, -10);
@@ -147,19 +154,29 @@ public class GameHUD extends HUD {
 		camera.setHUD(this);
 
 		hideButtonC();
+
 		
-		createPopupConversation(400, 240);
 	}
 
 	public void createPopupConversation(float pX, float pY) {
-		Popup popup = new Popup(pX, pY,  vbom);
+		Popup popup = new Popup(pX, pY, vbom);
 		attachChild(popup);
-		popup.changeText("Soy Maximus");
+		popup.changeText("Game Over");
+		popup.setPosition(pX-popup.getWidth()/2, pY-popup.getHeightScaled());
 		registerTouchArea(popup);
-		
 
-		
+		arrayPopups.add(popup);
+	}
 
+	public void removePopup(int ID) {
+		for (Popup popup : arrayPopups) {
+			if (popup.getID() == ID) {
+				detachChild(popup);
+				unregisterTouchArea(popup);
+				arrayPopups.remove(popup);
+				break;
+			}
+		}
 	}
 
 	public void showButtonC() {

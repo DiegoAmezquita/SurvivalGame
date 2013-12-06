@@ -12,7 +12,7 @@ public class Util {
 	public static float widthScreen;
 	public static float heightScreen;
 
-	public static float radio = 0.95f;
+	public static float oppacityScreen = 0.95f;
 	
 	public static float ratioWidth = 1f;
 	public static float ratioHeight = 1f;

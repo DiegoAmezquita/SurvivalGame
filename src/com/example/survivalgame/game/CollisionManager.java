@@ -10,7 +10,8 @@ public class CollisionManager {
 	ArrayList<RectangularShape> items;
 
 	ArrayList<RectangularShape> doors;
-
+	
+	ArrayList<Enemy> enemies;
 
 	static CollisionManager instance;
 
@@ -18,6 +19,7 @@ public class CollisionManager {
 		obstacles = new ArrayList<RectangularShape>();
 		items = new ArrayList<RectangularShape>();
 		doors = new ArrayList<RectangularShape>();
+		enemies = new ArrayList<Enemy>();
 	}
 
 	public static CollisionManager getInstance() {
@@ -39,7 +41,18 @@ public class CollisionManager {
 		doors.add(shape);
 	}
 
-
+	public void removeObstacle(RectangularShape shape) {
+		obstacles.remove(shape);
+	}
+	
+	
+	public void addEnemy(Enemy enemy) {
+		enemies.add(enemy);
+	}
+	
+	public void removeEnemy(Enemy enemy) {
+		enemies.remove(enemy);
+	}
 
 	public boolean checkCollisionObstacles(RectangularShape shape) {
 		for (int i = 0; i < obstacles.size(); i++) {
@@ -66,6 +79,20 @@ public class CollisionManager {
 			}
 		}
 		return null;
+	}
+	
+	
+	public boolean checkCollisionEnemy(RectangularShape shape) {
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy enemy = enemies.get(i);
+			if (shape.collidesWith(enemy)) {
+				removeEnemy(enemy);
+				enemy.getParent().detachChild(enemy);
+				enemy.release();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void emptyAll() {

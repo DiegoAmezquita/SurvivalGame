@@ -66,6 +66,8 @@ public class ResourcesManager {
 
 	public ITiledTextureRegion player_region;
 	
+	public ITiledTextureRegion enemies_region;
+	
 	public ITiledTextureRegion explosion_region;
 
 	public ITextureRegion mOnScreenControlBaseTextureRegion;
@@ -142,6 +144,8 @@ public class ResourcesManager {
 		gameTextureAtlas.addEmptyTextureAtlasSource(0, 0, 1024, 1024);
 
 		player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 4, 4);
+		
+		enemies_region= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "zombies.png", 12, 8);
 		
 		explosion_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "explosion.png", 3, 4);
 

@@ -16,6 +16,8 @@ public class Popup extends Rectangle {
 
 	Text popupText;
 
+	int ID;
+	
 	public Popup(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(pX, pY, 100, 50, pVertexBufferObjectManager);
 
@@ -47,5 +49,15 @@ public class Popup extends Rectangle {
 		}
 		return true;
 	}
+
+	public int getID() {
+		return ID;
+	}
+
+	public void setID(int iD) {
+		ID = iD;
+	}
+	
+	
 
 }

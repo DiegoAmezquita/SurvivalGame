@@ -97,7 +97,7 @@ public class SpotLight extends ShaderProgram {
 
 		GLES20.glUniformMatrix4fv(SpotLight.sUniformModelViewPositionMatrixLocation, 1, false, pGLState.getModelViewProjectionGLMatrix(), 0);
 
-		GLES20.glUniform4f(SpotLight.sUniformData, Util.widthScreen/2, Util.heightScreen/2, 0.2f, Util.radio);
+		GLES20.glUniform4f(SpotLight.sUniformData, Util.widthScreen/2, Util.heightScreen/2, 0.2f, Util.oppacityScreen);
 	}
 
 	@Override

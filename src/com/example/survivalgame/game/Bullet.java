@@ -74,7 +74,7 @@ public class Bullet extends Rectangle {
 			Log.e("GAME", "Bullet free");
 			release();
 			getParent().detachChild(this);
-		} else if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
+		} else if (CollisionManager.getInstance().checkCollisionObstacles(this)||CollisionManager.getInstance().checkCollisionEnemy(this)) {
 
 			Log.e("GAME", "Bullet free");
 			release();

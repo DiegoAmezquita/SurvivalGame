@@ -52,7 +52,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	boolean checkCollision = true;
 
-	float hourOfDay;
+	float hourOfDay = 6;
+
+	boolean gameOver = false;
 
 	Sprite light;
 
@@ -70,7 +72,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	BulletsPool bulletsPool;
 
+	EnemiesPool enemiesPool;
+
 	RectangularShape itemToPick;
+
+	int life = 100;
+
+	int timeElapsedBetweenDamage = 2;
 
 	private void createBackground() {
 		setBackground(new Background(Color.BLACK));
@@ -78,6 +86,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	private void createHUD() {
 		gameHUD = new GameHUD(camera, vbom, this);
+		bulletCounter = 20;
+		Log.v("GAME", "Bullets " + bulletCounter);
 		gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
 	}
 
@@ -183,7 +193,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void createControl() {
 		final float x1 = 20;
-		final float y1 = 470 - resourcesManager.mOnScreenControlBaseTextureRegion.getHeight();
+		final float y1 = 450 - resourcesManager.mOnScreenControlBaseTextureRegion.getHeight();
 		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion,
 				0.1f, vbom, new IAnalogOnScreenControlListener() {
 					@Override
@@ -263,6 +273,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		Log.v("GAME", "X: " + layer.getX() + " Y: " + layer.getY());
 
+		building.buildingFront.setZIndex((int) building.buildingFront.getY());
+
 		attachChild(layer);
 		attachChild(building.buildingFront);
 
@@ -277,7 +289,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		itemsAlreadyLoaded = new ArrayList<ItemInventory>();
 		inventoryPlayer = new HashMap<String, Integer>();
 		bulletsPool = new BulletsPool(bulletCounter, vbom);
-		
+
+		enemiesPool = new EnemiesPool(20, this, vbom);
 
 	}
 
@@ -362,6 +375,22 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	}
 
+	public void createInitialEnemies() {
+		for (int i = 0; i < 1; i++) {
+			Enemy enemy = enemiesPool.getEnemy();
+			int newX = (int) (Math.random() * 1000);
+			int newY = (int) (Math.random() * 800);
+
+			Log.v("GAME", "zombie x " + newX);
+			Log.v("GAME", "zombie y " + newY);
+
+			enemy.setPosition(newX, newY);
+			enemy.setBusy();
+			attachChild(enemy);
+		}
+
+	}
+
 	@Override
 	public void createScene() {
 		init();
@@ -388,6 +417,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		createInventory();
 		createLimits();
 		startTimerDay();
+		createInitialEnemies();
 
 		// pScene.attachChild(light2);
 
@@ -399,56 +429,65 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			@Override
 			public void onUpdate(float pSecondsElapsed) {
 
-				PointF lastPosition = new PointF(player.getX(), player.getY());
-				boolean canMove = true;
+				if (!gameOver) {
 
-				x = x * speed;
-				y = y * speed;
+					PointF lastPosition = new PointF(player.getX(), player.getY());
+					boolean canMove = true;
 
-				if (moveAllowed) {
-					player.setX(player.getX() + x);
-					player.setY(player.getY() + y);
+					x = x * speed;
+					y = y * speed;
 
-					// light.setPosition((player.getX()+player.getWidth()/2)-(light.getWidth()/2),
-					// (player.getY()+player.getHeight()/2)-(light.getHeight()/2));
-				}
+					if (moveAllowed) {
+						player.setX(player.getX() + x);
+						player.setY(player.getY() + y);
+						player.setZIndex((int) player.getY());
+						player.shadow.setZIndex((int) player.getY());
 
-				if (collisionManager.checkCollisionObstacles(player.feet)) {
-					canMove = false;
-				}
-
-				if (!canMove && camera.getHUD() == gameHUD) {
-					player.setPosition(lastPosition.x, lastPosition.y);
-
-				}
-
-				checkPickItem();
-
-				if (checkCollision) {
-					Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
-					if (door != null) {
-						checkCollision = false;
-						String[] relocation = ((String) door.getUserData()).split(",");
-						if (relocation[0].equals("teleport")) {
-							beforeEntrancePosition.x = player.getX();
-							beforeEntrancePosition.y = player.getX();
-							teleportToPosition.x = Float.parseFloat(relocation[1]);
-							teleportToPosition.y = Float.parseFloat(relocation[2]);
-							blockScreenToTeleport();
-						} else {
-							teleportToPosition.x = beforeEntrancePosition.x;
-							teleportToPosition.y = beforeEntrancePosition.y;
-							blockScreenToTeleport();
-						}
-						moveAllowed = false;
+						// light.setPosition((player.getX()+player.getWidth()/2)-(light.getWidth()/2),
+						// (player.getY()+player.getHeight()/2)-(light.getHeight()/2));
 					}
+
+					if (collisionManager.checkCollisionObstacles(player.feet)) {
+						canMove = false;
+					}
+
+					if (!canMove && camera.getHUD() == gameHUD) {
+						player.setPosition(lastPosition.x, lastPosition.y);
+						player.setZIndex((int) player.getY());
+						player.shadow.setZIndex((int) player.getY());
+					}
+					sortChildren();
+
+					checkPickItem();
+
+					if (checkCollision) {
+						Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
+						if (door != null) {
+							checkCollision = false;
+							String[] relocation = ((String) door.getUserData()).split(",");
+							if (relocation[0].equals("teleport")) {
+								beforeEntrancePosition.x = player.getX();
+								beforeEntrancePosition.y = player.getX();
+								teleportToPosition.x = Float.parseFloat(relocation[1]);
+								teleportToPosition.y = Float.parseFloat(relocation[2]);
+								blockScreenToTeleport();
+							} else {
+								teleportToPosition.x = beforeEntrancePosition.x;
+								teleportToPosition.y = beforeEntrancePosition.y;
+								blockScreenToTeleport();
+							}
+							moveAllowed = false;
+						}
+					}
+
+					bulletsPool.updateBullets();
+
+					Util.centerX = Util.centerX + 1;
+					Util.centerY = Util.centerY + 1;
+
+					enemiesPool.updateEnemies(player);
+
 				}
-
-				bulletsPool.updateBullets();
-
-				Util.centerX = Util.centerX + 1;
-				Util.centerY = Util.centerY + 1;
-
 			}
 		});
 
@@ -457,6 +496,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void actionButtonA() {
+
+		float[] popupPosition = camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() + player.getWidth() / 2, player.getY());
+		gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
 		speed = 1.1f;
 	}
 
@@ -490,15 +532,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 				}
 
 				if (hourOfDay > 18 || hourOfDay < 6) {
-					Util.radio = Util.radio + 0.005f;
-					if (Util.radio > 0.95f) {
-						Util.radio = 0.95f;
+					Util.oppacityScreen = Util.oppacityScreen + 0.005f;
+					if (Util.oppacityScreen > 0.95f) {
+						Util.oppacityScreen = 0.95f;
 					}
 
 				} else {
-					Util.radio = Util.radio - 0.005f;
-					if (Util.radio < 0.0f) {
-						Util.radio = 0.0f;
+					Util.oppacityScreen = Util.oppacityScreen - 0.005f;
+					if (Util.oppacityScreen < 0.0f) {
+						Util.oppacityScreen = 0.0f;
 					}
 				}
 
@@ -545,6 +587,33 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		// TODO code responsible for disposing scene
 		// removing all game scene objects.
+	}
+
+	public void damagePlayer() {
+		if (timeElapsedBetweenDamage == 2) {
+			timeElapsedBetweenDamage = 0;
+			registerUpdateHandler(new TimerHandler(1f, true, new ITimerCallback() {
+				@Override
+				public void onTimePassed(TimerHandler pTimerHandler) {
+					timeElapsedBetweenDamage++;
+					if (timeElapsedBetweenDamage == 2) {
+						life = life - 10;
+						gameHUD.lifeText.setText("Life: " + life+"%");
+						unregisterUpdateHandler(pTimerHandler);
+						if (life == 0) {
+							endGame();
+						}
+					}
+
+				}
+			}));
+		}
+
+	}
+
+	public void endGame() {
+		gameHUD.createPopupConversation(400, 240);
+		gameOver = true;
 	}
 
 	@Override

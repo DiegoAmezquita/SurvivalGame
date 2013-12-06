@@ -19,7 +19,6 @@ import com.example.survivalgame.util.SpotLight;
 import com.example.survivalgame.util.Util;
 
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 
 /**
