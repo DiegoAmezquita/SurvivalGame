@@ -48,10 +48,10 @@ public class GameHUD extends HUD {
 
 		arrayPopups = new ArrayList<Popup>();
 
-		nightRect = new Rectangle(0, 0, 800, 480, vbom);
-		nightRect.setColor(Color.BLACK);
-		nightRect.setShaderProgram(SpotLight.getInstance());
-		attachChild(nightRect);
+//		nightRect = new Rectangle(0, 0, 800, 480, vbom);
+//		nightRect.setColor(Color.BLACK);
+//		nightRect.setShaderProgram(SpotLight.getInstance());
+//		attachChild(nightRect);
 
 		lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
 		lifeText.setScale(0.5f);

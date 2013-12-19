@@ -1,5 +1,7 @@
 package com.example.survivalgame.util;
 
+import android.graphics.Point;
+
 public class Util {
 
 	public enum Direction {
@@ -16,5 +18,13 @@ public class Util {
 	
 	public static float ratioWidth = 1f;
 	public static float ratioHeight = 1f;
+	
+	
+	public static Point getRandomPosition(){
+		Point randomPosition = new Point();
+		randomPosition.x = (int)(Math.random()*500);
+		randomPosition.y = (int)(Math.random()*500);
+		return randomPosition;
+	}
 
 }

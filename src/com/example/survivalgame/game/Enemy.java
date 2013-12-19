@@ -1,12 +1,15 @@
 package com.example.survivalgame.game;
 
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.graphics.Point;
 import android.util.Log;
 
 import com.example.survivalgame.ResourcesManager;
+import com.example.survivalgame.util.Util;
 import com.example.survivalgame.util.Util.Direction;
 
 public class Enemy extends AnimatedSprite {
@@ -34,7 +37,6 @@ public class Enemy extends AnimatedSprite {
 
 	public Enemy(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, GameScene gameScene) {
 		super(pX, pY, ResourcesManager.getInstance().enemies_region, pVertexBufferObjectManager);
-		// setColor(Color.RED);
 
 		this.mGameScene = gameScene;
 		setScale(1.6f);
@@ -50,7 +52,7 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningUp() {
-		if (directionMove != Direction.UP) {
+		if (directionMove != Direction.UP||!isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 36, 38, true);
 			directionMove = Direction.UP;
@@ -59,7 +61,7 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningDown() {
-		if (directionMove != Direction.DOWN) {
+		if (directionMove != Direction.DOWN||!isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 0, 2, true);
 			directionMove = Direction.DOWN;
@@ -68,7 +70,7 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningLeft() {
-		if (directionMove != Direction.LEFT) {
+		if (directionMove != Direction.LEFT||!isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 12, 14, true);
 			directionMove = Direction.LEFT;
@@ -77,45 +79,16 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningRight() {
-		if (directionMove != Direction.RIGHT) {
+		if (directionMove != Direction.RIGHT||!isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 24, 26, true);
 			directionMove = Direction.RIGHT;
 			directionPointing = Direction.RIGHT;
 		}
 	}
-
-	public void setRunningUpRight() {
-		// if (directionMove != Direction.UPRIGHT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 18, 23, true);
-		// directionMove = Direction.UPRIGHT;
-		// }
-	}
-
-	public void setRunningUpLeft() {
-		// if (directionMove != Direction.UPLEFT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 30, 35, true);
-		// directionMove = Direction.UPLEFT;
-		// }
-	}
-
-	public void setRunningDownRight() {
-		// if (directionMove != Direction.DOWNRIGHT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 6, 11, true);
-		// directionMove = Direction.DOWNRIGHT;
-		// }
-	}
-
-	public void setRunningDownLeft() {
-		// if (directionMove != Direction.DOWNLEFT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 42, 47, true);
-		// directionMove = Direction.DOWNLEFT;
-		// }
-	}
+	
+	
+	
 
 	public void stopRunning() {
 		stopAnimation();
@@ -153,6 +126,7 @@ public class Enemy extends AnimatedSprite {
 
 	public void chaseEntity(RectangularShape shape) {
 		checkIfHasToChase(shape);
+
 		if (hasToChase) {
 			shapeX = shape.getX() + shape.getWidth() / 2;
 			shapeY = shape.getY() + shape.getHeight() / 2;
@@ -160,35 +134,9 @@ public class Enemy extends AnimatedSprite {
 			centerX = getX() + getWidth() / 2;
 			centerY = getY() + getWidth() / 2;
 
-			beforeMoveX = getX();
-			beforeMoveY = getY();
-
-			if (shapeX > centerX) {
-				setX(getX() + speed);
-			} else if (shapeX < centerX) {
-				setX(getX() - speed);
-			}
-
-			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
-				setX(beforeMoveX);
-			}
-
-			if (shapeY > centerY) {
-				setY(getY() + speed);
-			} else if (shapeY < centerY) {
-				setY(getY() - speed);
-			}
-
-			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
-				setY(beforeMoveY);
-			}
 			
-			setZIndex((int) getY());
-			
-		} else {
-			Log.v("GAME", "Se detiene");
-			stopRunning();
 		}
+
 	}
 
 	private void checkIfHasToChase(RectangularShape shape) {
@@ -199,45 +147,69 @@ public class Enemy extends AnimatedSprite {
 		centerX = getX() + getWidth() / 2;
 		centerY = getY() + getWidth() / 2;
 
-		float distanceX = centerX - shapeX;
-		float distanceY = centerY - shapeY;
+		float distanceX = Math.abs(centerX - shapeX);
+		float distanceY = Math.abs(centerY - shapeY);
 
-		float distance = (float) (Math.pow(Math.abs(distanceX), 2) + Math.pow(Math.abs(distanceY), 2));
+		float distance = (float) (Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
 
 		distance = (float) Math.sqrt(distance);
 
-		if (distanceX > 0) {
-			if (distanceY > 0) {
+		if (shapeX >= centerX) {
+			if (shapeY >= centerY) {
+				if (distanceX > distanceY) {
+					setRunningRight();
+				} else {
+					setRunningDown();
+				}
+			}else{
+				if (distanceX > distanceY) {
+					setRunningRight();
+				} else {
+					setRunningUp();
+				}
+			}
+		}else{
+			if (shapeY >= centerY) {
+				if (distanceX > distanceY) {
+					setRunningLeft();
+				} else {
+					setRunningDown();
+				}
+			}else{
 				if (distanceX > distanceY) {
 					setRunningLeft();
 				} else {
 					setRunningUp();
 				}
-			} else {
-				if (distanceX > (distanceY * -1)) {
-					setRunningLeft();
-				} else {
-					setRunningDown();
-				}
-			}
-
-		} else {
-			if (distanceY > 0) {
-				if ((distanceX * -1) > distanceY) {
-					setRunningRight();
-				} else {
-					setRunningUp();
-				}
-			} else {
-				if ((distanceX * -1) > (distanceY * -1)) {
-					setRunningRight();
-				} else {
-					setRunningDown();
-				}
 			}
 		}
 
 		if (distance < 200) {
+			beforeMoveX = getX();
+			beforeMoveY = getY();
+
+			if (shapeX > centerX) {
+				setX(getX() + (distanceX / distance) * speed);
+			} else if (shapeX < centerX) {
+				setX(getX() - (distanceX / distance) * speed);
+			}
+
+			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
+				setX(beforeMoveX);
+			}
+
+			if (shapeY > centerY) {
+				setY(getY() + (distanceY / distance) * speed);
+			} else if (shapeY < centerY) {
+				setY(getY() - (distanceY / distance) * speed);
+			}
+
+			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
+				setY(beforeMoveY);
+			}
+
+			setZIndex((int) getY());
+
 			if (collidesWith(shape)) {
 				mGameScene.damagePlayer();
 			}

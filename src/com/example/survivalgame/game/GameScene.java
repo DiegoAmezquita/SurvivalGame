@@ -97,7 +97,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void createPlayer() {
-		player = new Player(200, 200, vbom, camera) {
+		player = new Player(500, 500, vbom, camera) {
 			@Override
 			public void onDie() {
 			}
@@ -315,6 +315,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	@Override
 	public void createScene() {
+		camera.setZoomFactor(0.5f);
+		
 		init();
 		createBackground();
 		createHUD();
@@ -416,8 +418,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void actionButtonA() {
 
-		float[] popupPosition = camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() + player.getWidth() / 2, player.getY());
-		gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
+//		float[] popupPosition = camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() + player.getWidth() / 2, player.getY());
+//		gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
 		speed = 1.1f;
 	}
 
