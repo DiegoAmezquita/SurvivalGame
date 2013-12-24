@@ -55,10 +55,10 @@ public class Bullet extends Rectangle {
 		if (directionMove != null)
 			switch (directionMove) {
 			case UP:
-				setY(getY() - 10);
+				setY(getY() + 10);
 				break;
 			case DOWN:
-				setY(getY() + 10);
+				setY(getY() - 10);
 				break;
 			case RIGHT:
 				setX(getX() + 10);

@@ -42,7 +42,7 @@ public class MainMenuScene extends BaseScene implements IOnMenuItemClickListener
 	}
 
 	private void createBackground() {
-		attachChild(new Sprite(0, 0, resourcesManager.menu_background_region, vbom) {
+		attachChild(new Sprite(400, 240, resourcesManager.menu_background_region, vbom) {
 			@Override
 			protected void preDraw(GLState pGLState, Camera pCamera) {
 				super.preDraw(pGLState, pCamera);

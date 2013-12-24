@@ -45,9 +45,9 @@ public class MapGame {
 							if (!pTMXTileProperties.isEmpty()) {
 								String nameProperty = pTMXTileProperties.get(0).getName();
 								textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-								Sprite item = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
-								item.setUserData(nameProperty);
-								collisionManager.addItem(item);
+//								Sprite item = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
+//								item.setUserData(nameProperty);
+//								collisionManager.addItem(item);
 							}
 						}
 					});
@@ -66,11 +66,11 @@ public class MapGame {
 		}
 	}
 
-	public int getWidth() {
+	public float getWidth() {
 		return mTMXTiledMap.getTMXLayers().get(0).getWidth();
 	}
 
-	public int getHeight() {
+	public float getHeight() {
 		return mTMXTiledMap.getTMXLayers().get(0).getHeight();
 	}
 

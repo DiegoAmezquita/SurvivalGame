@@ -13,7 +13,7 @@ import org.andengine.extension.tmx.TMXTiledMap;
 import org.andengine.extension.tmx.util.exception.TMXLoadException;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
 
 import android.content.res.AssetManager;
@@ -45,7 +45,7 @@ public class Building {
 		collisionManager = CollisionManager.getInstance();
 		textureManager = TextureGameManager.getInstance();
 		loadTMX();
-		createBuildingFront();
+//		createBuildingFront();
 		createWalls();
 	}
 
@@ -61,14 +61,14 @@ public class Building {
 					if (!pTMXTileProperties.isEmpty()) {
 						String nameProperty = pTMXTileProperties.get(0).getName();
 						if (nameProperty.equals("teleport")) {
-							Sprite teleport = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
+							Sprite teleport = new Sprite(pTMXTile.getTileColumn(), pTMXTile.getTileRow(), pTMXTile.getTextureRegion(), vbom);
 							String value = pTMXTileProperties.get(0).getValue();
 							textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
 							teleport.setUserData(nameProperty + "," + value.split("-")[0] + "," + value.split("-")[1]);
 							collisionManager.addDoor(teleport);
 						} else {
 							textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-							Sprite item = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
+							Sprite item = new Sprite(pTMXTile.getTileColumn(), pTMXTile.getTileRow(), pTMXTile.getTextureRegion(), vbom);
 							item.setUserData(nameProperty);
 							collisionManager.addItem(item);
 						}
@@ -88,10 +88,10 @@ public class Building {
 		collisionManager.addObstacle(buildingFront);
 		
 		
-		Rectangle door = new Rectangle(buildingFront.getWidth()/2-16, buildingFront.getHeight()-30, 32, 32, vbom);
+		Rectangle door = new Rectangle(buildingFront.getWidth()/2, 0+10, 32, 32, vbom);
 		door.setColor(Color.RED);
-		int centerX = -670+getLayer(0).getWidth()/2;
-		int centerY = getLayer(0).getHeight()/2;
+		float centerX = getLayer(0).getX();
+		float centerY = getLayer(0).getY();
 		door.setUserData("teleport,"+centerX+","+centerY);
 		collisionManager.addDoor(door);
 		buildingFront.attachChild(door);
@@ -107,10 +107,10 @@ public class Building {
 	
 	public void createWalls(){
 		TMXLayer layer = getLayer(0);
-		Rectangle topLimit = new Rectangle(0, 30, layer.getWidth(), 2, vbom);
-		Rectangle bottomLimit = new Rectangle(0, layer.getHeight(), layer.getWidth(), 2, vbom);
-		Rectangle leftLimit = new Rectangle(0, 0, 2, layer.getHeight(), vbom);
-		Rectangle rightLimit = new Rectangle(layer.getWidth(), 0, 2, layer.getHeight(), vbom);
+		Rectangle topLimit = new Rectangle(0+layer.getWidth()/2, layer.getHeight()-30, layer.getWidth(), 2, vbom);
+		Rectangle bottomLimit = new Rectangle(0+layer.getWidth()/2, 0, layer.getWidth(), 2, vbom);
+		Rectangle leftLimit = new Rectangle(0, 0+layer.getHeight()/2, 2, layer.getHeight(), vbom);
+		Rectangle rightLimit = new Rectangle(layer.getWidth(), 0+layer.getHeight()/2, 2, layer.getHeight(), vbom);
 
 		collisionManager.addObstacle(topLimit);
 		collisionManager.addObstacle(bottomLimit);
@@ -131,11 +131,11 @@ public class Building {
 		}
 	}
 
-	public int getWidth() {
+	public float getWidth() {
 		return mTMXTiledMap.getTMXLayers().get(0).getWidth();
 	}
 
-	public int getHeight() {
+	public float getHeight() {
 		return mTMXTiledMap.getTMXLayers().get(0).getHeight();
 	}
 

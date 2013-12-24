@@ -10,13 +10,10 @@ import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.HorizontalAlign;
-import org.andengine.util.color.Color;
-
+import org.andengine.util.adt.align.HorizontalAlign;
 
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Popup;
-import com.example.survivalgame.util.SpotLight;
 
 public class GameHUD extends HUD {
 
@@ -56,23 +53,23 @@ public class GameHUD extends HUD {
 		lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
 		lifeText.setScale(0.5f);
 		lifeText.setText("Life: 100%");
-		lifeText.setPosition(-50, -10);
+		lifeText.setPosition(0+lifeText.getWidth()*lifeText.getScaleX()/2, 480-lifeText.getHeight()/2*lifeText.getScaleY());
 		attachChild(lifeText);
 
 		timeDay = new Text(5, 5, resourcesManager.font, "Hour: 24", new TextOptions(HorizontalAlign.LEFT), vbom);
 		timeDay.setScale(0.5f);
 		timeDay.setText("Hour: 24");
-		timeDay.setPosition(400 - timeDay.getWidth() / 2, -10);
+		timeDay.setPosition(400, 480-timeDay.getHeight()/2*timeDay.getScaleY());
 		attachChild(timeDay);
 
 		bulletCounter = new Text(5, 5, resourcesManager.font, "Bullet: 99", new TextOptions(HorizontalAlign.LEFT), vbom);
 		bulletCounter.setScale(0.5f);
 		bulletCounter.setText("Bullets: 99");
-		bulletCounter.setPosition(800 - timeDay.getWidth(), -10);
+		bulletCounter.setPosition(800 - timeDay.getWidth()*0.5f/2, 480-bulletCounter.getHeight()/2*bulletCounter.getScaleY());
 
 		attachChild(bulletCounter);
 
-		Text menuText = new Text(390, 470, resourcesManager.font, "Inventory", new TextOptions(HorizontalAlign.LEFT), vbom) {
+		Text menuText = new Text(400, 10, resourcesManager.font, "Inventory", new TextOptions(HorizontalAlign.LEFT), vbom) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
@@ -88,9 +85,9 @@ public class GameHUD extends HUD {
 		};
 
 		menuText.setScale(0.7f);
-		menuText.setPosition(400 - menuText.getWidth() / 2, 480 - menuText.getHeight());
+		menuText.setPosition(400, 0+menuText.getHeight()/2*0.7f);
 
-		Sprite buttonA = new Sprite(630, 390, resourcesManager.mOnScreenButton, vbom) {
+		Sprite buttonA = new Sprite(670, 80, resourcesManager.mOnScreenButton, vbom) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
@@ -106,7 +103,7 @@ public class GameHUD extends HUD {
 		};
 		attachChild(buttonA);
 
-		Sprite buttonB = new Sprite(715, 350, resourcesManager.mOnScreenButton, vbom) {
+		Sprite buttonB = new Sprite(765, 120, resourcesManager.mOnScreenButton, vbom) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
@@ -122,7 +119,7 @@ public class GameHUD extends HUD {
 		};
 		attachChild(buttonB);
 
-		buttonC = new Sprite(715, 350 - 20 - buttonB.getHeight() / 2, resourcesManager.mOnScreenButton, vbom) {
+		buttonC = new Sprite(765, 140 - buttonB.getHeight() / 2, resourcesManager.mOnScreenButton, vbom) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {

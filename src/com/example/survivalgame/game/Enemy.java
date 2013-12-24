@@ -1,7 +1,7 @@
 package com.example.survivalgame.game;
 
 import org.andengine.entity.primitive.Rectangle;
-import org.andengine.entity.shape.RectangularShape;
+import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -124,7 +124,7 @@ public class Enemy extends AnimatedSprite {
 		directionMove = Direction.NONE;
 	}
 
-	public void chaseEntity(RectangularShape shape) {
+	public void chaseEntity(Shape shape) {
 		checkIfHasToChase(shape);
 
 		if (hasToChase) {
@@ -139,7 +139,7 @@ public class Enemy extends AnimatedSprite {
 
 	}
 
-	private void checkIfHasToChase(RectangularShape shape) {
+	private void checkIfHasToChase(Shape shape) {
 
 		shapeX = shape.getX() + shape.getWidth() / 2;
 		shapeY = shape.getY() + shape.getHeight() / 2;
@@ -159,13 +159,13 @@ public class Enemy extends AnimatedSprite {
 				if (distanceX > distanceY) {
 					setRunningRight();
 				} else {
-					setRunningDown();
+					setRunningUp();
 				}
 			}else{
 				if (distanceX > distanceY) {
 					setRunningRight();
 				} else {
-					setRunningUp();
+					setRunningDown();
 				}
 			}
 		}else{
@@ -173,13 +173,13 @@ public class Enemy extends AnimatedSprite {
 				if (distanceX > distanceY) {
 					setRunningLeft();
 				} else {
-					setRunningDown();
+					setRunningUp();
 				}
 			}else{
 				if (distanceX > distanceY) {
 					setRunningLeft();
 				} else {
-					setRunningUp();
+					setRunningDown();
 				}
 			}
 		}

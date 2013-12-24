@@ -16,7 +16,7 @@ import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.shader.ShaderProgramManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 import com.example.survivalgame.util.SpotLight;
 

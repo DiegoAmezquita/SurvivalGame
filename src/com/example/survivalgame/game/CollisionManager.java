@@ -2,23 +2,24 @@ package com.example.survivalgame.game;
 
 import java.util.ArrayList;
 
-import org.andengine.entity.shape.RectangularShape;
+import org.andengine.entity.shape.Shape;
+
 
 public class CollisionManager {
 
-	ArrayList<RectangularShape> obstacles;
-	ArrayList<RectangularShape> items;
+	ArrayList<Shape> obstacles;
+	ArrayList<Shape> items;
 
-	ArrayList<RectangularShape> doors;
+	ArrayList<Shape> doors;
 	
 	ArrayList<Enemy> enemies;
 
 	static CollisionManager instance;
 
 	private CollisionManager() {
-		obstacles = new ArrayList<RectangularShape>();
-		items = new ArrayList<RectangularShape>();
-		doors = new ArrayList<RectangularShape>();
+		obstacles = new ArrayList<Shape>();
+		items = new ArrayList<Shape>();
+		doors = new ArrayList<Shape>();
 		enemies = new ArrayList<Enemy>();
 	}
 
@@ -29,19 +30,19 @@ public class CollisionManager {
 		return instance;
 	}
 
-	public void addObstacle(RectangularShape shape) {
+	public void addObstacle(Shape shape) {
 		obstacles.add(shape);
 	}
 
-	public void addItem(RectangularShape shape) {
+	public void addItem(Shape shape) {
 		items.add(shape);
 	}
 
-	public void addDoor(RectangularShape shape) {
+	public void addDoor(Shape shape) {
 		doors.add(shape);
 	}
 
-	public void removeObstacle(RectangularShape shape) {
+	public void removeObstacle(Shape shape) {
 		obstacles.remove(shape);
 	}
 	
@@ -54,7 +55,7 @@ public class CollisionManager {
 		enemies.remove(enemy);
 	}
 
-	public boolean checkCollisionObstacles(RectangularShape shape) {
+	public boolean checkCollisionObstacles(Shape shape) {
 		for (int i = 0; i < obstacles.size(); i++) {
 			if (shape.collidesWith(obstacles.get(i))) {
 				return true;
@@ -63,7 +64,7 @@ public class CollisionManager {
 		return false;
 	}
 
-	public RectangularShape checkPickItem(RectangularShape shape) {
+	public Shape checkPickItem(Shape shape) {
 		for (int i = 0; i < items.size(); i++) {
 			if (shape.collidesWith(items.get(i)) && items.get(i).hasParent()) {
 				return items.get(i);
@@ -72,7 +73,7 @@ public class CollisionManager {
 		return null;
 	}
 
-	public RectangularShape checkDoor(RectangularShape shape) {
+	public Shape checkDoor(Shape shape) {
 		for (int i = 0; i < doors.size(); i++) {
 			if (shape.collidesWith(doors.get(i))) {
 				return doors.get(i);
@@ -82,7 +83,7 @@ public class CollisionManager {
 	}
 	
 	
-	public boolean checkCollisionEnemy(RectangularShape shape) {
+	public boolean checkCollisionEnemy(Shape shape) {
 		for (int i = 0; i < enemies.size(); i++) {
 			Enemy enemy = enemies.get(i);
 			if (shape.collidesWith(enemy)) {

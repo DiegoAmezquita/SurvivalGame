@@ -2,7 +2,7 @@ package com.example.survivalgame.game;
 
 import java.util.ArrayList;
 
-import org.andengine.entity.shape.RectangularShape;
+import org.andengine.entity.shape.Shape;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 public class EnemiesPool {
@@ -37,7 +37,7 @@ public class EnemiesPool {
 		return enemy;
 	}
 
-	public void updateEnemies(RectangularShape shape) {
+	public void updateEnemies(Shape shape) {
 		for (int i = 0; i < enemies.size(); i++) {
 			Enemy enemy = enemies.get(i);
 			if (!enemy.isFree()) {

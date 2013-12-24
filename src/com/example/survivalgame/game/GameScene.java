@@ -10,11 +10,11 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.shape.RectangularShape;
+import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.extension.tmx.TMXLayer;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 import android.graphics.PointF;
 import android.opengl.GLES20;
@@ -64,7 +64,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	InventoryPlayer inventoryPlayer;
 
-	RectangularShape itemToPick;
+	Shape itemToPick;
 
 	int life = 100;
 
@@ -88,6 +88,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void createMap() {
 
 		map = new MapGame("tmx/newDesert.tmx", activity, engine, vbom);
+		map.getLayer(0).detachSelf();
 		attachChild(map.getLayer(0));
 
 		for (int i = 0; i < collisionManager.items.size(); i++) {
@@ -113,8 +114,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void createControl() {
-		final float x1 = 20;
-		final float y1 = 450 - resourcesManager.mOnScreenControlBaseTextureRegion.getHeight();
+		final float x1 = 80;
+		final float y1 = 80;
 		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion, 0.1f, vbom,
 				new IAnalogOnScreenControlListener() {
 					@Override
@@ -124,25 +125,25 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 							if (pValueX > (pValueY * -1)) {
 								player.setRunningRight();
 							} else {
-								player.setRunningUp();
+								player.setRunningDown();
 							}
 						} else if (pValueX > 0 && pValueY > 0) {
 							if (pValueX > pValueY) {
 								player.setRunningRight();
 							} else {
-								player.setRunningDown();
+								player.setRunningUp();
 							}
 						} else if (pValueX < 0 && pValueY > 0) {
 							if ((pValueX * -1) > pValueY) {
 								player.setRunningLeft();
 							} else {
-								player.setRunningDown();
+								player.setRunningUp();
 							}
 						} else if (pValueX < 0 && pValueY < 0) {
 							if (pValueX < pValueY) {
 								player.setRunningLeft();
 							} else {
-								player.setRunningUp();
+								player.setRunningDown();
 							}
 						} else {
 							player.stopRunning();
@@ -165,20 +166,20 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void createLimits() {
 
-		Rectangle topLimit = new Rectangle(0, 30, map.getWidth(), 2, vbom);
-		Rectangle bottomLimit = new Rectangle(0, map.getHeight(), map.getWidth(), 2, vbom);
-		Rectangle leftLimit = new Rectangle(0, 0, 2, map.getHeight(), vbom);
-		Rectangle rightLimit = new Rectangle(map.getWidth(), 0, 2, map.getHeight(), vbom);
+		Rectangle topLimit = new Rectangle(map.getWidth()/2, map.getHeight(), map.getWidth(), 2, vbom);
+		Rectangle bottomLimit = new Rectangle(map.getWidth()/2, 0, map.getWidth(), 2, vbom);
+		Rectangle leftLimit = new Rectangle(0, map.getHeight()/2, 2, map.getHeight(), vbom);
+		Rectangle rightLimit = new Rectangle(map.getWidth(), map.getHeight()/2, 2, map.getHeight(), vbom);
 
 		collisionManager.addObstacle(topLimit);
 		collisionManager.addObstacle(bottomLimit);
 		collisionManager.addObstacle(leftLimit);
 		collisionManager.addObstacle(rightLimit);
 
-		topLimit.setVisible(false);
-		bottomLimit.setVisible(false);
-		leftLimit.setVisible(false);
-		rightLimit.setVisible(false);
+//		topLimit.setVisible(false);
+//		bottomLimit.setVisible(false);
+//		leftLimit.setVisible(false);
+//		rightLimit.setVisible(false);
 
 		attachChild(topLimit);
 		attachChild(bottomLimit);
@@ -190,12 +191,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		Building building = new Building("tmx/building.tmx", vbom, activity.getAssets(), engine);
 		TMXLayer layer = building.getLayer(0);
 		layer.setPosition(-building.getWidth() - 350, 0);
-		building.buildingFront.setPosition(300, 200);
+		building.createBuildingFront();
+		building.buildingFront.setPosition(300, 0+map.getHeight()/2);
 
 		Log.v("GAME", "X: " + layer.getX() + " Y: " + layer.getY());
 
-		building.buildingFront.setZIndex((int) building.buildingFront.getY());
-
+		building.buildingFront.setZIndex(10000-(int) building.buildingFront.getY());
+		layer.detachSelf();
 		attachChild(layer);
 		attachChild(building.buildingFront);
 

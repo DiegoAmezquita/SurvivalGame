@@ -4,7 +4,7 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.util.GLState;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 import com.example.survivalgame.SceneManager.SceneType;
 
@@ -31,7 +31,7 @@ public class SplashScene extends BaseScene {
 		};
 
 		splash.setScale(0.7f);
-		splash.setPosition(400-splash.getWidth()/2, 240-splash.getHeight()/2);
+		splash.setPosition(400, 240);
 		attachChild(splash);
 	}
 

@@ -4,7 +4,7 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Util.Direction;
@@ -39,7 +39,7 @@ public abstract class Player extends AnimatedSprite {
 		super(pX, pY, ResourcesManager.getInstance().player_region, vbo);
 		setScale(2);
 
-		feet = new Rectangle(0, this.getHeight() - this.getHeight() / 3, this.getWidth(), this.getHeight() / 3, vbo);
+		feet = new Rectangle(this.getWidth()/2, 0 + this.getHeight() / 3-(this.getHeight() / 6), this.getWidth(), this.getHeight() / 3, vbo);
 		attachChild(feet);
 		feet.setVisible(false);
 		camera.setChaseEntity(this);
@@ -180,13 +180,13 @@ public abstract class Player extends AnimatedSprite {
 	@Override
 	public void setY(float pY) {
 		super.setY(pY);
-		shadow.setY(pY + getHeight()*1.4f);
+		shadow.setY(pY - getHeight()*1.4f);
 	}
 
 	@Override
 	public void setPosition(float pX, float pY) {
 		super.setPosition(pX, pY);
-		shadow.setPosition(getX(), pY + getHeight()*1.4f);
+		shadow.setPosition(getX(), pY - getHeight()*1.4f);
 	}
 
 	public void jump() {
