@@ -55,13 +55,15 @@ public class CollisionManager {
 		enemies.remove(enemy);
 	}
 
-	public boolean checkCollisionObstacles(Shape shape) {
+	public Shape checkCollisionObstacles(Shape shape) {
+		
 		for (int i = 0; i < obstacles.size(); i++) {
 			if (shape.collidesWith(obstacles.get(i))) {
-				return true;
+//				obstacles.get(i).setColor(Color.RED);
+				return obstacles.get(i);
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public Shape checkPickItem(Shape shape) {

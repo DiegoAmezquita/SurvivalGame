@@ -45,9 +45,9 @@ public class MapGame {
 							if (!pTMXTileProperties.isEmpty()) {
 								String nameProperty = pTMXTileProperties.get(0).getName();
 								textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-//								Sprite item = new Sprite(pTMXTile.getTileX(), pTMXTile.getTileY(), pTMXTile.getTextureRegion(), vbom);
-//								item.setUserData(nameProperty);
-//								collisionManager.addItem(item);
+								Sprite item = new Sprite(pTMXLayer.getTileX(pTMXTile.getTileColumn())+pTMXTile.getTileWidth()/2, pTMXLayer.getTileY(pTMXTile.getTileRow())+pTMXTile.getTileHeight()/2, pTMXTile.getTextureRegion(), vbom);
+								item.setUserData(nameProperty);
+								collisionManager.addItem(item);
 							}
 						}
 					});

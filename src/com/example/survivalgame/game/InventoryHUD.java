@@ -30,7 +30,7 @@ public class InventoryHUD extends HUD {
 
 	Rectangle mSpriteButtonUse;
 
-	int mPosInventoryItemY = 100;
+	int mPosInventoryItemY = 350;
 
 	ArrayList<ItemInventory> itemsAlreadyLoaded;
 
@@ -53,20 +53,18 @@ public class InventoryHUD extends HUD {
 
 	public void createInventory() {
 
-		Rectangle background = new Rectangle(0, 0, 800, 480, vbom);
+		Rectangle background = new Rectangle(400, 240, 800, 480, vbom);
 		background.setColor(Color.BLACK);
 		attachChild(background);
 
-		Rectangle menuBorder = new Rectangle(0, 0, 500, 300, vbom);
-		menuBorder.setPosition(400 - menuBorder.getWidth() / 2, 240 - menuBorder.getHeight() / 2);
+		Rectangle menuBorder = new Rectangle(400, 240, 500, 300, vbom);
 		attachChild(menuBorder);
 
-		Rectangle menuBackground = new Rectangle(0, 0, 490, 290, vbom);
+		Rectangle menuBackground = new Rectangle(400, 240, 490, 290, vbom);
 		menuBackground.setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
-		menuBackground.setPosition(400 - menuBackground.getWidth() / 2, 240 - menuBackground.getHeight() / 2);
 		attachChild(menuBackground);
 
-		Text closeText = new Text(390, 470, resourcesManager.font, "X", new TextOptions(HorizontalAlign.LEFT), vbom) {
+		Text closeText = new Text(390, 500, resourcesManager.font, "X", new TextOptions(HorizontalAlign.LEFT), vbom) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
@@ -80,7 +78,7 @@ public class InventoryHUD extends HUD {
 
 		registerTouchArea(closeText);
 		closeText.setScale(0.7f);
-		closeText.setPosition(menuBackground.getX() + menuBackground.getWidth() - 20 - closeText.getWidth() / 2, 140 - closeText.getHeight());
+		closeText.setPosition(menuBackground.getX() + menuBackground.getWidth()/2 - 10 - closeText.getWidth() / 2, 340 + closeText.getHeight()/2);
 
 		attachChild(closeText);
 
@@ -94,7 +92,7 @@ public class InventoryHUD extends HUD {
 
 			int position = checkAlreadyLoaded(entry.getKey());
 			if (position == -1) {
-				ItemInventory itemTest = new ItemInventory(180, 0, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), resourcesManager, vbom) {
+				ItemInventory itemTest = new ItemInventory(220, 0, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), resourcesManager, vbom) {
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 						if (pSceneTouchEvent.isActionUp()) {
@@ -129,7 +127,7 @@ public class InventoryHUD extends HUD {
 	public void addItemInventory(ItemInventory item) {
 		item.setY(mPosInventoryItemY);
 		attachChild(item);
-		mPosInventoryItemY += 40;
+		mPosInventoryItemY -= 40;
 	}
 
 	public void setItemSelected(ItemInventory item) {
@@ -143,12 +141,12 @@ public class InventoryHUD extends HUD {
 
 		mItemSelected.mSpriteItem.setScale(3f);
 
-		mItemSelected.mSpriteItem.setX(500 - mItemSelected.mSpriteItem.getWidth() / 2);
+		mItemSelected.mSpriteItem.setX(500);
 
 		attachChild(mItemSelected.mSpriteItem);
 
 		if (mSpriteButtonUse == null) {
-			mSpriteButtonUse = new Rectangle(450, 260, 100, 50, vbom);
+			mSpriteButtonUse = new Rectangle(500, 285, 100, 50, vbom);
 			Text useText = new Text(0, 0, resourcesManager.font, "USE", new TextOptions(HorizontalAlign.CENTER), vbom) {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -159,7 +157,7 @@ public class InventoryHUD extends HUD {
 				}
 			};
 			useText.setScale(0.7f);
-			useText.setPosition(50 - useText.getWidth() / 2, 25 - useText.getHeight() / 2);
+			useText.setPosition(50, 25);
 			useText.setColor(Color.RED);
 			mSpriteButtonUse.attachChild(useText);
 			attachChild(mSpriteButtonUse);

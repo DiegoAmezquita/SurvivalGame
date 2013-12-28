@@ -49,6 +49,7 @@ public abstract class Player extends AnimatedSprite {
 		shadow.setScale(1.5f);
 		shadow.setColor(Color.BLACK);
 		shadow.setFlippedVertical(true);
+		shadow.setVisible(false);
 
 	}
 

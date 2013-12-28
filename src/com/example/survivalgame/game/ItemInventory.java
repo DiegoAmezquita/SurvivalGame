@@ -23,14 +23,14 @@ public class ItemInventory extends Rectangle {
 
 		super(pX, pY, 100, 32, vbom);
 		setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
-		mSpriteItem = new Sprite(0, 0, pTextureRegion, vbom);
+		mSpriteItem = new Sprite(0+pTextureRegion.getWidth()/2, pTextureRegion.getHeight()/2, pTextureRegion, vbom);
 		if (name == null) {
 			name = "Null";
 		}
 		this.name = name;
 		this.quantity = 0;
 
-		textQuantity = new Text(15, -12, resourcesManager.font, "x99", new TextOptions(HorizontalAlign.LEFT), vbom);
+		textQuantity = new Text(45, 16, resourcesManager.font, "x99", new TextOptions(HorizontalAlign.LEFT), vbom);
 		textQuantity.setScale(0.5f);
 
 		attachChild(mSpriteItem);

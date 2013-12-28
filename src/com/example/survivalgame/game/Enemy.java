@@ -1,15 +1,11 @@
 package com.example.survivalgame.game;
 
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import android.graphics.Point;
-import android.util.Log;
 
 import com.example.survivalgame.ResourcesManager;
-import com.example.survivalgame.util.Util;
 import com.example.survivalgame.util.Util.Direction;
 
 public class Enemy extends AnimatedSprite {
@@ -34,6 +30,8 @@ public class Enemy extends AnimatedSprite {
 	Direction directionPointing;
 
 	GameScene mGameScene;
+	
+	float maxDistance = 400;
 
 	public Enemy(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, GameScene gameScene) {
 		super(pX, pY, ResourcesManager.getInstance().enemies_region, pVertexBufferObjectManager);
@@ -184,7 +182,7 @@ public class Enemy extends AnimatedSprite {
 			}
 		}
 
-		if (distance < 200) {
+		if (distance < maxDistance) {
 			beforeMoveX = getX();
 			beforeMoveY = getY();
 
@@ -194,7 +192,7 @@ public class Enemy extends AnimatedSprite {
 				setX(getX() - (distanceX / distance) * speed);
 			}
 
-			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
+			if (CollisionManager.getInstance().checkCollisionObstacles(this)!=null) {
 				setX(beforeMoveX);
 			}
 
@@ -204,7 +202,7 @@ public class Enemy extends AnimatedSprite {
 				setY(getY() - (distanceY / distance) * speed);
 			}
 
-			if (CollisionManager.getInstance().checkCollisionObstacles(this)) {
+			if (CollisionManager.getInstance().checkCollisionObstacles(this)!=null) {
 				setY(beforeMoveY);
 			}
 
@@ -214,6 +212,7 @@ public class Enemy extends AnimatedSprite {
 				mGameScene.damagePlayer();
 			}
 			hasToChase = true;
+			setZIndex(10000 - (int) getY());
 		} else {
 			stopAnimation();
 			hasToChase = false;

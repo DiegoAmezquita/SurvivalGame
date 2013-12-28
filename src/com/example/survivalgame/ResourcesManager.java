@@ -1,6 +1,5 @@
 package com.example.survivalgame;
 
-import java.io.IOException;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.SmoothCamera;
@@ -14,10 +13,8 @@ import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
-import org.andengine.opengl.texture.bitmap.AssetBitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
-import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.debug.Debug;
 
@@ -50,10 +47,10 @@ public class ResourcesManager {
 	public ITextureRegion menu_background_region;
 	public ITextureRegion play_region;
 	public ITextureRegion options_region;
-	
+
 	public ITextureRegion light_region;
-	
-	public ITexture lightTest;
+
+	public ITexture mBuildingTexture;
 
 	private BuildableBitmapTextureAtlas menuTextureAtlas;
 
@@ -65,16 +62,30 @@ public class ResourcesManager {
 	public BuildableBitmapTextureAtlas gameTextureAtlas;
 
 	public ITiledTextureRegion player_region;
-	
+
 	public ITiledTextureRegion enemies_region;
-	
+
 	public ITiledTextureRegion explosion_region;
 
 	public ITextureRegion mOnScreenControlBaseTextureRegion;
 	public ITextureRegion mOnScreenControlKnobTextureRegion;
-	
+
 	public ITextureRegion mOnScreenButton;
+
 	
+	public ITextureRegion mBuildingFront1;
+	public ITextureRegion mBuildingFront2;
+	public ITextureRegion mBuildingFront3;
+	public ITextureRegion mBuildingFront4;
+	public ITextureRegion mBuildingFront5;
+	public ITextureRegion mBuildingFront6;
+	public ITextureRegion mBuildingFront7;
+	public ITextureRegion mBuildingFront8;
+	public ITextureRegion mBuildingFront9;
+	
+	
+	public ITextureRegion mCar;
+
 	public ITextureRegion mFirstAid;
 
 	// ---------------------------------------------
@@ -138,33 +149,44 @@ public class ResourcesManager {
 
 	private void loadGameGraphics() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
-		gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		gameTextureAtlas.clearTextureAtlasSources();
 		gameTextureAtlas.addEmptyTextureAtlasSource(0, 0, 1024, 1024);
 
 		player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 4, 4);
-		
-		enemies_region= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "zombies.png", 12, 8);
-		
+
+		enemies_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "zombies.png", 12, 8);
+
 		explosion_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "explosion.png", 3, 4);
 
 		mOnScreenControlBaseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");
 		mOnScreenControlKnobTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
-		
-		
+
 		mOnScreenButton = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "button.png");
+		mBuildingFront1 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building.png");
+		mBuildingFront2 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building2.png");
+		mBuildingFront3 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building3.png");
+		mBuildingFront4 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building4.png");
+		mBuildingFront5 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building5.png");
+		mBuildingFront6 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building6.png");
+		mBuildingFront7 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building7.png");
+		mBuildingFront8 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building8.png");
+		mBuildingFront9 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building9.png");
 		
+		mCar = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "car.png");
+		
+
 		light_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "light.png");
-		
-		try {
-			lightTest = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "light.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			
-			light_region = TextureRegionFactory.extractFromTexture(this.lightTest);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+
+//		try {
+//			mBuildingTexture = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "gfx/game/building.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+//			mBuildingFront = TextureRegionFactory.extractFromTexture(mBuildingTexture);
+//			light_region = TextureRegionFactory.extractFromTexture(this.lightTest);
+//		} catch (IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 
 		mFirstAid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "first_aid.png");
 		//

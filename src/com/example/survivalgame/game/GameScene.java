@@ -14,7 +14,9 @@ import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.extension.tmx.TMXLayer;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
+import org.andengine.util.math.MathUtils;
 
 import android.graphics.PointF;
 import android.opengl.GLES20;
@@ -32,24 +34,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	private Player player;
 	private MapGame map;
 
-	Rectangle blockScreen;
-
 	int bulletCounter = 20;
-
 	boolean blocking = true;
-
 	boolean moveAllowed = true;
-
 	boolean checkCollision = true;
-
 	float hourOfDay = 6;
-
 	boolean gameOver = false;
-
 	Sprite light;
 
 	public AnalogOnScreenControl movementOnScreenControl;
-	private static final String TAG = "GAME";
+	// private static final String TAG = "GAME";
 	float x = 0, y = 0;
 	float speed = 1.0f;
 
@@ -67,6 +61,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	Shape itemToPick;
 
 	int life = 100;
+
+	Sprite car;
+	float carRotation = 0;
+
+	boolean driveCar = false;
 
 	int timeElapsedBetweenDamage = 2;
 
@@ -90,6 +89,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		map = new MapGame("tmx/newDesert.tmx", activity, engine, vbom);
 		map.getLayer(0).detachSelf();
 		attachChild(map.getLayer(0));
+
+		// MapGame map2 = new MapGame("tmx/newDesert.tmx", activity, engine,
+		// vbom);
+		// map2.getLayer(0).detachSelf();
+		// map2.getLayer(0).setPosition(-500, 0);
+		// attachChild(map2.getLayer(0));
 
 		for (int i = 0; i < collisionManager.items.size(); i++) {
 			attachChild(collisionManager.items.get(i));
@@ -120,6 +125,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 				new IAnalogOnScreenControlListener() {
 					@Override
 					public void onControlChange(final BaseOnScreenControl pBaseOnScreenControl, final float pValueX, final float pValueY) {
+
+						if (driveCar) {
+							float rotationInRad = (float) Math.atan2(pValueX, pValueY);
+							carRotation = MathUtils.radToDeg(rotationInRad);
+							if (carRotation != 0) {
+								carRotation += 90;
+								car.setRotation(carRotation);
+							}
+						}
 
 						if (pValueX > 0 && pValueY < 0) {
 							if (pValueX > (pValueY * -1)) {
@@ -166,20 +180,20 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void createLimits() {
 
-		Rectangle topLimit = new Rectangle(map.getWidth()/2, map.getHeight(), map.getWidth(), 2, vbom);
-		Rectangle bottomLimit = new Rectangle(map.getWidth()/2, 0, map.getWidth(), 2, vbom);
-		Rectangle leftLimit = new Rectangle(0, map.getHeight()/2, 2, map.getHeight(), vbom);
-		Rectangle rightLimit = new Rectangle(map.getWidth(), map.getHeight()/2, 2, map.getHeight(), vbom);
+		Rectangle topLimit = new Rectangle(map.getWidth() / 2, map.getHeight() - 30, map.getWidth(), 2, vbom);
+		Rectangle bottomLimit = new Rectangle(map.getWidth() / 2, 0, map.getWidth(), 2, vbom);
+		Rectangle leftLimit = new Rectangle(0, map.getHeight() / 2, 2, map.getHeight(), vbom);
+		Rectangle rightLimit = new Rectangle(map.getWidth(), map.getHeight() / 2, 2, map.getHeight(), vbom);
 
 		collisionManager.addObstacle(topLimit);
 		collisionManager.addObstacle(bottomLimit);
 		collisionManager.addObstacle(leftLimit);
 		collisionManager.addObstacle(rightLimit);
 
-//		topLimit.setVisible(false);
-//		bottomLimit.setVisible(false);
-//		leftLimit.setVisible(false);
-//		rightLimit.setVisible(false);
+		// topLimit.setVisible(false);
+		// bottomLimit.setVisible(false);
+		// leftLimit.setVisible(false);
+		// rightLimit.setVisible(false);
 
 		attachChild(topLimit);
 		attachChild(bottomLimit);
@@ -187,20 +201,55 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		attachChild(rightLimit);
 	}
 
-	public void createInitialBuildings() {
+	public void createInitialBuildings(int posX, int posY, ITextureRegion textureFront) {
 		Building building = new Building("tmx/building.tmx", vbom, activity.getAssets(), engine);
 		TMXLayer layer = building.getLayer(0);
 		layer.setPosition(-building.getWidth() - 350, 0);
-		building.createBuildingFront();
-		building.buildingFront.setPosition(300, 0+map.getHeight()/2);
+		building.createBuildingFront(textureFront);
+		building.buildingFront.setPosition(posX, posY);
 
 		Log.v("GAME", "X: " + layer.getX() + " Y: " + layer.getY());
 
-		building.buildingFront.setZIndex(10000-(int) building.buildingFront.getY());
+		building.buildingFront.setZIndex(10000 - (int) building.buildingFront.getY());
 		layer.detachSelf();
 		attachChild(layer);
 		attachChild(building.buildingFront);
 
+	}
+
+	public void testBatch() {
+		int nextX = 100;
+
+		ITextureRegion[] arrayTexturesBuildings = new ITextureRegion[9];
+		arrayTexturesBuildings[0] = resourcesManager.mBuildingFront1;
+		arrayTexturesBuildings[1] = resourcesManager.mBuildingFront2;
+		arrayTexturesBuildings[2] = resourcesManager.mBuildingFront3;
+		arrayTexturesBuildings[3] = resourcesManager.mBuildingFront4;
+		arrayTexturesBuildings[4] = resourcesManager.mBuildingFront5;
+		arrayTexturesBuildings[5] = resourcesManager.mBuildingFront6;
+		arrayTexturesBuildings[6] = resourcesManager.mBuildingFront7;
+		arrayTexturesBuildings[7] = resourcesManager.mBuildingFront8;
+		arrayTexturesBuildings[8] = resourcesManager.mBuildingFront9;
+
+		for (int i = 0; i < 9; i++) {
+
+			createInitialBuildings(nextX, 600, arrayTexturesBuildings[i]);
+			nextX += arrayTexturesBuildings[i].getWidth() + 10;
+			// Sprite test = new Sprite(nextX, 600, arrayTexturesBuildings[i],
+			// vbom);
+
+			// attachChild(test);
+			// collisionManager.addObstacle(test);
+			// test.setZIndex(10000 - (int) test.getY());
+		}
+
+	}
+
+	public void createCar() {
+		car = new Sprite(400, 240, resourcesManager.mCar, vbom);
+		car.setScale(0.7f);
+		collisionManager.addObstacle(car);
+		attachChild(car);
 	}
 
 	public void init() {
@@ -239,30 +288,30 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void blockScreenToTeleport() {
-		blockScreen.setAlpha(0);
-		blockScreen.setVisible(true);
+		gameHUD.blockScreen.setAlpha(0);
+		gameHUD.blockScreen.setVisible(true);
 		registerUpdateHandler(new TimerHandler(0.001f, true, new ITimerCallback() {
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
 				if (blocking) {
-					float newAlpha = blockScreen.getAlpha() + 0.005f;
+					float newAlpha = gameHUD.blockScreen.getAlpha() + 0.005f;
 					if (newAlpha >= 1) {
 						player.setPosition(teleportToPosition.x, teleportToPosition.y);
 						camera.setCenterDirect(player.getX(), player.getY());
 						blocking = false;
 					} else {
-						blockScreen.setAlpha(newAlpha);
+						gameHUD.blockScreen.setAlpha(newAlpha);
 					}
 				} else {
-					float newAlpha = blockScreen.getAlpha() - 0.005f;
+					float newAlpha = gameHUD.blockScreen.getAlpha() - 0.005f;
 					if (newAlpha <= 0) {
-						blockScreen.setVisible(false);
+						gameHUD.blockScreen.setVisible(false);
 						blocking = true;
 						checkCollision = true;
 						moveAllowed = true;
 						unregisterUpdateHandler(pTimerHandler);
 					} else {
-						blockScreen.setAlpha(newAlpha);
+						gameHUD.blockScreen.setAlpha(newAlpha);
 					}
 				}
 
@@ -300,7 +349,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void createInitialEnemies() {
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 5; i++) {
 			Enemy enemy = enemiesPool.getEnemy();
 			int newX = (int) (Math.random() * 1000);
 			int newY = (int) (Math.random() * 800);
@@ -317,19 +366,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	@Override
 	public void createScene() {
-		camera.setZoomFactor(0.5f);
-		
+		// camera.setZoomFactor(0.5f);
+
 		init();
 		createBackground();
 		createHUD();
 		createInventoryHUD();
 		createMap();
-		createInitialBuildings();
+		// createInitialBuildings();
 
-		blockScreen = new Rectangle(-1000, -1000, 2000, 2000, vbom);
-		blockScreen.setColor(Color.BLACK);
-		blockScreen.setVisible(false);
-		attachChild(blockScreen);
+		testBatch();
 
 		// Rectangle rec = new Rectangle(0, 0, map.getWidth(), map.getHeight(),
 		// vbom);
@@ -340,6 +386,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// createLight();
 
 		createPlayer();
+
+		createCar();
+
 		createControl();
 		createLimits();
 		startTimerDay();
@@ -360,55 +409,73 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 					PointF lastPosition = new PointF(player.getX(), player.getY());
 					boolean canMove = true;
 
-					x = x * speed;
-					y = y * speed;
+					if (driveCar) {
+						car.setPosition(car.getX() + x*1.5f, car.getY() + y*1.5f);
+					} else {
 
-					if (moveAllowed) {
-						player.setX(player.getX() + x);
-						player.setY(player.getY() + y);
-						player.setZIndex((int) player.getY());
-						player.shadow.setZIndex((int) player.getY());
-					}
+						x = x * speed;
+						y = y * speed;
 
-					if (collisionManager.checkCollisionObstacles(player.feet)) {
-						canMove = false;
-					}
-
-					if (!canMove && camera.getHUD() == gameHUD) {
-						player.setPosition(lastPosition.x, lastPosition.y);
-						player.setZIndex((int) player.getY());
-						player.shadow.setZIndex((int) player.getY());
-					}
-					sortChildren();
-
-					checkPickItem();
-
-					if (checkCollision) {
-						Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
-						if (door != null) {
-							checkCollision = false;
-							String[] relocation = ((String) door.getUserData()).split(",");
-							if (relocation[0].equals("teleport")) {
-								beforeEntrancePosition.x = player.getX();
-								beforeEntrancePosition.y = player.getX();
-								teleportToPosition.x = Float.parseFloat(relocation[1]);
-								teleportToPosition.y = Float.parseFloat(relocation[2]);
-								blockScreenToTeleport();
-							} else {
-								teleportToPosition.x = beforeEntrancePosition.x;
-								teleportToPosition.y = beforeEntrancePosition.y;
-								blockScreenToTeleport();
-							}
-							moveAllowed = false;
+						if (moveAllowed) {
+							player.setX(player.getX() + x);
+							player.setY(player.getY() + y);
+							player.setZIndex(10000 - (int) player.getY());
+							player.shadow.setZIndex(10000 - (int) player.getY());
 						}
+
+						Shape shape = collisionManager.checkCollisionObstacles(player.feet);
+
+						if (shape != null) {
+							if (shape == car) {
+//								driveCar = true;
+//								camera.setChaseEntity(car);
+//								player.setVisible(false);
+//								player.shadow.setVisible(false);
+							}
+							canMove = false;
+						}
+
+						if (!canMove && camera.getHUD() == gameHUD) {
+							player.setPosition(lastPosition.x, lastPosition.y);
+							player.setZIndex(10000 - (int) player.getY());
+							player.shadow.setZIndex(10000 - (int) player.getY());
+						}
+						sortChildren();
+
+						checkPickItem();
+
+						if (checkCollision) {
+							Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
+							if (door != null) {
+								checkCollision = false;
+								String[] relocation = ((String) door.getUserData()).split(",");
+								if (relocation[0].equals("teleport")) {
+									beforeEntrancePosition.x = player.getX();
+									beforeEntrancePosition.y = player.getY() - 10;
+									teleportToPosition.x = Float.parseFloat(relocation[1]);
+									teleportToPosition.y = Float.parseFloat(relocation[2]);
+									blockScreenToTeleport();
+								} else {
+									teleportToPosition.x = beforeEntrancePosition.x;
+									teleportToPosition.y = beforeEntrancePosition.y;
+									blockScreenToTeleport();
+								}
+								moveAllowed = false;
+							}
+						}
+
+						bulletsPool.updateBullets();
+
+						Util.centerX = Util.centerX + 1;
+						Util.centerY = Util.centerY + 1;
+
 					}
 
-					bulletsPool.updateBullets();
-
-					Util.centerX = Util.centerX + 1;
-					Util.centerY = Util.centerY + 1;
-
-					enemiesPool.updateEnemies(player);
+					if (driveCar) {
+						enemiesPool.updateEnemies(car);
+					} else {
+						enemiesPool.updateEnemies(player);
+					}
 
 				}
 			}
@@ -420,8 +487,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void actionButtonA() {
 
-//		float[] popupPosition = camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() + player.getWidth() / 2, player.getY());
-//		gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
+		// float[] popupPosition =
+		// camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() +
+		// player.getWidth() / 2, player.getY());
+		// gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
 		speed = 1.1f;
 	}
 
@@ -537,9 +606,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		gameHUD.createPopupConversation(400, 240);
 		gameOver = true;
 	}
-	
-	public void useItem(ItemInventory item){
-		
+
+	public void useItem(ItemInventory item) {
+
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import org.andengine.extension.tmx.TMXTileProperty;
 import org.andengine.extension.tmx.TMXTiledMap;
 import org.andengine.extension.tmx.util.exception.TMXLoadException;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
@@ -34,7 +35,7 @@ public class Building {
 	String path;
 	
 	
-	Rectangle buildingFront;
+	Sprite buildingFront;
 	
 
 	public Building(String path, VertexBufferObjectManager vbom, AssetManager assetManager, Engine engine) {
@@ -83,20 +84,21 @@ public class Building {
 	}
 	
 	
-	public void createBuildingFront(){
-		buildingFront = new Rectangle(0, 0, 32*4, 32*4, vbom);
+	public void createBuildingFront(ITextureRegion textureFront){
+		buildingFront = new Sprite(0, 0,textureFront, vbom);
 		collisionManager.addObstacle(buildingFront);
 		
 		
-		Rectangle door = new Rectangle(buildingFront.getWidth()/2, 0+10, 32, 32, vbom);
+		Rectangle door = new Rectangle(buildingFront.getWidth()/2,+10, 32, 32, vbom);
 		door.setColor(Color.RED);
 		float centerX = getLayer(0).getX();
 		float centerY = getLayer(0).getY();
 		door.setUserData("teleport,"+centerX+","+centerY);
+		door.setVisible(false);
 		collisionManager.addDoor(door);
 		buildingFront.attachChild(door);
 		
-		Rectangle exit = new Rectangle(getLayer(0).getWidth()/2-16, getLayer(0).getHeight()-32, 32, 32, vbom);
+		Rectangle exit = new Rectangle(getLayer(0).getWidth()/2, 32, 32, 32, vbom);
 		exit.setColor(Color.RED);
 		exit.setUserData("exit");
 		collisionManager.addDoor(exit);

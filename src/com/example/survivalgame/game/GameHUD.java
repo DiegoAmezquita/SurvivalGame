@@ -11,9 +11,11 @@ import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.align.HorizontalAlign;
+import org.andengine.util.adt.color.Color;
 
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Popup;
+import com.example.survivalgame.util.SpotLight;
 
 public class GameHUD extends HUD {
 
@@ -35,6 +37,8 @@ public class GameHUD extends HUD {
 	ResourcesManager resourcesManager;
 
 	ArrayList<Popup> arrayPopups;
+	
+	Rectangle blockScreen;
 
 	public GameHUD(Camera camera, VertexBufferObjectManager vbom, GameScene gameScene) {
 		this.mCamera = camera;
@@ -45,10 +49,17 @@ public class GameHUD extends HUD {
 
 		arrayPopups = new ArrayList<Popup>();
 
-//		nightRect = new Rectangle(0, 0, 800, 480, vbom);
-//		nightRect.setColor(Color.BLACK);
-//		nightRect.setShaderProgram(SpotLight.getInstance());
-//		attachChild(nightRect);
+		nightRect = new Rectangle(400, 240, 800, 480, vbom);
+		nightRect.setColor(Color.BLACK);
+		nightRect.setShaderProgram(SpotLight.getInstance());
+		attachChild(nightRect);
+		
+		
+		blockScreen = new Rectangle(0, 0, 2000, 2000, vbom);
+		blockScreen.setColor(Color.BLACK);
+		blockScreen.setVisible(false);
+		attachChild(blockScreen);
+		
 
 		lifeText = new Text(5, 5, resourcesManager.font, "Life: 100%", new TextOptions(HorizontalAlign.LEFT), vbom);
 		lifeText.setScale(0.5f);
@@ -65,7 +76,7 @@ public class GameHUD extends HUD {
 		bulletCounter = new Text(5, 5, resourcesManager.font, "Bullet: 99", new TextOptions(HorizontalAlign.LEFT), vbom);
 		bulletCounter.setScale(0.5f);
 		bulletCounter.setText("Bullets: 99");
-		bulletCounter.setPosition(800 - timeDay.getWidth()*0.5f/2, 480-bulletCounter.getHeight()/2*bulletCounter.getScaleY());
+		bulletCounter.setPosition(800 - timeDay.getWidth()*0.5f, 480-bulletCounter.getHeight()/2*bulletCounter.getScaleY());
 
 		attachChild(bulletCounter);
 
@@ -119,7 +130,7 @@ public class GameHUD extends HUD {
 		};
 		attachChild(buttonB);
 
-		buttonC = new Sprite(765, 140 - buttonB.getHeight() / 2, resourcesManager.mOnScreenButton, vbom) {
+		buttonC = new Sprite(765, 140 + buttonB.getHeight() / 2, resourcesManager.mOnScreenButton, vbom) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionDown()) {
@@ -159,7 +170,6 @@ public class GameHUD extends HUD {
 		Popup popup = new Popup(pX, pY, vbom);
 		attachChild(popup);
 		popup.changeText("Game Over");
-		popup.setPosition(pX-popup.getWidth()/2, pY-popup.getHeightScaled());
 		registerTouchArea(popup);
 
 		arrayPopups.add(popup);

@@ -1,5 +1,6 @@
 package com.example.survivalgame.util;
 
+import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -18,10 +19,41 @@ public class Popup extends Rectangle {
 
 	int ID;
 	
+	Line lineTop;
+	Line lineBottom;
+	Line lineRight;
+	Line lineLeft;
+	
 	public Popup(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(pX, pY, 100, 50, pVertexBufferObjectManager);
 
-		setColor(Color.WHITE);
+		setColor(87f/255f,130f/255f,192f/255f);
+		
+		lineTop = new Line(0, getHeight(), getWidth(), getHeight(), pVertexBufferObjectManager);
+		lineTop.setLineWidth(5);
+		lineTop.setColor(Color.WHITE);
+		
+		lineBottom = new Line(0, 0, getWidth(), 0, pVertexBufferObjectManager);
+		lineBottom.setLineWidth(5);
+		lineBottom.setColor(Color.WHITE);
+		
+		lineLeft = new Line(0, 0, 0, getHeight(), pVertexBufferObjectManager);
+		lineLeft.setLineWidth(5);
+		lineLeft.setColor(Color.WHITE);
+		
+		lineRight = new Line(getWidth(), 0, getWidth(), getHeight(), pVertexBufferObjectManager);
+		lineRight.setLineWidth(5);
+		lineRight.setColor(Color.WHITE);
+		
+		
+		attachChild(lineTop);
+		attachChild(lineBottom);
+		attachChild(lineLeft);
+		attachChild(lineRight);
+		
+		
+		
+		
 		popupText = new Text(5, 5, ResourcesManager.getInstance().font, "Hola soy maxito lero lero", new TextOptions(HorizontalAlign.LEFT), pVertexBufferObjectManager) {
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 				Log.v("GAME", "Touch Popup");
@@ -29,16 +61,19 @@ public class Popup extends Rectangle {
 			};
 		};
 		popupText.setScale(0.5f);
-		popupText.setColor(Color.RED);
+		popupText.setColor(Color.WHITE);
 		popupText.setText("Popup Text");
-		popupText.setPosition(getWidth() / 2 - popupText.getWidth() / 2, getHeight() / 2 - popupText.getHeight() / 2);
+		popupText.setPosition(getWidth() / 2, getHeight() / 2);
 		attachChild(popupText);
 	}
 
 	public void changeText(String text) {
 		popupText.setText(text);
-		setWidth(popupText.getWidthScaled() + 10);
-		popupText.setPosition(getWidth() / 2 - popupText.getWidth() / 2, getHeight() / 2 - popupText.getHeight() / 2);
+		setWidth(popupText.getWidth() + 10);
+		popupText.setPosition(getWidth() / 2, getHeight() / 2);
+		lineTop.setPosition(0, getHeight(), getWidth(), getHeight());
+		lineBottom.setPosition(0, 0, getWidth(), 0);
+		lineRight.setPosition(getWidth(),0,getWidth(),getHeight());
 	}
 
 	@Override
