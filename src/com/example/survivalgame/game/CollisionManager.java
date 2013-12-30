@@ -3,6 +3,9 @@ package com.example.survivalgame.game;
 import java.util.ArrayList;
 
 import org.andengine.entity.shape.Shape;
+import org.andengine.util.adt.color.Color;
+
+import android.util.Log;
 
 
 public class CollisionManager {
@@ -59,7 +62,7 @@ public class CollisionManager {
 		
 		for (int i = 0; i < obstacles.size(); i++) {
 			if (shape.collidesWith(obstacles.get(i))) {
-//				obstacles.get(i).setColor(Color.RED);
+				obstacles.get(i).setColor(Color.RED);
 				return obstacles.get(i);
 			}
 		}
@@ -78,6 +81,7 @@ public class CollisionManager {
 	public Shape checkDoor(Shape shape) {
 		for (int i = 0; i < doors.size(); i++) {
 			if (shape.collidesWith(doors.get(i))) {
+				Log.v("GAME","COLISIONA PUERTA");
 				return doors.get(i);
 			}
 		}

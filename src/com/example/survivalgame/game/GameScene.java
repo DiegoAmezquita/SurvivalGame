@@ -45,7 +45,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public AnalogOnScreenControl movementOnScreenControl;
 	// private static final String TAG = "GAME";
 	float x = 0, y = 0;
-	float speed = 1.0f;
+	float speed = 0.85f;
 
 	PointF beforeEntrancePosition;
 	PointF teleportToPosition;
@@ -86,9 +86,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void createMap() {
 
-		map = new MapGame("tmx/newDesert.tmx", activity, engine, vbom);
-		map.getLayer(0).detachSelf();
-		attachChild(map.getLayer(0));
+		map = new MapGame("tmx/beach.tmx", activity, engine, vbom);
+		for (int i = 0; i < map.getNumberLayers(); i++) {
+			map.getLayer(i).detachSelf();
+			if(!map.getLayer(i).getName().equals("Items")){
+				attachChild(map.getLayer(i));	
+			}
+				
+		}
+		
+		
 
 		// MapGame map2 = new MapGame("tmx/newDesert.tmx", activity, engine,
 		// vbom);
@@ -233,7 +240,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		for (int i = 0; i < 9; i++) {
 
-			createInitialBuildings(nextX, 600, arrayTexturesBuildings[i]);
+			// createInitialBuildings(nextX, 600, arrayTexturesBuildings[i]);
 			nextX += arrayTexturesBuildings[i].getWidth() + 10;
 			// Sprite test = new Sprite(nextX, 600, arrayTexturesBuildings[i],
 			// vbom);
@@ -280,8 +287,24 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		if (bulletCounter > 0) {
 			Bullet bullet = bulletsPool.getBullet();
 			bullet.setBusy();
-			bullet.setPosAndDir(player.getX(), player.getY(), player.directionPointing);
+			bullet.setPosAndDir(player.getX(), player.getY()+5, player.directionPointing);
 			attachChild(bullet);
+			bulletCounter--;
+			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+			
+			
+			Bullet bullet1 = bulletsPool.getBullet();
+			bullet1.setBusy();
+			bullet1.setPosAndDir(player.getX(), player.getY(), player.directionPointing);
+			attachChild(bullet1);
+			bulletCounter--;
+			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+			
+			
+			Bullet bullet2 = bulletsPool.getBullet();
+			bullet2.setBusy();
+			bullet2.setPosAndDir(player.getX(), player.getY()-5, player.directionPointing);
+			attachChild(bullet2);
 			bulletCounter--;
 			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
 		}
@@ -366,7 +389,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	@Override
 	public void createScene() {
-		// camera.setZoomFactor(0.5f);
+		 camera.setZoomFactor(2.0f);
 
 		init();
 		createBackground();
@@ -387,7 +410,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		createPlayer();
 
-		createCar();
+//		createCar();
 
 		createControl();
 		createLimits();
@@ -410,7 +433,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 					boolean canMove = true;
 
 					if (driveCar) {
-						car.setPosition(car.getX() + x*1.5f, car.getY() + y*1.5f);
+						car.setPosition(car.getX() + x * 1.5f, car.getY() + y * 1.5f);
 					} else {
 
 						x = x * speed;
@@ -427,10 +450,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 						if (shape != null) {
 							if (shape == car) {
-//								driveCar = true;
-//								camera.setChaseEntity(car);
-//								player.setVisible(false);
-//								player.shadow.setVisible(false);
+								// driveCar = true;
+								// camera.setChaseEntity(car);
+								// player.setVisible(false);
+								// player.shadow.setVisible(false);
 							}
 							canMove = false;
 						}
@@ -445,8 +468,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 						checkPickItem();
 
 						if (checkCollision) {
-							Rectangle door = (Rectangle) collisionManager.checkDoor(player.feet);
+							Shape door = (Shape) collisionManager.checkDoor(player.feet);
 							if (door != null) {
+								Log.v("GAME","DOOR");
 								checkCollision = false;
 								String[] relocation = ((String) door.getUserData()).split(",");
 								if (relocation[0].equals("teleport")) {
@@ -491,11 +515,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() +
 		// player.getWidth() / 2, player.getY());
 		// gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
-		speed = 1.1f;
+		speed = 1.0f;
 	}
 
 	public void releaseButtonA() {
-		speed = 1.0f;
+		speed = 0.85f;
 	}
 
 	public void actionButtonB() {

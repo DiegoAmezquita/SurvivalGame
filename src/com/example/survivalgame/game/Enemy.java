@@ -10,7 +10,7 @@ import com.example.survivalgame.util.Util.Direction;
 
 public class Enemy extends AnimatedSprite {
 
-	private float speed = 0.5f;
+	private float speed = 0.3f;
 
 	private boolean free = true;
 
@@ -37,7 +37,7 @@ public class Enemy extends AnimatedSprite {
 		super(pX, pY, ResourcesManager.getInstance().enemies_region, pVertexBufferObjectManager);
 
 		this.mGameScene = gameScene;
-		setScale(1.6f);
+		setScale(0.75f);
 
 		centerX = getX() + getWidth() / 2;
 		centerY = getY() + getWidth() / 2;

@@ -23,10 +23,11 @@ public class ItemInventory extends Rectangle {
 
 		super(pX, pY, 100, 32, vbom);
 		setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
-		mSpriteItem = new Sprite(0+pTextureRegion.getWidth()/2, pTextureRegion.getHeight()/2, pTextureRegion, vbom);
+		mSpriteItem = new Sprite(pTextureRegion.getWidth(), pTextureRegion.getHeight(), pTextureRegion, vbom);
 		if (name == null) {
 			name = "Null";
 		}
+		mSpriteItem.setScale(2f);
 		this.name = name;
 		this.quantity = 0;
 

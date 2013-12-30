@@ -6,6 +6,8 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 
+import android.graphics.PointF;
+
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Util.Direction;
 
@@ -30,16 +32,16 @@ public abstract class Player extends AnimatedSprite {
 	Direction directionPointing;
 
 	AnimatedSprite shadow;
-
+	
 	// ---------------------------------------------
 	// CONSTRUCTOR
 	// ---------------------------------------------
 
 	public Player(float pX, float pY, VertexBufferObjectManager vbo, Camera camera) {
 		super(pX, pY, ResourcesManager.getInstance().player_region, vbo);
-		setScale(2);
+//		setScale(2);
 
-		feet = new Rectangle(this.getWidth()/2, 0 + this.getHeight() / 3-(this.getHeight() / 6), this.getWidth(), this.getHeight() / 3, vbo);
+		feet = new Rectangle(this.getWidth()/2,this.getHeight() / 3-(this.getHeight() / 6), this.getWidth()-10, this.getHeight() / 3, vbo);
 		attachChild(feet);
 		feet.setVisible(false);
 		camera.setChaseEntity(this);

@@ -15,6 +15,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.debug.Debug;
 
 import android.app.Activity;
+import android.util.Log;
 
 import com.example.survivalgame.TextureGameManager;
 
@@ -36,21 +37,29 @@ public class MapGame {
 	public void loadMap(String path, Activity activity, Engine engine) {
 		try {
 
-			final TMXLoader tmxLoader = new TMXLoader(activity.getAssets(), engine.getTextureManager(), TextureOptions.BILINEAR_PREMULTIPLYALPHA, vbom,
-					new ITMXTilePropertiesListener() {
+			final TMXLoader tmxLoader = new TMXLoader(activity.getAssets(), engine.getTextureManager(), TextureOptions.BILINEAR_PREMULTIPLYALPHA, vbom, new ITMXTilePropertiesListener() {
 
-						@Override
-						public void onTMXTileWithPropertiesCreated(TMXTiledMap pTMXTiledMap, TMXLayer pTMXLayer, TMXTile pTMXTile, TMXProperties<TMXTileProperty> pTMXTileProperties) {
+				@Override
+				public void onTMXTileWithPropertiesCreated(TMXTiledMap pTMXTiledMap, TMXLayer pTMXLayer, TMXTile pTMXTile, TMXProperties<TMXTileProperty> pTMXTileProperties) {
 
-							if (!pTMXTileProperties.isEmpty()) {
-								String nameProperty = pTMXTileProperties.get(0).getName();
-								textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-								Sprite item = new Sprite(pTMXLayer.getTileX(pTMXTile.getTileColumn())+pTMXTile.getTileWidth()/2, pTMXLayer.getTileY(pTMXTile.getTileRow())+pTMXTile.getTileHeight()/2, pTMXTile.getTextureRegion(), vbom);
-								item.setUserData(nameProperty);
-								collisionManager.addItem(item);
-							}
+					if (!pTMXTileProperties.isEmpty()) {
+						String nameProperty = pTMXTileProperties.get(0).getName();
+						textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
+						Sprite item = new Sprite(pTMXLayer.getTileX(pTMXTile.getTileColumn()) + pTMXTile.getTileWidth() / 2,(pTMXLayer.getTileY(pTMXTile.getTileRow()) + pTMXTile.getTileHeight() / 2), pTMXTile.getTextureRegion(), vbom);
+						item.setUserData(nameProperty);
+						if (pTMXTileProperties.containsTMXProperty("tree", "true") || pTMXTileProperties.containsTMXProperty("house", "true")
+								|| pTMXTileProperties.containsTMXProperty("water", "true") || pTMXTileProperties.containsTMXProperty("rock", "true")|| pTMXTileProperties.containsTMXProperty("obstacle", "true")) {
+							collisionManager.addObstacle(item);
+						} else if (pTMXTileProperties.containsTMXProperty("door", "true")) {
+							Log.v("GAME", "Door Finded");
+							item.setY(item.getY()-5);
+							collisionManager.addDoor(item);
+						} else {
+							collisionManager.addItem(item);
 						}
-					});
+					}
+				}
+			});
 			this.mTMXTiledMap = tmxLoader.loadFromAsset(path);
 
 		} catch (final TMXLoadException e) {
@@ -64,6 +73,10 @@ public class MapGame {
 		} else {
 			return null;
 		}
+	}
+
+	public int getNumberLayers() {
+		return mTMXTiledMap.getTMXLayers().size();
 	}
 
 	public float getWidth() {

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="60" height="60" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="2" margin="1">
+  <image source="gfx/pokemon.png" width="1800" height="1800"/>
+  <tile id="2">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="102">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="202">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="2009">
+   <properties>
+    <property name="water" value="true"/>
+   </properties>
+  </tile>
+  <tile id="2010">
+   <properties>
+    <property name="water" value="true"/>
+   </properties>
+  </tile>
+  <tile id="2409">
+   <properties>
+    <property name="water" value="true"/>
+   </properties>
+  </tile>
+  <tile id="2414">
+   <properties>
+    <property name="shell" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3107">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3108">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3109">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3207">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3209">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3307">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3308">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3309">
+   <properties>
+    <property name="rock" value="true"/>
+   </properties>
+  </tile>
+  <tile id="4403">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="4604">
+   <properties>
+    <property name="item" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5568">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5666">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5667">
+   <properties>
+    <property name="house" value=""/>
+   </properties>
+  </tile>
+  <tile id="5668">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5669">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5670">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5766">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5770">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5866">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5870">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5966">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="5970">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6066">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6067">
+   <properties>
+    <property name="door" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6068">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6069">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+  <tile id="6070">
+   <properties>
+    <property name="house" value="true"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Capa de Patrones 1" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJzt2EFuwjAQBVA2KGlXRblPd/QwXbeHgiPRde/RRiiSQcGJx//PjMMs/hLw83w7Ecd+tztuJB//6V/ysV5jbU5Jzhv0lvpa9q7pa+ve2nmmuXT2nkc2lO8nyaej+SK6eu8cfW/dbbzMs3aWS05tL7qrc53NOTW9yK5KjBpe5ixLjQwvw4d0Ir3ovjKctV7mPCcr0jnmd19+r7J8LOto/Oqu+V6YL6unufsW1d/JORqHJNo9ZZ7P+1kOM9H0MTq7xphGy4ecaanRyls700dnMpdXRS/iHqqZpfZ833v9vmp6Uc+VA9iI9qKfK968zPcDRoelXsb7u+TOLbmPJV6L9yALL9Kp1VdJnxlOxhynSLw1/wlpz1LinNKKsWamabz2dc6K+B6vs2TlGYxrvQgjqodMr9aZtPRa91WrB17OJMrL3DfE89Drvml/t5c1eZsne/+9Wlmz3UoXWPvj2fvsnrDeeq3XEIkZIrxW+8C+M3Je6buz5LNad2Pp7yw5WrjT59bXwro19iESiUQiEWn+AMg2Mko=
+  </data>
+ </layer>
+ <layer name="trees" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJzt2sdu1FAYhuFfhKIoZYZFxkNvIXRECWxol0CvFwAsYAUkC1jQCaEj+oZ2CZTQBSwhQMKGdgkkoSO6eNEoAiGPY/vYHvv4fNKjTCI78hf/9syxImJiYmJiontaMyKP8BhP0IZ2PM2U+sjCyZSsyFRMw3TUYwZmZkt9ZOHkGL2O4wRO4hRO44ymfb/Q6yu+4Tt+4Cd+adrXxD5WhUi+otRHEV0203VLivrqHDO7yYw5b/FPS+9SH4H33K0RuYf7Nd73TVrfUTmRWoxGHcbkvO3v1Deq63Nducj6cnfb7qFfE/aiGfsC7BvV9dlG13aXfV/TrwOd6MKbAPvGMfMtkQVYiEVYbHnbP2l9L9HvMq7gKlo072vluadgAAZiUN7b/knrqxrTV++YvnrH9NU7pm/8UlvJeshBXaX73xV1Xz9r16Ye+jTHtK/ftWtS+/pduwbdN6rKfteuQfdd635zpfhdu3bQp/MfDVmRxuzf77s89m3972f1/d3xGtW1axCxm+fuLmOZt3EYjwmYiEmYnPPXV3XtGkTs5rm7y356HcBBHMJhHMFRn33jkGLz/Cdv6fUO7/EBH/EJn2PQ1+8zaKd5XsL1tRTLsBwrsBKrrHD6bqgS2YhNaEBjlf12Ks+gneb5Gr2u4wZu4hZu405IfZ/R7zle4CVeFemr8gzaaZ4Hcz8ZgqEYhuEYgZH5cPrOqhaZjTmYi3nV9tupPIN2muet9NqG7diBndiF3SH1PUu/cziPC7hYpK/KM+hi8xzG+29PKcvwt0cf9EW/Iv+jpvI+bjfPcY/K+3iUn5/jkCg/P8chSZxnlZh51jtmnvVOGue5F1/LpHCe0/B6NdZI4Tyn4fUDPJTCfSsNr38DV8QBOw==
+  </data>
+ </layer>
+ <layer name="trees2" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJzt0sEJAkEQAMFDjVWN9TQo936LAexCUwUD8xyYPg4AAABouo25j3nsPmSR55jXmPfuQxY5x3zGfHcfsoie2/Tcpuc2PbfpuU3PbXpu03Obntv03KbnNj236blNz216btNzm57b9Nym57b/nud/1/fL/O/6fpn/Xd9/GE955w==
+  </data>
+ </layer>
+ <layer name="Items" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJzt1jEKACAMA8Cujr7U/w+CD5AuOlThDrJ3CKERAAAAQJXRqi8AAHiH34if6CtAbvY9t+wuAAAAAACcWYMAByc=
+  </data>
+ </layer>
+</map>

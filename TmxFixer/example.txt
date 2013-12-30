@@ -1,0 +1,1 @@
+java -jar TMXFixer.jar -f C:\Users\Seidan\Desktop\pokemon.png -o C:\Users\Seidan\Desktop\pokemon2.png -w 16 -h 16 -m 0 -s 0
