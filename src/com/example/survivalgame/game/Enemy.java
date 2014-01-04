@@ -1,10 +1,16 @@
 package com.example.survivalgame.game;
 
+import org.andengine.entity.modifier.PathModifier.Path;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsFactory;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Util.Direction;
 
@@ -30,12 +36,22 @@ public class Enemy extends AnimatedSprite {
 	Direction directionPointing;
 
 	GameScene mGameScene;
-	
+
+	Body bodyEnemy;
+
+	FixtureDef enemyFixture;
+
 	float maxDistance = 400;
 
-	public Enemy(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, GameScene gameScene) {
+	public Enemy(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, GameScene gameScene, PhysicsWorld mWorld) {
 		super(pX, pY, ResourcesManager.getInstance().enemies_region, pVertexBufferObjectManager);
 
+		int newX = 200+(int) (Math.random() * 500);
+		int newY = 200+(int) (Math.random() * 500);
+		
+		setX(newX);
+		setY(newY);
+		
 		this.mGameScene = gameScene;
 		setScale(0.75f);
 
@@ -47,10 +63,17 @@ public class Enemy extends AnimatedSprite {
 
 		directionMove = Direction.NONE;
 
+		enemyFixture = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+
+		bodyEnemy = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, enemyFixture);
+		bodyEnemy.setUserData("Enemy");
+
+		mWorld.registerPhysicsConnector(new PhysicsConnector(this, bodyEnemy, true, true));
+
 	}
 
 	public void setRunningUp() {
-		if (directionMove != Direction.UP||!isAnimationRunning()) {
+		if (directionMove != Direction.UP || !isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 36, 38, true);
 			directionMove = Direction.UP;
@@ -59,7 +82,7 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningDown() {
-		if (directionMove != Direction.DOWN||!isAnimationRunning()) {
+		if (directionMove != Direction.DOWN || !isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 0, 2, true);
 			directionMove = Direction.DOWN;
@@ -68,7 +91,7 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningLeft() {
-		if (directionMove != Direction.LEFT||!isAnimationRunning()) {
+		if (directionMove != Direction.LEFT || !isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 12, 14, true);
 			directionMove = Direction.LEFT;
@@ -77,16 +100,13 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void setRunningRight() {
-		if (directionMove != Direction.RIGHT||!isAnimationRunning()) {
+		if (directionMove != Direction.RIGHT || !isAnimationRunning()) {
 			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200 };
 			animate(PLAYER_ANIMATE, 24, 26, true);
 			directionMove = Direction.RIGHT;
 			directionPointing = Direction.RIGHT;
 		}
 	}
-	
-	
-	
 
 	public void stopRunning() {
 		stopAnimation();
@@ -123,17 +143,79 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void chaseEntity(Shape shape) {
-		checkIfHasToChase(shape);
 
-		if (hasToChase) {
-			shapeX = shape.getX() + shape.getWidth() / 2;
-			shapeY = shape.getY() + shape.getHeight() / 2;
+		// Path pathToEntity = new
+		// Path(2).to(getX(),getY()).to(shape.getX(),shape.getY());
 
-			centerX = getX() + getWidth() / 2;
-			centerY = getY() + getWidth() / 2;
+		// registerEntityModifier(new PathModifier(30, pathToEntity));
 
-			
+		float distanceX = Math.abs(shape.getX() - getX());
+		float distanceY = Math.abs(shape.getY() - getY());
+
+		float distance = (float) (Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+
+		distance = (float) Math.sqrt(distance);
+
+		float speedX = 0;
+		float speedY = 0;
+
+		if (shape.getX() > getX()) {
+			speedX = distanceX / distance;
+		} else if (shape.getX() < getX()) {
+			speedX = -distanceX / distance;
 		}
+
+		if (shape.getY() > getY()) {
+			speedY = distanceY / distance;
+		} else if (shape.getY() < getY()) {
+			speedY = -distanceY / distance;
+		}
+
+			bodyEnemy.setLinearVelocity(speedX, speedY);
+		
+		
+
+		if (shape.getX() >= getX()) {
+			if (shape.getY() >= getY()) {
+				if (distanceX > distanceY) {
+					setRunningRight();
+				} else {
+					setRunningUp();
+				}
+			} else {
+				if (distanceX > distanceY) {
+					setRunningRight();
+				} else {
+					setRunningDown();
+				}
+			}
+		} else {
+			if (shape.getY() >= getY()) {
+				if (distanceX > distanceY) {
+					setRunningLeft();
+				} else {
+					setRunningUp();
+				}
+			} else {
+				if (distanceX > distanceY) {
+					setRunningLeft();
+				} else {
+					setRunningDown();
+				}
+			}
+		}
+
+		// checkIfHasToChase(shape);
+		//
+		// if (hasToChase) {
+		// shapeX = shape.getX() + shape.getWidth() / 2;
+		// shapeY = shape.getY() + shape.getHeight() / 2;
+		//
+		// centerX = getX() + getWidth() / 2;
+		// centerY = getY() + getWidth() / 2;
+		//
+		//
+		// }
 
 	}
 
@@ -159,21 +241,21 @@ public class Enemy extends AnimatedSprite {
 				} else {
 					setRunningUp();
 				}
-			}else{
+			} else {
 				if (distanceX > distanceY) {
 					setRunningRight();
 				} else {
 					setRunningDown();
 				}
 			}
-		}else{
+		} else {
 			if (shapeY >= centerY) {
 				if (distanceX > distanceY) {
 					setRunningLeft();
 				} else {
 					setRunningUp();
 				}
-			}else{
+			} else {
 				if (distanceX > distanceY) {
 					setRunningLeft();
 				} else {
@@ -192,7 +274,7 @@ public class Enemy extends AnimatedSprite {
 				setX(getX() - (distanceX / distance) * speed);
 			}
 
-			if (CollisionManager.getInstance().checkCollisionObstacles(this)!=null) {
+			if (CollisionManager.getInstance().checkCollisionObstacles(this) != null) {
 				setX(beforeMoveX);
 			}
 
@@ -202,7 +284,7 @@ public class Enemy extends AnimatedSprite {
 				setY(getY() - (distanceY / distance) * speed);
 			}
 
-			if (CollisionManager.getInstance().checkCollisionObstacles(this)!=null) {
+			if (CollisionManager.getInstance().checkCollisionObstacles(this) != null) {
 				setY(beforeMoveY);
 			}
 

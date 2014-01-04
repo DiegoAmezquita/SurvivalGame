@@ -12,6 +12,10 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsFactory;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.extension.tmx.TMXLayer;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -22,6 +26,13 @@ import android.graphics.PointF;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
 import com.example.survivalgame.SceneManager.SceneType;
@@ -52,8 +63,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	Rectangle enterBuilding;
 	CollisionManager collisionManager;
 
-	BulletsPool bulletsPool;
+	private PhysicsWorld mPhysicsWorld;
 
+	BulletsPool bulletsPool;
 	EnemiesPool enemiesPool;
 
 	InventoryPlayer inventoryPlayer;
@@ -86,16 +98,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void createMap() {
 
-		map = new MapGame("tmx/beach.tmx", activity, engine, vbom);
+		map = new MapGame("tmx/beach.tmx", activity, engine, vbom, mPhysicsWorld);
 		for (int i = 0; i < map.getNumberLayers(); i++) {
 			map.getLayer(i).detachSelf();
-			if(!map.getLayer(i).getName().equals("Items")){
-				attachChild(map.getLayer(i));	
+			if (!map.getLayer(i).getName().equals("Items")) {
+				attachChild(map.getLayer(i));
 			}
-				
+
 		}
-		
-		
 
 		// MapGame map2 = new MapGame("tmx/newDesert.tmx", activity, engine,
 		// vbom);
@@ -110,7 +120,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void createPlayer() {
-		player = new Player(500, 500, vbom, camera) {
+		player = new Player(500, 500, vbom, camera, mPhysicsWorld) {
 			@Override
 			public void onDie() {
 			}
@@ -187,20 +197,27 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void createLimits() {
 
+		FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+
 		Rectangle topLimit = new Rectangle(map.getWidth() / 2, map.getHeight() - 30, map.getWidth(), 2, vbom);
 		Rectangle bottomLimit = new Rectangle(map.getWidth() / 2, 0, map.getWidth(), 2, vbom);
 		Rectangle leftLimit = new Rectangle(0, map.getHeight() / 2, 2, map.getHeight(), vbom);
 		Rectangle rightLimit = new Rectangle(map.getWidth(), map.getHeight() / 2, 2, map.getHeight(), vbom);
 
-		collisionManager.addObstacle(topLimit);
-		collisionManager.addObstacle(bottomLimit);
-		collisionManager.addObstacle(leftLimit);
-		collisionManager.addObstacle(rightLimit);
+		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(topLimit, PhysicsFactory.createBoxBody(mPhysicsWorld, topLimit, BodyType.KinematicBody, wallFixtureDef), true, true));
+		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(bottomLimit, PhysicsFactory.createBoxBody(mPhysicsWorld, bottomLimit, BodyType.KinematicBody, wallFixtureDef), true, true));
+		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(leftLimit, PhysicsFactory.createBoxBody(mPhysicsWorld, leftLimit, BodyType.KinematicBody, wallFixtureDef), true, true));
+		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(rightLimit, PhysicsFactory.createBoxBody(mPhysicsWorld, rightLimit, BodyType.KinematicBody, wallFixtureDef), true, true));
 
-		// topLimit.setVisible(false);
-		// bottomLimit.setVisible(false);
-		// leftLimit.setVisible(false);
-		// rightLimit.setVisible(false);
+		// collisionManager.addObstacle(topLimit);
+		// collisionManager.addObstacle(bottomLimit);
+		// collisionManager.addObstacle(leftLimit);
+		// collisionManager.addObstacle(rightLimit);
+
+		topLimit.setVisible(false);
+		bottomLimit.setVisible(false);
+		leftLimit.setVisible(false);
+		rightLimit.setVisible(false);
 
 		attachChild(topLimit);
 		attachChild(bottomLimit);
@@ -221,7 +238,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		layer.detachSelf();
 		attachChild(layer);
 		attachChild(building.buildingFront);
-
 	}
 
 	public void testBatch() {
@@ -249,7 +265,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			// collisionManager.addObstacle(test);
 			// test.setZIndex(10000 - (int) test.getY());
 		}
-
 	}
 
 	public void createCar() {
@@ -261,14 +276,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void init() {
 
+		mPhysicsWorld = new PhysicsWorld(new Vector2(0, 0), false);
+
 		beforeEntrancePosition = new PointF();
 		teleportToPosition = new PointF();
 
 		collisionManager = CollisionManager.getInstance();
 
-		bulletsPool = new BulletsPool(bulletCounter, vbom);
+		bulletsPool = new BulletsPool(bulletCounter, vbom, mPhysicsWorld);
 
-		enemiesPool = new EnemiesPool(20, this, vbom);
+		enemiesPool = new EnemiesPool(20, this, vbom, mPhysicsWorld);
 
 		inventoryPlayer = InventoryPlayer.getInstance();
 
@@ -285,28 +302,30 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void fireBullet() {
 		if (bulletCounter > 0) {
-			Bullet bullet = bulletsPool.getBullet();
-			bullet.setBusy();
-			bullet.setPosAndDir(player.getX(), player.getY()+5, player.directionPointing);
-			attachChild(bullet);
-			bulletCounter--;
-			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
-			
-			
+			// Bullet bullet = bulletsPool.getBullet();
+			// bullet.setBusy();
+			// bullet.setPosAndDir(player.getX(), player.getY()+5,
+			// player.directionPointing);
+			// attachChild(bullet);
+			// bulletCounter--;
+			// gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+
 			Bullet bullet1 = bulletsPool.getBullet();
 			bullet1.setBusy();
 			bullet1.setPosAndDir(player.getX(), player.getY(), player.directionPointing);
+			bullet1.shotBullet();
+			camera.setChaseEntity(bullet1);
 			attachChild(bullet1);
 			bulletCounter--;
 			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
-			
-			
-			Bullet bullet2 = bulletsPool.getBullet();
-			bullet2.setBusy();
-			bullet2.setPosAndDir(player.getX(), player.getY()-5, player.directionPointing);
-			attachChild(bullet2);
-			bulletCounter--;
-			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+
+			// Bullet bullet2 = bulletsPool.getBullet();
+			// bullet2.setBusy();
+			// bullet2.setPosAndDir(player.getX(), player.getY()-5,
+			// player.directionPointing);
+			// attachChild(bullet2);
+			// bulletCounter--;
+			// gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
 		}
 	}
 
@@ -374,22 +393,21 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public void createInitialEnemies() {
 		for (int i = 0; i < 5; i++) {
 			Enemy enemy = enemiesPool.getEnemy();
-			int newX = (int) (Math.random() * 1000);
-			int newY = (int) (Math.random() * 800);
 
-			Log.v("GAME", "zombie x " + newX);
-			Log.v("GAME", "zombie y " + newY);
-
-			enemy.setPosition(newX, newY);
+			// enemy.setPosition(newX, newY);
 			enemy.setBusy();
 			attachChild(enemy);
+
+			// camera.setChaseEntity(enemy);
 		}
 
 	}
 
 	@Override
 	public void createScene() {
-		 camera.setZoomFactor(2.0f);
+
+		engine.registerUpdateHandler(new FPSLogger());
+		camera.setZoomFactor(1.0f);
 
 		init();
 		createBackground();
@@ -410,100 +428,172 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		createPlayer();
 
-//		createCar();
+		// createSword();
+
+		// createCar();
 
 		createControl();
 		createLimits();
 		startTimerDay();
 		createInitialEnemies();
 
-		// pScene.attachChild(light2);
+		registerUpdateHandler(mPhysicsWorld);
+
+		mPhysicsWorld.setContactListener(new ContactListener() {
+			@Override
+			public void beginContact(final Contact pContact) {
+
+			}
+
+			@Override
+			public void endContact(final Contact pContact) {
+				/* Nothing. */
+			}
+
+			@Override
+			public void preSolve(Contact contact, Manifold oldManifold) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void postSolve(Contact contact, ContactImpulse impulse) {
+				if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureA().getBody().getUserData().equals("Enemy")) {
+					if (contact.getFixtureB().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData().equals("Player")) {
+						damagePlayer();
+					}
+				} else if (contact.getFixtureB().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData().equals("Enemy")) {
+					if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureA().getBody().getUserData().equals("Player")) {
+						damagePlayer();
+					}
+				}
+
+//				if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureA().getBody().getUserData().getClass() == Bullet.class) {
+//					Log.v("GAME", "AAAAAAAAAAA");
+//					if (contact.getFixtureB().getBody().getUserData() != null) {
+//						Log.v("GAME", "" + contact.getFixtureB().getBody().getUserData());
+//					}
+//					bulletsPool.addBulletToRelease((Bullet) contact.getFixtureA().getBody().getUserData());
+//				} else if (contact.getFixtureB().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData().getClass() == Bullet.class) {
+//					Log.v("GAME", "BBBBBBBBBBB");
+//
+//					if (contact.getFixtureA().getBody().getUserData() != null) {
+//						Log.v("GAME", "" + contact.getFixtureA().getBody().getUserData());
+//					}
+//					bulletsPool.addBulletToRelease((Bullet) contact.getFixtureB().getBody().getUserData());
+//				}
+
+			}
+		});
 
 		registerUpdateHandler(new IUpdateHandler() {
-			@Override
-			public void reset() {
-			}
 
 			@Override
 			public void onUpdate(float pSecondsElapsed) {
+				checkPickItem();
+				player.setZIndex(10000 - (int) player.getY());
+				enemiesPool.updateEnemies(player);
 
-				if (!gameOver) {
-
-					PointF lastPosition = new PointF(player.getX(), player.getY());
-					boolean canMove = true;
-
-					if (driveCar) {
-						car.setPosition(car.getX() + x * 1.5f, car.getY() + y * 1.5f);
-					} else {
-
-						x = x * speed;
-						y = y * speed;
-
-						if (moveAllowed) {
-							player.setX(player.getX() + x);
-							player.setY(player.getY() + y);
-							player.setZIndex(10000 - (int) player.getY());
-							player.shadow.setZIndex(10000 - (int) player.getY());
-						}
-
-						Shape shape = collisionManager.checkCollisionObstacles(player.feet);
-
-						if (shape != null) {
-							if (shape == car) {
-								// driveCar = true;
-								// camera.setChaseEntity(car);
-								// player.setVisible(false);
-								// player.shadow.setVisible(false);
-							}
-							canMove = false;
-						}
-
-						if (!canMove && camera.getHUD() == gameHUD) {
-							player.setPosition(lastPosition.x, lastPosition.y);
-							player.setZIndex(10000 - (int) player.getY());
-							player.shadow.setZIndex(10000 - (int) player.getY());
-						}
-						sortChildren();
-
-						checkPickItem();
-
-						if (checkCollision) {
-							Shape door = (Shape) collisionManager.checkDoor(player.feet);
-							if (door != null) {
-								Log.v("GAME","DOOR");
-								checkCollision = false;
-								String[] relocation = ((String) door.getUserData()).split(",");
-								if (relocation[0].equals("teleport")) {
-									beforeEntrancePosition.x = player.getX();
-									beforeEntrancePosition.y = player.getY() - 10;
-									teleportToPosition.x = Float.parseFloat(relocation[1]);
-									teleportToPosition.y = Float.parseFloat(relocation[2]);
-									blockScreenToTeleport();
-								} else {
-									teleportToPosition.x = beforeEntrancePosition.x;
-									teleportToPosition.y = beforeEntrancePosition.y;
-									blockScreenToTeleport();
-								}
-								moveAllowed = false;
-							}
-						}
-
-						bulletsPool.updateBullets();
-
-						Util.centerX = Util.centerX + 1;
-						Util.centerY = Util.centerY + 1;
-
-					}
-
-					if (driveCar) {
-						enemiesPool.updateEnemies(car);
-					} else {
-						enemiesPool.updateEnemies(player);
-					}
-
-				}
 			}
+
+			@Override
+			public void reset() {
+				// TODO Auto-generated method stub
+
+			}
+
 		});
+
+		// pScene.attachChild(light2);
+
+		// registerUpdateHandler(new IUpdateHandler() {
+		// @Override
+		// public void reset() {
+		// }
+		//
+		// @Override
+		// public void onUpdate(float pSecondsElapsed) {
+		//
+		// // player.playerBody.applyForce(new Vector2(0,10), new Vector2(0,0));
+		//
+		// // if (!gameOver) {
+		// //
+		// // PointF lastPosition = new PointF(player.getX(), player.getY());
+		// // boolean canMove = true;
+		// //
+		// // if (driveCar) {
+		// // car.setPosition(car.getX() + x * 1.5f, car.getY() + y * 1.5f);
+		// // } else {
+		// //
+		// // x = x * speed;
+		// // y = y * speed;
+		// //
+		// // if (moveAllowed) {
+		// // player.setX(player.getX() + x);
+		// // player.setY(player.getY() + y);
+		// // player.setZIndex(10000 - (int) player.getY());
+		// // player.shadow.setZIndex(10000 - (int) player.getY());
+		// // }
+		// //
+		// // Shape shape =
+		// collisionManager.checkCollisionObstacles(player.feet);
+		// //
+		// // if (shape != null) {
+		// // if (shape == car) {
+		// // // driveCar = true;
+		// // // camera.setChaseEntity(car);
+		// // // player.setVisible(false);
+		// // // player.shadow.setVisible(false);
+		// // }
+		// // canMove = false;
+		// // }
+		// //
+		// // if (!canMove && camera.getHUD() == gameHUD) {
+		// // player.setPosition(lastPosition.x, lastPosition.y);
+		// // player.setZIndex(10000 - (int) player.getY());
+		// // player.shadow.setZIndex(10000 - (int) player.getY());
+		// // }
+		// // sortChildren();
+		// //
+		// // checkPickItem();
+		// //
+		// // if (checkCollision) {
+		// // Shape door = (Shape) collisionManager.checkDoor(player.feet);
+		// // if (door != null) {
+		// // Log.v("GAME","DOOR");
+		// // checkCollision = false;
+		// // String[] relocation = ((String) door.getUserData()).split(",");
+		// // if (relocation[0].equals("teleport")) {
+		// // beforeEntrancePosition.x = player.getX();
+		// // beforeEntrancePosition.y = player.getY() - 10;
+		// // teleportToPosition.x = Float.parseFloat(relocation[1]);
+		// // teleportToPosition.y = Float.parseFloat(relocation[2]);
+		// // blockScreenToTeleport();
+		// // } else {
+		// // teleportToPosition.x = beforeEntrancePosition.x;
+		// // teleportToPosition.y = beforeEntrancePosition.y;
+		// // blockScreenToTeleport();
+		// // }
+		// // moveAllowed = false;
+		// // }
+		// // }
+		// //
+		// //// bulletsPool.updateBullets();
+		// //
+		// // Util.centerX = Util.centerX + 1;
+		// // Util.centerY = Util.centerY + 1;
+		// //
+		// // }
+		// //
+		// // if (driveCar) {
+		// // enemiesPool.updateEnemies(car);
+		// // } else {
+		// // enemiesPool.updateEnemies(player);
+		// // }
+		// //
+		// // }
+		// }
+		// });
 
 		setOnSceneTouchListener(this);
 
@@ -515,15 +605,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() +
 		// player.getWidth() / 2, player.getY());
 		// gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
-		speed = 1.0f;
+		player.speed = 2.0f;
 	}
 
 	public void releaseButtonA() {
-		speed = 0.85f;
+		player.speed = 1f;
 	}
 
 	public void actionButtonB() {
-		fireBullet();
+		// fireBullet();
 	}
 
 	public void releaseButtonB() {

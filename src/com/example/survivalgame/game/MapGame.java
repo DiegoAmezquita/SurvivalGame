@@ -1,7 +1,11 @@
 package com.example.survivalgame.game;
 
 import org.andengine.engine.Engine;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsFactory;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.extension.tmx.TMXLayer;
 import org.andengine.extension.tmx.TMXLoader;
 import org.andengine.extension.tmx.TMXProperties;
@@ -17,6 +21,8 @@ import org.andengine.util.debug.Debug;
 import android.app.Activity;
 import android.util.Log;
 
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.example.survivalgame.TextureGameManager;
 
 public class MapGame {
@@ -26,11 +32,13 @@ public class MapGame {
 	VertexBufferObjectManager vbom;
 
 	private TMXTiledMap mTMXTiledMap;
+	PhysicsWorld mWorld;
 
-	public MapGame(String path, Activity activity, Engine engine, VertexBufferObjectManager vbom) {
+	public MapGame(String path, Activity activity, Engine engine, VertexBufferObjectManager vbom, PhysicsWorld mWorld) {
 		collisionManager = CollisionManager.getInstance();
 		textureManager = TextureGameManager.getInstance();
 		this.vbom = vbom;
+		this.mWorld = mWorld;
 		loadMap(path, activity, engine);
 	}
 
@@ -45,14 +53,19 @@ public class MapGame {
 					if (!pTMXTileProperties.isEmpty()) {
 						String nameProperty = pTMXTileProperties.get(0).getName();
 						textureManager.setTexture(nameProperty, pTMXTile.getTextureRegion());
-						Sprite item = new Sprite(pTMXLayer.getTileX(pTMXTile.getTileColumn()) + pTMXTile.getTileWidth() / 2,(pTMXLayer.getTileY(pTMXTile.getTileRow()) + pTMXTile.getTileHeight() / 2), pTMXTile.getTextureRegion(), vbom);
+						Sprite item = new Sprite(pTMXLayer.getTileX(pTMXTile.getTileColumn()) + pTMXTile.getTileWidth() / 2,
+								(pTMXLayer.getTileY(pTMXTile.getTileRow()) + pTMXTile.getTileHeight() / 2), pTMXTile.getTextureRegion(), vbom);
 						item.setUserData(nameProperty);
 						if (pTMXTileProperties.containsTMXProperty("tree", "true") || pTMXTileProperties.containsTMXProperty("house", "true")
-								|| pTMXTileProperties.containsTMXProperty("water", "true") || pTMXTileProperties.containsTMXProperty("rock", "true")|| pTMXTileProperties.containsTMXProperty("obstacle", "true")) {
-							collisionManager.addObstacle(item);
+								|| pTMXTileProperties.containsTMXProperty("water", "true") 
+								|| pTMXTileProperties.containsTMXProperty("obstacle", "true")) {
+							FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+							mWorld.registerPhysicsConnector(new PhysicsConnector(item, PhysicsFactory.createBoxBody(mWorld, item, BodyType.KinematicBody, wallFixtureDef), true, true));
+							
+//							collisionManager.addObstacle(item);
 						} else if (pTMXTileProperties.containsTMXProperty("door", "true")) {
 							Log.v("GAME", "Door Finded");
-							item.setY(item.getY()-5);
+							item.setY(item.getY() - 5);
 							collisionManager.addDoor(item);
 						} else {
 							collisionManager.addItem(item);

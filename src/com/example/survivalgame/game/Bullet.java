@@ -1,11 +1,18 @@
 package com.example.survivalgame.game;
 
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsFactory;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
 import android.util.Log;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.example.survivalgame.util.Util.Direction;
 
 public class Bullet extends Rectangle {
@@ -17,13 +24,25 @@ public class Bullet extends Rectangle {
 	Direction directionMove;
 
 	PointF initialPosition;
-	
-	public enum kindOfBullet{
-		PISTOL,SHOTGUN,SNIPER
+
+	PhysicsWorld mWorld;
+
+	Body bulletBody;
+
+	PhysicsConnector physicConnector;
+
+	FixtureDef bulletFixtureDef;
+
+	public enum kindOfBullet {
+		PISTOL, SHOTGUN, SNIPER
 	}
 
-	public Bullet(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(pX, pY, 5, 5, pVertexBufferObjectManager);
+	public Bullet(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, PhysicsWorld mWorld) {
+		super(pX + 200, pY, 5, 5, pVertexBufferObjectManager);
+
+		this.mWorld = mWorld;
+		bulletFixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+
 		free = true;
 	}
 
@@ -37,12 +56,22 @@ public class Bullet extends Rectangle {
 
 	public void release() {
 		free = true;
+		if (hasParent()) {
+			getParent().detachChild(this);
+		}
+		mWorld.unregisterPhysicsConnector(physicConnector);
+		if (bulletBody != null) {
+			mWorld.destroyBody(bulletBody);
+		}
+
+		bulletBody.setLinearVelocity(0, 0);
+
 	}
 
 	public void setPosAndDir(float pX, float pY, Direction direction) {
 		this.directionMove = direction;
 
-		setPosition(pX, pY);
+		setPosition(pX + 100, pY);
 
 		initialPosition = new PointF(pX, pY);
 
@@ -60,6 +89,41 @@ public class Bullet extends Rectangle {
 		default:
 			break;
 		}
+	}
+
+	public void shotBullet() {
+
+		bulletBody = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, bulletFixtureDef);
+		bulletBody.setUserData(this);
+		if (physicConnector == null) {
+			physicConnector = new PhysicsConnector(this, bulletBody, true, true);
+		} else {
+			mWorld.unregisterPhysicsConnector(physicConnector);
+		}
+
+		mWorld.registerPhysicsConnector(physicConnector);
+
+		Log.v("GAME", "Shooting");
+
+		if (directionMove != null) {
+			switch (directionMove) {
+			case UP:
+				bulletBody.applyForce(new Vector2(0, speed), new Vector2());
+				break;
+			case DOWN:
+				bulletBody.applyForce(new Vector2(0, -speed), new Vector2());
+				break;
+			case RIGHT:
+				bulletBody.applyLinearImpulse(speed, 0, 0, 0);
+				break;
+			case LEFT:
+				bulletBody.applyForce(new Vector2(-speed, 0), new Vector2());
+				break;
+			default:
+				break;
+			}
+		}
+
 	}
 
 	public void updatePosition() {
@@ -81,13 +145,10 @@ public class Bullet extends Rectangle {
 				break;
 			}
 
-		if (getY() < initialPosition.y-500 || getY() > initialPosition.y+500 || getX() < initialPosition.x-500 || getX() > initialPosition.x+500) {
-			Log.e("GAME", "Bullet free");
+		if (getY() < initialPosition.y - 500 || getY() > initialPosition.y + 500 || getX() < initialPosition.x - 500 || getX() > initialPosition.x + 500) {
 			release();
 			getParent().detachChild(this);
 		} else if (CollisionManager.getInstance().checkCollisionObstacles(this) != null || CollisionManager.getInstance().checkCollisionEnemy(this)) {
-
-			Log.e("GAME", "Bullet free");
 			release();
 			getParent().detachChild(this);
 		}

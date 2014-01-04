@@ -17,6 +17,7 @@ import org.andengine.util.adt.color.Color;
 
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.TextureGameManager;
+import com.example.survivalgame.game.ItemInventory.Attribute;
 
 public class InventoryHUD extends HUD {
 
@@ -92,7 +93,7 @@ public class InventoryHUD extends HUD {
 
 			int position = checkAlreadyLoaded(entry.getKey());
 			if (position == -1) {
-				ItemInventory itemTest = new ItemInventory(220, 0, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), resourcesManager, vbom) {
+				ItemInventory itemTest = new ItemInventory(220, 0, entry.getKey(), TextureGameManager.getInstance(). getTexture(entry.getKey()),Attribute.SPEED, resourcesManager, vbom,mGameScene) {
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 						if (pSceneTouchEvent.isActionUp()) {
