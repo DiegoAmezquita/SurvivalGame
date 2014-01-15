@@ -1,5 +1,7 @@
 package com.example.survivalgame.game;
 
+import java.util.ArrayList;
+
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
 import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnScreenControlListener;
 import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
@@ -18,7 +20,6 @@ import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.extension.tmx.TMXLayer;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.math.MathUtils;
 
@@ -36,6 +37,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
 import com.example.survivalgame.SceneManager.SceneType;
+import com.example.survivalgame.util.MoveTask;
 import com.example.survivalgame.util.Util;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener {
@@ -56,7 +58,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	public AnalogOnScreenControl movementOnScreenControl;
 	// private static final String TAG = "GAME";
 	float x = 0, y = 0;
-	float speed = 0.85f;
+	float speed = 1.85f;
 
 	PointF beforeEntrancePosition;
 	PointF teleportToPosition;
@@ -80,6 +82,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	boolean driveCar = false;
 
 	int timeElapsedBetweenDamage = 2;
+
+	ArrayList<Building> arrayBuildings;
 
 	private void createBackground() {
 		setBackground(new Background(Color.BLACK));
@@ -120,7 +124,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void createPlayer() {
-		player = new Player(500, 500, vbom, camera, mPhysicsWorld) {
+		player = new Player(Util.playerSpawn.x, Util.playerSpawn.y, vbom, camera, mPhysicsWorld) {
 			@Override
 			public void onDie() {
 			}
@@ -151,36 +155,40 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 								car.setRotation(carRotation);
 							}
 						}
-
-						if (pValueX > 0 && pValueY < 0) {
-							if (pValueX > (pValueY * -1)) {
-								player.setRunningRight();
+						if (Util.moveAllowed) {
+							if (pValueX > 0 && pValueY < 0) {
+								if (pValueX > (pValueY * -1)) {
+									player.setRunningRight();
+								} else {
+									player.setRunningDown();
+								}
+							} else if (pValueX > 0 && pValueY > 0) {
+								if (pValueX > pValueY) {
+									player.setRunningRight();
+								} else {
+									player.setRunningUp();
+								}
+							} else if (pValueX < 0 && pValueY > 0) {
+								if ((pValueX * -1) > pValueY) {
+									player.setRunningLeft();
+								} else {
+									player.setRunningUp();
+								}
+							} else if (pValueX < 0 && pValueY < 0) {
+								if (pValueX < pValueY) {
+									player.setRunningLeft();
+								} else {
+									player.setRunningDown();
+								}
 							} else {
-								player.setRunningDown();
+								player.stopRunning();
 							}
-						} else if (pValueX > 0 && pValueY > 0) {
-							if (pValueX > pValueY) {
-								player.setRunningRight();
-							} else {
-								player.setRunningUp();
-							}
-						} else if (pValueX < 0 && pValueY > 0) {
-							if ((pValueX * -1) > pValueY) {
-								player.setRunningLeft();
-							} else {
-								player.setRunningUp();
-							}
-						} else if (pValueX < 0 && pValueY < 0) {
-							if (pValueX < pValueY) {
-								player.setRunningLeft();
-							} else {
-								player.setRunningDown();
-							}
+							x = pValueX * 1.5f;
+							y = pValueY * 1.5f;
 						} else {
-							player.stopRunning();
+							x = 0;
+							y = 0;
 						}
-						x = pValueX * 1.5f;
-						y = pValueY * 1.5f;
 
 					}
 
@@ -225,46 +233,29 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		attachChild(rightLimit);
 	}
 
-	public void createInitialBuildings(int posX, int posY, ITextureRegion textureFront) {
-		Building building = new Building("tmx/building.tmx", vbom, activity.getAssets(), engine);
-		TMXLayer layer = building.getLayer(0);
-		layer.setPosition(-building.getWidth() - 350, 0);
-		building.createBuildingFront(textureFront);
-		building.buildingFront.setPosition(posX, posY);
+	public void createInitialBuildings(int posX, int posY) {
+		Building building = new Building("tmx/houseOne.tmx", vbom, activity.getAssets(), engine, mPhysicsWorld);
+		// layer.setPosition(posX, posY);
+		building.setUserData("houseOne");
 
-		Log.v("GAME", "X: " + layer.getX() + " Y: " + layer.getY());
+		for (int i = 0; i < building.getNumberLayers(); i++) {
+			TMXLayer layer = building.getLayer(i);
+			layer.setX(-500);
+			layer.detachSelf();
+			if (!building.getLayer(i).getName().equals("Items")) {
+				attachChild(building.getLayer(i));
+			}
+		}
 
-		building.buildingFront.setZIndex(10000 - (int) building.buildingFront.getY());
-		layer.detachSelf();
-		attachChild(layer);
-		attachChild(building.buildingFront);
+		arrayBuildings.add(building);
+
+		// attachChild(building.buildingFront);
 	}
 
 	public void testBatch() {
-		int nextX = 100;
 
-		ITextureRegion[] arrayTexturesBuildings = new ITextureRegion[9];
-		arrayTexturesBuildings[0] = resourcesManager.mBuildingFront1;
-		arrayTexturesBuildings[1] = resourcesManager.mBuildingFront2;
-		arrayTexturesBuildings[2] = resourcesManager.mBuildingFront3;
-		arrayTexturesBuildings[3] = resourcesManager.mBuildingFront4;
-		arrayTexturesBuildings[4] = resourcesManager.mBuildingFront5;
-		arrayTexturesBuildings[5] = resourcesManager.mBuildingFront6;
-		arrayTexturesBuildings[6] = resourcesManager.mBuildingFront7;
-		arrayTexturesBuildings[7] = resourcesManager.mBuildingFront8;
-		arrayTexturesBuildings[8] = resourcesManager.mBuildingFront9;
+		createInitialBuildings(100, 600);
 
-		for (int i = 0; i < 9; i++) {
-
-			// createInitialBuildings(nextX, 600, arrayTexturesBuildings[i]);
-			nextX += arrayTexturesBuildings[i].getWidth() + 10;
-			// Sprite test = new Sprite(nextX, 600, arrayTexturesBuildings[i],
-			// vbom);
-
-			// attachChild(test);
-			// collisionManager.addObstacle(test);
-			// test.setZIndex(10000 - (int) test.getY());
-		}
 	}
 
 	public void createCar() {
@@ -278,7 +269,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		mPhysicsWorld = new PhysicsWorld(new Vector2(0, 0), false);
 
-		beforeEntrancePosition = new PointF();
+		beforeEntrancePosition = new PointF(0, 0);
 		teleportToPosition = new PointF();
 
 		collisionManager = CollisionManager.getInstance();
@@ -288,6 +279,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		enemiesPool = new EnemiesPool(20, this, vbom, mPhysicsWorld);
 
 		inventoryPlayer = InventoryPlayer.getInstance();
+
+		Util.taskList = new ArrayList<MoveTask>();
+
+		arrayBuildings = new ArrayList<Building>();
 
 	}
 
@@ -338,8 +333,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 				if (blocking) {
 					float newAlpha = gameHUD.blockScreen.getAlpha() + 0.005f;
 					if (newAlpha >= 1) {
-						player.setPosition(teleportToPosition.x, teleportToPosition.y);
+						// player.setPosition(teleportToPosition.x,
+						// teleportToPosition.y);
 						camera.setCenterDirect(player.getX(), player.getY());
+						camera.setChaseEntity(player);
 						blocking = false;
 					} else {
 						gameHUD.blockScreen.setAlpha(newAlpha);
@@ -391,10 +388,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void createInitialEnemies() {
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < Util.enemiesSpawn.size(); i++) {
 			Enemy enemy = enemiesPool.getEnemy();
 
-			// enemy.setPosition(newX, newY);
+			enemy.setPosition(Util.enemiesSpawn.get(i).x, Util.enemiesSpawn.get(i).y);
+			enemy.createEnemyBody();
 			enemy.setBusy();
 			attachChild(enemy);
 
@@ -403,11 +401,23 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	}
 
+	public void timeOut(float seconds) {
+		Util.moveAllowed = false;
+		player.stopRunning();
+		registerUpdateHandler(new TimerHandler(seconds, true, new ITimerCallback() {
+			@Override
+			public void onTimePassed(TimerHandler pTimerHandler) {
+				Util.moveAllowed = true;
+				unregisterUpdateHandler(pTimerHandler);
+			}
+		}));
+	}
+
 	@Override
 	public void createScene() {
 
 		engine.registerUpdateHandler(new FPSLogger());
-		camera.setZoomFactor(1.0f);
+		camera.setZoomFactor(2.0f);
 
 		init();
 		createBackground();
@@ -418,19 +428,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		testBatch();
 
-		// Rectangle rec = new Rectangle(0, 0, map.getWidth(), map.getHeight(),
-		// vbom);
-		// rec.setColor(0.01f, 0.01f, 0.01f, 0.0f);
-		// rec.setShaderProgram(SpotLight.getInstance());
-		// attachChild(rec);
-
-		// createLight();
-
 		createPlayer();
-
-		// createSword();
-
-		// createCar();
 
 		createControl();
 		createLimits();
@@ -458,30 +456,73 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 			@Override
 			public void postSolve(Contact contact, ContactImpulse impulse) {
-				if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureA().getBody().getUserData().equals("Enemy")) {
-					if (contact.getFixtureB().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData().equals("Player")) {
-						damagePlayer();
+				if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData() != null) {
+					String userDataA = (String) contact.getFixtureA().getBody().getUserData();
+					String userDataB = (String) contact.getFixtureB().getBody().getUserData();
+					if (userDataA != null && userDataB != null) {
+						// Log.v("BUILDING", userDataA + " ||||| " + userDataB);
 					}
-				} else if (contact.getFixtureB().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData().equals("Enemy")) {
-					if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureA().getBody().getUserData().equals("Player")) {
-						damagePlayer();
+
+					if ((userDataA.contains("door") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.contains("door"))) {
+						Log.v("BODY", userDataA + " " + userDataB);
+						Building building = getBuilding(userDataA.split("-")[1]);
+						Log.v("BUILDING", building.playerSpawnEntrance.x + " -- " + building.playerSpawnEntrance.y);
+
+						MoveTask task = new MoveTask(player.body, new PointF(building.playerSpawnEntrance.x + building.getLayer(0).getX() - building.getLayer(0).getWidth() / 2,
+								building.playerSpawnEntrance.y + building.getLayer(0).getY() - building.getLayer(0).getHeight() / 2));
+						Util.taskList.add(task);
+					} else if ((userDataA.equals("exit") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.equals("exit"))) {
+						Log.v("BODY", userDataA + " " + userDataB);
+
+						Log.v("BUILDING", "EXIT " + beforeEntrancePosition.x + " -- " + beforeEntrancePosition.y);
+
+						MoveTask task = new MoveTask(player.body, new PointF(beforeEntrancePosition.x, beforeEntrancePosition.y - 5));
+						Util.taskList.add(task);
 					}
 				}
 
-//				if (contact.getFixtureA().getBody().getUserData() != null && contact.getFixtureA().getBody().getUserData().getClass() == Bullet.class) {
-//					Log.v("GAME", "AAAAAAAAAAA");
-//					if (contact.getFixtureB().getBody().getUserData() != null) {
-//						Log.v("GAME", "" + contact.getFixtureB().getBody().getUserData());
-//					}
-//					bulletsPool.addBulletToRelease((Bullet) contact.getFixtureA().getBody().getUserData());
-//				} else if (contact.getFixtureB().getBody().getUserData() != null && contact.getFixtureB().getBody().getUserData().getClass() == Bullet.class) {
-//					Log.v("GAME", "BBBBBBBBBBB");
-//
-//					if (contact.getFixtureA().getBody().getUserData() != null) {
-//						Log.v("GAME", "" + contact.getFixtureA().getBody().getUserData());
-//					}
-//					bulletsPool.addBulletToRelease((Bullet) contact.getFixtureB().getBody().getUserData());
-//				}
+				// if (contact.getFixtureA().getBody().getUserData() != null &&
+				// contact.getFixtureA().getBody().getUserData().equals("Enemy"))
+				// {
+				// if (contact.getFixtureB().getBody().getUserData() != null &&
+				// contact.getFixtureB().getBody().getUserData().equals("Player"))
+				// {
+				// damagePlayer();
+				// }
+				// } else if (contact.getFixtureB().getBody().getUserData() !=
+				// null &&
+				// contact.getFixtureB().getBody().getUserData().equals("Enemy"))
+				// {
+				// if (contact.getFixtureA().getBody().getUserData() != null &&
+				// contact.getFixtureA().getBody().getUserData().equals("Player"))
+				// {
+				// damagePlayer();
+				// }
+				// }
+
+				// if (contact.getFixtureA().getBody().getUserData() != null &&
+				// contact.getFixtureA().getBody().getUserData().getClass() ==
+				// Bullet.class) {
+				// Log.v("GAME", "AAAAAAAAAAA");
+				// if (contact.getFixtureB().getBody().getUserData() != null) {
+				// Log.v("GAME", "" +
+				// contact.getFixtureB().getBody().getUserData());
+				// }
+				// bulletsPool.addBulletToRelease((Bullet)
+				// contact.getFixtureA().getBody().getUserData());
+				// } else if (contact.getFixtureB().getBody().getUserData() !=
+				// null &&
+				// contact.getFixtureB().getBody().getUserData().getClass() ==
+				// Bullet.class) {
+				// Log.v("GAME", "BBBBBBBBBBB");
+				//
+				// if (contact.getFixtureA().getBody().getUserData() != null) {
+				// Log.v("GAME", "" +
+				// contact.getFixtureA().getBody().getUserData());
+				// }
+				// bulletsPool.addBulletToRelease((Bullet)
+				// contact.getFixtureB().getBody().getUserData());
+				// }
 
 			}
 		});
@@ -493,6 +534,21 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 				checkPickItem();
 				player.setZIndex(10000 - (int) player.getY());
 				enemiesPool.updateEnemies(player);
+
+				if (!Util.taskList.isEmpty()) {
+					for (int i = 0; i < Util.taskList.size(); i++) {
+						timeOut(1);
+						camera.setChaseEntity(null);
+						if (beforeEntrancePosition.x == 0 && beforeEntrancePosition.y == 0) {
+							beforeEntrancePosition.x = player.getX();
+							beforeEntrancePosition.y = player.getY();
+						}
+						Util.taskList.get(i).move();
+						blockScreenToTeleport();
+
+					}
+					Util.taskList.clear();
+				}
 
 			}
 
@@ -697,7 +753,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void damagePlayer() {
 		if (timeElapsedBetweenDamage == 2) {
-			life = life - 10;
+			life -= 10;
 			gameHUD.lifeText.setText("Life: " + life + "%");
 			if (life == 0) {
 				endGame();
@@ -721,8 +777,26 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		gameOver = true;
 	}
 
-	public void useItem(ItemInventory item) {
+	public Building getBuilding(String nameBuilding) {
+		for (Building building : arrayBuildings) {
+			if (building.getUserData().equals(nameBuilding)) {
+				return building;
+			}
+		}
+		return null;
+	}
 
+	public void useItem(ItemInventory item) {
+		item.useItem();
+	}
+
+	public void addItemQuickMenu(ItemInventory item) {
+		gameHUD.addItemQuickMenu(item);
+	}
+
+	public void addLife(int amount) {
+		life += amount;
+		gameHUD.lifeText.setText("Life: " + life + "%");
 	}
 
 	@Override

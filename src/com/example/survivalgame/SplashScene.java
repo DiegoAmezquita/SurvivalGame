@@ -20,7 +20,7 @@ public class SplashScene extends BaseScene {
 
 	@Override
 	public void createScene() {
-		setBackground(new Background(Color.WHITE));
+		setBackground(new Background(Color.BLACK));
 		
 		splash = new Sprite(0, 0, resourcesManager.splash_region, vbom) {
 			@Override

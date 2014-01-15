@@ -1,12 +1,9 @@
 package com.example.survivalgame.game;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.PathModifier;
-import org.andengine.entity.modifier.PathModifier.IPathModifierListener;
 import org.andengine.entity.modifier.PathModifier.Path;
-import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
@@ -14,11 +11,8 @@ import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
-import org.andengine.util.modifier.ease.EaseSineInOut;
 
-import android.graphics.PointF;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -49,7 +43,7 @@ public abstract class Player extends AnimatedSprite {
 
 	FixtureDef playerFixtureDef;
 
-	Body playerBody;
+	Body body;
 
 	float speed = 1;
 
@@ -75,9 +69,13 @@ public abstract class Player extends AnimatedSprite {
 		shadow.setFlippedVertical(true);
 		shadow.setVisible(false);
 
-		playerBody = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, playerFixtureDef);
-		playerBody.setUserData("Player");
-		mWorld.registerPhysicsConnector(new PhysicsConnector(this, playerBody, true, true));
+//		body = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, playerFixtureDef);
+		
+		
+		body = PhysicsFactory.createBoxBody(mWorld, getX(), getY(), getWidth() / 3, getHeight(), BodyType.DynamicBody, playerFixtureDef);
+		
+		body.setUserData("Player");
+		mWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, true));
 
 		// createSword(vbom);
 	}
@@ -109,7 +107,7 @@ public abstract class Player extends AnimatedSprite {
 			directionMove = Direction.UP;
 			directionPointing = Direction.UP;
 		}
-		playerBody.setLinearVelocity(0, speed);
+		body.setLinearVelocity(0, speed);
 	}
 
 	public void setRunningUpRight() {
@@ -136,7 +134,7 @@ public abstract class Player extends AnimatedSprite {
 			directionMove = Direction.DOWN;
 			directionPointing = Direction.DOWN;
 		}
-		playerBody.setLinearVelocity(0, -speed);
+		body.setLinearVelocity(0, -speed);
 	}
 
 	public void setRunningDownRight() {
@@ -163,7 +161,7 @@ public abstract class Player extends AnimatedSprite {
 			directionMove = Direction.LEFT;
 			directionPointing = Direction.LEFT;
 		}
-		playerBody.setLinearVelocity(-speed, 0);
+		body.setLinearVelocity(-speed, 0);
 	}
 
 	public void setRunningRight() {
@@ -174,11 +172,11 @@ public abstract class Player extends AnimatedSprite {
 			directionMove = Direction.RIGHT;
 			directionPointing = Direction.RIGHT;
 		}
-		playerBody.setLinearVelocity(speed, 0);
+		body.setLinearVelocity(speed, 0);
 	}
 
 	public void stopRunning() {
-		playerBody.setLinearVelocity(0, 0);
+		body.setLinearVelocity(0, 0);
 		stopAnimation();
 		shadow.stopAnimation();
 		if (directionMove != null)

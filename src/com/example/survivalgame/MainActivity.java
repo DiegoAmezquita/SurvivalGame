@@ -35,7 +35,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 	public static float mCentreY = 0;
 	public static float mRadius = 0;
 	private static Font mFont;
-	
+
 	public static float borderValue = 1f;
 
 	@Override
@@ -48,8 +48,9 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 		mCentreX = mWidth / 2;
 		mCentreY = mHeight / 2;
 
-		Log.w("" + mWidth, "" + mHeight);
-		
+		Log.w("WIDHT", "" + mWidth);
+		Log.w("WIDHT", "" + mHeight);
+
 		Log.w("" + mCentreX, "" + mCentreY);
 
 		mCamera = new Camera(0, 0, mWidth, mHeight);
@@ -93,7 +94,6 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 		rec.setColor(Color.BLACK);
 		rec.setShaderProgram(SpotLight.getInstance());
 		scene.attachChild(rec);
-		
 
 		scene.setOnSceneTouchListener(this);
 		return scene;
@@ -104,10 +104,9 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 
 		mCentreX = pSceneTouchEvent.getX();
-		mCentreY = mHeight-pSceneTouchEvent.getY();
-		
-		
-		Log.v("GAME",mCentreY+"");
+		mCentreY = mHeight - pSceneTouchEvent.getY();
+
+		Log.v("GAME", mCentreY + "");
 
 		return true;
 	}

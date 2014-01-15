@@ -15,11 +15,15 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.align.HorizontalAlign;
 import org.andengine.util.adt.color.Color;
 
+import android.util.Log;
+
 import com.example.survivalgame.ResourcesManager;
 import com.example.survivalgame.util.Popup;
 import com.example.survivalgame.util.SpotLight;
 
 public class GameHUD extends HUD {
+
+	static final String TAG = "GameHUD";
 
 	Camera mCamera;
 	GameScene mGameScene;
@@ -42,6 +46,9 @@ public class GameHUD extends HUD {
 
 	Rectangle blockScreen;
 
+	ArrayList<ItemInventory> quickMenuItems;
+	Rectangle quickMenuBackground;
+
 	Path pathShow;
 	Path pathHide;
 	PathModifier showMenu;
@@ -57,6 +64,8 @@ public class GameHUD extends HUD {
 		resourcesManager = ResourcesManager.getInstance();
 
 		arrayPopups = new ArrayList<Popup>();
+
+		quickMenuItems = new ArrayList<ItemInventory>();
 
 		nightRect = new Rectangle(400, 240, 800, 480, vbom);
 		nightRect.setColor(Color.BLACK);
@@ -181,8 +190,6 @@ public class GameHUD extends HUD {
 
 		showMenu = new PathModifier(0.1f, pathShow);
 		hideMenu = new PathModifier(0.1f, pathHide);
-		
-	
 
 		quickMenuButton = new Rectangle(780, 240, 40, 60, vbom) {
 			@Override
@@ -191,11 +198,11 @@ public class GameHUD extends HUD {
 					if (!quickMenuShowed) {
 						quickMenuButton.clearEntityModifiers();
 						quickMenuButton.registerEntityModifier(new PathModifier(0.1f, pathShow));
-						quickMenuShowed=true;
+						quickMenuShowed = true;
 					} else {
 						quickMenuButton.clearEntityModifiers();
 						quickMenuButton.registerEntityModifier(new PathModifier(0.1f, pathHide));
-						quickMenuShowed=false;
+						quickMenuShowed = false;
 					}
 					return true;
 				} else if (pSceneTouchEvent.isActionUp()) {
@@ -207,12 +214,11 @@ public class GameHUD extends HUD {
 		};
 		attachChild(quickMenuButton);
 
-		Rectangle quickMenuBackground = new Rectangle(90, 30, 100, 240, vbom);
+		quickMenuBackground = new Rectangle(90, 30, 100, 240, vbom);
 		quickMenuBackground.setColor(Color.RED);
 
 		registerTouchArea(quickMenuButton);
-		
-		
+
 		quickMenuButton.attachChild(quickMenuBackground);
 
 	}
@@ -248,6 +254,28 @@ public class GameHUD extends HUD {
 		if (buttonC.isVisible()) {
 			buttonC.setVisible(false);
 			unregisterTouchArea(buttonC);
+		}
+	}
+
+	public void addItemQuickMenu(final ItemInventory item) {
+		if (quickMenuItems.size() < 4) {
+			quickMenuItems.add(item);
+
+			int posY = 200 - ((quickMenuItems.size() - 1) * 50);
+
+			Sprite sprite = new Sprite(50, posY, item.mSpriteItem.getTextureRegion(), vbom) {
+				@Override
+				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+					if (pSceneTouchEvent.isActionUp()) {
+						Log.v(TAG, "USE THIS QUICK ITEM " + item.name);
+					}
+					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+				}
+			};
+			sprite.setScale(2.0f);
+
+			quickMenuBackground.attachChild(sprite);
+			registerTouchArea(sprite);
 		}
 	}
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class InventoryPlayer {
 
-	HashMap<String, Integer> inventory;
+	public HashMap<String, Integer> inventory;
 
 	static InventoryPlayer instance;
 	

@@ -1,6 +1,5 @@
 package com.example.survivalgame.game;
 
-import org.andengine.entity.modifier.PathModifier.Path;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
@@ -16,7 +15,7 @@ import com.example.survivalgame.util.Util.Direction;
 
 public class Enemy extends AnimatedSprite {
 
-	private float speed = 0.3f;
+	private float speed = 0.5f;
 
 	private boolean free = true;
 
@@ -43,15 +42,11 @@ public class Enemy extends AnimatedSprite {
 
 	float maxDistance = 400;
 
+	PhysicsWorld mWorld;
+
 	public Enemy(float pX, float pY, VertexBufferObjectManager pVertexBufferObjectManager, GameScene gameScene, PhysicsWorld mWorld) {
 		super(pX, pY, ResourcesManager.getInstance().enemies_region, pVertexBufferObjectManager);
 
-		int newX = 200+(int) (Math.random() * 500);
-		int newY = 200+(int) (Math.random() * 500);
-		
-		setX(newX);
-		setY(newY);
-		
 		this.mGameScene = gameScene;
 		setScale(0.75f);
 
@@ -64,12 +59,15 @@ public class Enemy extends AnimatedSprite {
 		directionMove = Direction.NONE;
 
 		enemyFixture = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+		this.mWorld = mWorld;
 
+	}
+
+	public void createEnemyBody() {
 		bodyEnemy = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, enemyFixture);
 		bodyEnemy.setUserData("Enemy");
 
 		mWorld.registerPhysicsConnector(new PhysicsConnector(this, bodyEnemy, true, true));
-
 	}
 
 	public void setRunningUp() {
@@ -171,9 +169,7 @@ public class Enemy extends AnimatedSprite {
 			speedY = -distanceY / distance;
 		}
 
-			bodyEnemy.setLinearVelocity(speedX, speedY);
-		
-		
+		bodyEnemy.setLinearVelocity(speedX * speed, speedY * speed);
 
 		if (shape.getX() >= getX()) {
 			if (shape.getY() >= getY()) {

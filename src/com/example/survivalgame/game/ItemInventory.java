@@ -7,6 +7,7 @@ import org.andengine.entity.text.TextOptions;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.align.HorizontalAlign;
+import org.andengine.util.adt.color.Color;
 
 import com.example.survivalgame.ResourcesManager;
 
@@ -18,30 +19,29 @@ public class ItemInventory extends Rectangle {
 	Text textQuantity;
 
 	Sprite mSpriteItem;
-	
-	public enum Attribute{
-		SPEED,LIFE,MUNITION
+
+	public enum Attribute {
+		SPEED, LIFE, MUNITION
 	}
-	
+
 	int amount = 0;
-	
-	
+
 	Attribute attribute;
-	
-	
+
 	GameScene mGameScene;
 
-	public ItemInventory(float pX, float pY, String name, ITextureRegion pTextureRegion,Attribute attribute, ResourcesManager resourcesManager, VertexBufferObjectManager vbom,GameScene gameScene) {
+	public ItemInventory(float pX, float pY, String name, ITextureRegion pTextureRegion, Attribute attribute, ResourcesManager resourcesManager, VertexBufferObjectManager vbom, GameScene gameScene) {
 
-		super(pX, pY, 100, 32, vbom);
-		setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
-		mSpriteItem = new Sprite(pTextureRegion.getWidth(), pTextureRegion.getHeight(), pTextureRegion, vbom);
+		super(pX, pY, 50, 50, vbom);
+		setColor(Color.YELLOW);
+//		setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
+		mSpriteItem = new Sprite(25, 25, pTextureRegion, vbom);
 		if (name == null) {
 			name = "Null";
 		}
-		
+
 		mGameScene = gameScene;
-		
+
 		mSpriteItem.setScale(2f);
 		this.name = name;
 		this.quantity = 0;
@@ -51,7 +51,7 @@ public class ItemInventory extends Rectangle {
 		textQuantity.setScale(0.5f);
 
 		attachChild(mSpriteItem);
-		attachChild(textQuantity);
+//		attachChild(textQuantity);
 
 	}
 
@@ -59,7 +59,7 @@ public class ItemInventory extends Rectangle {
 		quantity += 1;
 		textQuantity.setText("x" + quantity);
 	}
-	
+
 	public void decreaseQuantity() {
 		quantity -= 1;
 		textQuantity.setText("x" + quantity);
@@ -69,17 +69,18 @@ public class ItemInventory extends Rectangle {
 		this.quantity = quantity;
 		textQuantity.setText("x" + quantity);
 	}
-	
-	public void useItem(){
-		decreaseQuantity();
-		
-		switch (attribute) {
-		case SPEED:
-			
-			break;
 
-		default:
-			break;
+	public void useItem() {
+		if (quantity > 0) {
+			decreaseQuantity();
+			switch (attribute) {
+			case SPEED:
+				mGameScene.addLife(20);
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 

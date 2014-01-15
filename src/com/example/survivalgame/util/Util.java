@@ -1,6 +1,9 @@
 package com.example.survivalgame.util;
 
 import android.graphics.Point;
+import android.graphics.PointF;
+
+import java.util.ArrayList;
 
 public class Util {
 
@@ -27,4 +30,12 @@ public class Util {
 		return randomPosition;
 	}
 
+	
+	public static ArrayList<PointF> enemiesSpawn;
+	
+	public static PointF playerSpawn;
+	
+	public static ArrayList<MoveTask> taskList;
+	
+	public static boolean moveAllowed = true;
 }
