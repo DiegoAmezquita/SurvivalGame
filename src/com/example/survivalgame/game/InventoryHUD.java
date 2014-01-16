@@ -1,6 +1,5 @@
 package com.example.survivalgame.game;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.align.HorizontalAlign;
 import org.andengine.util.adt.color.Color;
 
+import android.graphics.Point;
 import android.util.Log;
 
 import com.example.survivalgame.ResourcesManager;
@@ -35,13 +35,15 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 	Camera mCamera;
 
 	ItemInventory mItemSelected;
-
-	Rectangle mSpriteButtonUse;
+	public Text quantityTextSelected;
+	Rectangle dropItem;
+	Rectangle addQuickMenu;
+	Rectangle useItem;
 
 	int mPosInventoryItemX = 210;
 	int mPosInventoryItemY = 325;
 
-	ArrayList<ItemInventory> itemsAlreadyLoaded;
+	ItemInventory[][] itemsAlreadyLoaded;
 
 	InventoryPlayer inventoryPlayer;
 
@@ -50,6 +52,9 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 	float posXInit = 400;
 	float posYInit = 240;
 
+	int rowCount = 4;
+	int columnCount = 4;
+
 	public InventoryHUD(Camera camera, GameScene gameScene, VertexBufferObjectManager vbom) {
 
 		this.mCamera = camera;
@@ -57,7 +62,13 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 		this.vbom = vbom;
 		resourcesManager = ResourcesManager.getInstance();
 
-		itemsAlreadyLoaded = new ArrayList<ItemInventory>();
+		itemsAlreadyLoaded = new ItemInventory[rowCount][columnCount];
+
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < columnCount; j++) {
+				itemsAlreadyLoaded[j][i] = null;
+			}
+		}
 
 		inventoryPlayer = InventoryPlayer.getInstance();
 
@@ -110,9 +121,8 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 
 		while (entries.hasNext()) {
 			Map.Entry<String, Integer> entry = entries.next();
-
-			int position = checkAlreadyLoaded(entry.getKey());
-			if (position == -1) {
+			Point position = checkAlreadyLoaded(entry.getKey());
+			if (position == null && entry.getValue() > 0) {
 				ItemInventory itemTest = new ItemInventory(220, 0, entry.getKey(), TextureGameManager.getInstance().getTexture(entry.getKey()), Attribute.SPEED, resourcesManager, vbom, mGameScene) {
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -124,32 +134,55 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 				};
 				itemTest.setQuantity(entry.getValue());
 				registerTouchArea(itemTest);
-				itemsAlreadyLoaded.add(itemTest);
-				addItemInventory(itemTest);
+				addToInventory(itemTest);
 
-			} else {
-				ItemInventory itemTempo = itemsAlreadyLoaded.get(position);
-				itemTempo.setQuantity(entry.getValue());
-				itemsAlreadyLoaded.set(position, itemTempo);
+			} else if (position != null) {
+				ItemInventory itemTempo = itemsAlreadyLoaded[position.x][position.y];
+				if (entry.getValue() <= 0) {
+					itemTempo.detachSelf();
+					itemsAlreadyLoaded[position.x][position.y] = null;
+					clearItemSelected();
+				} else {
+					itemTempo.setQuantity(entry.getValue());
+					itemsAlreadyLoaded[position.x][position.y] = itemTempo;
+				}
 			}
-
 		}
+		clearItemSelected();
 	}
 
-	public int checkAlreadyLoaded(String key) {
-		for (int i = 0; i < itemsAlreadyLoaded.size(); i++) {
-			if (itemsAlreadyLoaded.get(i).name.equals(key)) {
-				return i;
+	public Point checkAlreadyLoaded(String key) {
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < columnCount; j++) {
+				if (itemsAlreadyLoaded[j][i] != null && itemsAlreadyLoaded[j][i].name.equals(key)) {
+					return new Point(j, i);
+				}
 			}
 		}
-		return -1;
+		return null;
+	}
+
+	public void addToInventory(ItemInventory item) {
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < columnCount; j++) {
+				if (itemsAlreadyLoaded[j][i] == null) {
+					itemsAlreadyLoaded[j][i] = item;
+					mPosInventoryItemX = 210 + 60 * j;
+					mPosInventoryItemY = 325 + 60 * i;
+					item.setX(mPosInventoryItemX);
+					item.setY(mPosInventoryItemY);
+					if (!item.hasParent()) {
+						attachChild(item);
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	public void createGrid() {
 
 		int sizeCell = 60;
-		int rowCount = 4;
-		int columnCount = 4;
 
 		for (int i = 0; i < rowCount + 1; i++) {
 			Line line = new Line(180, 355 - sizeCell * i, 180 + sizeCell * rowCount - 1, 355 - sizeCell * i, vbom);
@@ -174,20 +207,23 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 
 	}
 
-	public void addItemInventory(ItemInventory item) {
-		item.setX(mPosInventoryItemX);
-		item.setY(mPosInventoryItemY);
-		attachChild(item);
-		mPosInventoryItemX += 60;
-		mPosInventoryItemY -= 60;
-	}
+	// public void addItemInventory(ItemInventory item) {
+	// item.setX(mPosInventoryItemX);
+	// item.setY(mPosInventoryItemY);
+	// attachChild(item);
+	// mPosInventoryItemX += 60;
+	// mPosInventoryItemY -= 60;
+	// }
 
 	public void setItemSelected(ItemInventory item) {
+		
 		if (mItemSelected != null) {
+			mItemSelected.setSelected(false);
 			mItemSelected.mSpriteItem.detachSelf();
 		}
 
 		mItemSelected = item;
+		mItemSelected.setSelected(true);
 
 		mItemSelected.mSpriteItem = new Sprite(520, 310, mItemSelected.mSpriteItem.getTextureRegion(), vbom);
 
@@ -195,8 +231,18 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 
 		attachChild(mItemSelected.mSpriteItem);
 
-		if (mSpriteButtonUse == null) {
-			mSpriteButtonUse = new Rectangle(455, 150, 50, 50, vbom) {
+		if (quantityTextSelected == null) {
+			quantityTextSelected = new Text(520, 250, resourcesManager.font, "Cant:" + item.quantity, vbom);
+			quantityTextSelected.setScale(0.7f);
+			quantityTextSelected.setPosition(520, 250);
+			attachChild(quantityTextSelected);
+		} else {
+			quantityTextSelected.setVisible(true);
+			quantityTextSelected.setText("Cant:" + item.quantity);
+		}
+
+		if (useItem == null) {
+			useItem = new Rectangle(455, 150, 50, 50, vbom) {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.isActionUp()) {
@@ -207,11 +253,11 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 				}
 			};
 			;
-			mSpriteButtonUse.setColor(Color.GREEN);
-			registerTouchArea(mSpriteButtonUse);
-			attachChild(mSpriteButtonUse);
+			useItem.setColor(Color.GREEN);
+			registerTouchArea(useItem);
+			attachChild(useItem);
 
-			Rectangle addQuickMenu = new Rectangle(520, 150, 50, 50, vbom) {
+			addQuickMenu = new Rectangle(520, 150, 50, 50, vbom) {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.isActionUp()) {
@@ -224,7 +270,7 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 			registerTouchArea(addQuickMenu);
 			attachChild(addQuickMenu);
 
-			Rectangle dropItem = new Rectangle(585, 150, 50, 50, vbom) {
+			dropItem = new Rectangle(585, 150, 50, 50, vbom) {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.isActionUp()) {
@@ -236,9 +282,24 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 			dropItem.setColor(Color.RED);
 			registerTouchArea(dropItem);
 			attachChild(dropItem);
-
+		} else {
+			useItem.setVisible(true);
+			addQuickMenu.setVisible(true);
+			dropItem.setVisible(true);
 		}
 
+	}
+
+	public void clearItemSelected() {
+		if (mItemSelected != null) {
+			mItemSelected.setSelected(false);
+			mItemSelected.mSpriteItem.detachSelf();
+			mItemSelected = null;
+			quantityTextSelected.setVisible(false);
+			useItem.setVisible(false);
+			addQuickMenu.setVisible(false);
+			dropItem.setVisible(false);
+		}
 	}
 
 	@Override

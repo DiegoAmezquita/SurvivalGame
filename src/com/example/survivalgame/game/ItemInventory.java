@@ -13,6 +13,8 @@ import com.example.survivalgame.ResourcesManager;
 
 public class ItemInventory extends Rectangle {
 
+	static final String TAG = "ItemInventory";
+
 	String name;
 	int quantity;
 
@@ -33,8 +35,9 @@ public class ItemInventory extends Rectangle {
 	public ItemInventory(float pX, float pY, String name, ITextureRegion pTextureRegion, Attribute attribute, ResourcesManager resourcesManager, VertexBufferObjectManager vbom, GameScene gameScene) {
 
 		super(pX, pY, 50, 50, vbom);
-		setColor(Color.YELLOW);
-//		setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
+		// setColor(Color.YELLOW);
+		// setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
+		setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
 		mSpriteItem = new Sprite(25, 25, pTextureRegion, vbom);
 		if (name == null) {
 			name = "Null";
@@ -51,8 +54,16 @@ public class ItemInventory extends Rectangle {
 		textQuantity.setScale(0.5f);
 
 		attachChild(mSpriteItem);
-//		attachChild(textQuantity);
+		// attachChild(textQuantity);
 
+	}
+
+	public void setSelected(boolean selected) {
+		if (selected) {
+			setColor(Color.YELLOW);
+		} else {
+			setColor(181.0f / 255.0f, 167.0f / 255.0f, 167.0f / 255.0f);
+		}
 	}
 
 	public void increaseQuantity() {
@@ -61,8 +72,11 @@ public class ItemInventory extends Rectangle {
 	}
 
 	public void decreaseQuantity() {
-		quantity -= 1;
-		textQuantity.setText("x" + quantity);
+		quantity--;
+		mGameScene.inventoryPlayer.inventory.put(name, quantity);
+		mGameScene.inventoryHUD.quantityTextSelected.setText("Cant:" + quantity);
+		mGameScene.inventoryHUD.populateInventory();
+
 	}
 
 	public void setQuantity(int quantity) {
