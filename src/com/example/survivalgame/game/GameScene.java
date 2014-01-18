@@ -15,6 +15,7 @@ import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.debugdraw.DebugRenderer;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -28,12 +29,17 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
+import com.badlogic.gdx.physics.box2d.joints.LineJointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
 import com.example.survivalgame.SceneManager.SceneType;
@@ -136,6 +142,38 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		attachChild(player.shadow);
 
 		attachChild(player);
+
+		Rectangle sword = new Rectangle(Util.playerSpawn.x+10, Util.playerSpawn.y, 10, 4, vbom);
+		attachChild(sword);
+
+		final Body redBody = PhysicsFactory.createBoxBody(mPhysicsWorld, sword, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(5, 0.5f, 0.5f));
+		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(sword, redBody, true, true));
+
+		// final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
+		// revoluteJointDef.initialize(player.body, redBody,
+		// player.body.getWorldCenter());
+		// revoluteJointDef.enableMotor = true;
+		// revoluteJointDef.motorSpeed = -1;
+		// revoluteJointDef.maxMotorTorque = 100;
+		// mPhysicsWorld.createJoint(revoluteJointDef);
+
+		// final DistanceJointDef distanceJointDef = new DistanceJointDef();
+		// distanceJointDef.initialize(player.body, redBody,
+		// player.body.getWorldCenter(), redBody.getWorldCenter());
+		// distanceJointDef.length = 0.0f;
+		// distanceJointDef.collideConnected = false;
+		// distanceJointDef.frequencyHz = 4.0f;
+		// distanceJointDef.dampingRatio = 0.0f;
+		// mPhysicsWorld.createJoint(distanceJointDef);
+
+		WeldJointDef j = new WeldJointDef();
+
+		j.initialize(player.body, redBody, player.body.getWorldCenter());
+		j.collideConnected = false;
+		mPhysicsWorld.createJoint(j);
+
+		// Attach box2d debug renderer if you want to see debug.
+//		attachChild(new DebugRenderer(mPhysicsWorld, vbom));
 
 	}
 

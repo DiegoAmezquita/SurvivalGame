@@ -76,6 +76,7 @@ public abstract class Player extends AnimatedSprite {
 		
 		body.setUserData("Player");
 		mWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, true));
+		
 
 		// createSword(vbom);
 	}
