@@ -143,34 +143,19 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		attachChild(player);
 
-		Rectangle sword = new Rectangle(Util.playerSpawn.x+10, Util.playerSpawn.y, 10, 4, vbom);
+		Rectangle sword = new Rectangle(Util.playerSpawn.x + 10, Util.playerSpawn.y, 10, 4, vbom);
 		attachChild(sword);
 
-		final Body redBody = PhysicsFactory.createBoxBody(mPhysicsWorld, sword, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(5, 0.5f, 0.5f));
-		mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(sword, redBody, true, true));
-
-		// final RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-		// revoluteJointDef.initialize(player.body, redBody,
-		// player.body.getWorldCenter());
-		// revoluteJointDef.enableMotor = true;
-		// revoluteJointDef.motorSpeed = -1;
-		// revoluteJointDef.maxMotorTorque = 100;
-		// mPhysicsWorld.createJoint(revoluteJointDef);
-
-		// final DistanceJointDef distanceJointDef = new DistanceJointDef();
-		// distanceJointDef.initialize(player.body, redBody,
-		// player.body.getWorldCenter(), redBody.getWorldCenter());
-		// distanceJointDef.length = 0.0f;
-		// distanceJointDef.collideConnected = false;
-		// distanceJointDef.frequencyHz = 4.0f;
-		// distanceJointDef.dampingRatio = 0.0f;
-		// mPhysicsWorld.createJoint(distanceJointDef);
-
-		WeldJointDef j = new WeldJointDef();
-
-		j.initialize(player.body, redBody, player.body.getWorldCenter());
-		j.collideConnected = false;
-		mPhysicsWorld.createJoint(j);
+		// final Body redBody = PhysicsFactory.createBoxBody(mPhysicsWorld,
+		// sword, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(5, 0.5f,
+		// 0.5f));
+		// mPhysicsWorld.registerPhysicsConnector(new PhysicsConnector(sword,
+		// redBody, true, true));
+		//
+		// WeldJointDef j = new WeldJointDef();
+		// j.initialize(player.body, redBody, player.body.getWorldCenter());
+		// j.collideConnected = false;
+		// mPhysicsWorld.createJoint(j);
 
 		// Attach box2d debug renderer if you want to see debug.
 //		attachChild(new DebugRenderer(mPhysicsWorld, vbom));
@@ -516,6 +501,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 						MoveTask task = new MoveTask(player.body, new PointF(beforeEntrancePosition.x, beforeEntrancePosition.y - 5));
 						Util.taskList.add(task);
+					} else if ((userDataA.equals("Enemy") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.equals("Enemy"))) {
+						MoveTask task = new MoveTask(player.body, new PointF(1f, 0), true);
+						damagePlayer();
+						Util.taskList.add(task);
 					}
 				}
 
@@ -582,7 +571,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 							beforeEntrancePosition.y = player.getY();
 						}
 						Util.taskList.get(i).move();
-						blockScreenToTeleport();
+						if (!Util.taskList.get(i).hitByEnemy) {
+							blockScreenToTeleport();
+						}else{
+							camera.setChaseEntity(player);
+						}
 
 					}
 					Util.taskList.clear();
