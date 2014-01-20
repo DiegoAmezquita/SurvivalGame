@@ -2,8 +2,8 @@ package com.example.survivalgame.game;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.modifier.LoopEntityModifier;
-import org.andengine.entity.modifier.PathModifier;
 import org.andengine.entity.modifier.PathModifier.Path;
+import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
@@ -11,7 +11,6 @@ import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
-
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -45,7 +44,18 @@ public abstract class Player extends AnimatedSprite {
 
 	Body body;
 
-	float speed = 1;
+	float speed = 1f;
+
+	long speedFrame = 200;
+	long speedAttackFrame = 50;
+
+	LoopEntityModifier swordMovement;
+
+	boolean attacking;
+
+	boolean running;
+
+	Rectangle sword;
 
 	// ---------------------------------------------
 	// CONSTRUCTOR
@@ -69,31 +79,24 @@ public abstract class Player extends AnimatedSprite {
 		shadow.setFlippedVertical(true);
 		shadow.setVisible(false);
 
-//		body = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, playerFixtureDef);
-		
-		
-		body = PhysicsFactory.createBoxBody(mWorld, getX(), getY(), getWidth() / 3, getHeight(), BodyType.DynamicBody, playerFixtureDef);
-		
+		// body = PhysicsFactory.createBoxBody(mWorld, this,
+		// BodyType.DynamicBody, playerFixtureDef);
+
+		body = PhysicsFactory.createBoxBody(mWorld, getX(), getY(), getWidth() / 3, getHeight()/2, BodyType.DynamicBody, playerFixtureDef);
+
 		body.setUserData("Player");
 		mWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, true));
-		
 
-		// createSword(vbom);
+		attacking = false;
+		running = false;
+
+		createSword(vbom);
 	}
 
 	public void createSword(VertexBufferObjectManager vbom) {
-		Rectangle sword = new Rectangle(getWidth() + 3, getHeight() / 2, 10, 3, vbom);
+		sword = new Rectangle(getWidth()/2+(getWidth()/6)+6, getHeight() / 2.5f, 12, 2, vbom);
+		sword.setVisible(false);
 		attachChild(sword);
-
-		final Path path = new Path(3).to(getWidth(), getHeight() / 2).to(getWidth() + 20, getHeight() / 2).to(getWidth(), getHeight() / 2);
-
-		sword.setRotationCenter(0, 0);
-
-		// sword.registerEntityModifier(new LoopEntityModifier(new
-		// RotationModifier(1, -70, 100)));
-
-		sword.registerEntityModifier(new LoopEntityModifier(new PathModifier(0.3f, path)));
-
 	}
 
 	// ---------------------------------------------
@@ -101,102 +104,116 @@ public abstract class Player extends AnimatedSprite {
 	// ---------------------------------------------
 
 	public void setRunningUp() {
-		if (directionMove != Direction.UP) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
-			animate(PLAYER_ANIMATE, 12, 15, true);
-			shadow.animate(PLAYER_ANIMATE, 12, 15, true);
+		if (directionMove != Direction.UP && !attacking) {
+			
+			sword.setSize(2, 12);
+			sword.setPosition(getWidth()/2,getHeight()/2+10);
+			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
+			if (!running) {
+				animate(PLAYER_ANIMATE, 28, 31, true);
+			} else {
+				animate(PLAYER_ANIMATE, 56, 59, true);
+			}
+
 			directionMove = Direction.UP;
 			directionPointing = Direction.UP;
 		}
-		body.setLinearVelocity(0, speed);
-	}
+		if (running) {
+			body.setLinearVelocity(0, speed * 2);
+		} else {
+			body.setLinearVelocity(0, speed);
+		}
 
-	public void setRunningUpRight() {
-		// if (directionMove != Direction.UPRIGHT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 18, 23, true);
-		// directionMove = Direction.UPRIGHT;
-		// }
-	}
-
-	public void setRunningUpLeft() {
-		// if (directionMove != Direction.UPLEFT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 30, 35, true);
-		// directionMove = Direction.UPLEFT;
-		// }
 	}
 
 	public void setRunningDown() {
-		if (directionMove != Direction.DOWN) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
-			animate(PLAYER_ANIMATE, 0, 3, true);
-			shadow.animate(PLAYER_ANIMATE, 0, 3, true);
+		if (directionMove != Direction.DOWN && !attacking) {
+			
+			sword.setSize(2, 12);
+			sword.setPosition(getWidth()/2,getHeight()/2-14);
+			
+			
+			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
+			if (!running) {
+				animate(PLAYER_ANIMATE, 4, 7, true);
+			} else {
+				animate(PLAYER_ANIMATE, 32, 35, true);
+			}
 			directionMove = Direction.DOWN;
 			directionPointing = Direction.DOWN;
 		}
-		body.setLinearVelocity(0, -speed);
-	}
-
-	public void setRunningDownRight() {
-		// if (directionMove != Direction.DOWNRIGHT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 6, 11, true);
-		// directionMove = Direction.DOWNRIGHT;
-		// }
-	}
-
-	public void setRunningDownLeft() {
-		// if (directionMove != Direction.DOWNLEFT) {
-		// final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200};
-		// animate(PLAYER_ANIMATE, 42, 47, true);
-		// directionMove = Direction.DOWNLEFT;
-		// }
+		if (running) {
+			body.setLinearVelocity(0, -speed * 2);
+		} else {
+			body.setLinearVelocity(0, -speed);
+		}
 	}
 
 	public void setRunningLeft() {
-		if (directionMove != Direction.LEFT) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
-			animate(PLAYER_ANIMATE, 4, 7, true);
-			shadow.animate(PLAYER_ANIMATE, 4, 7, true);
+		if (directionMove != Direction.LEFT && !attacking) {
+			sword.setSize(12, 2);
+			sword.setPosition(getWidth()/2-(getWidth()/6)-6,getHeight()/ 2.5f);
+			
+			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
+			if (!running) {
+				animate(PLAYER_ANIMATE, 12, 15, true);
+			} else {
+				animate(PLAYER_ANIMATE, 40, 43, true);
+			}
 			directionMove = Direction.LEFT;
 			directionPointing = Direction.LEFT;
 		}
-		body.setLinearVelocity(-speed, 0);
+		if (running) {
+			body.setLinearVelocity(-speed * 2, 0);
+		} else {
+			body.setLinearVelocity(-speed, 0);
+		}
 	}
 
 	public void setRunningRight() {
-		if (directionMove != Direction.RIGHT) {
-			final long[] PLAYER_ANIMATE = new long[] { 200, 200, 200, 200 };
-			animate(PLAYER_ANIMATE, 8, 11, true);
-			shadow.animate(PLAYER_ANIMATE, 8, 11, true);
+
+		if (directionMove != Direction.RIGHT && !attacking) {
+			sword.setSize(12, 2);
+			sword.setPosition(getWidth()/2+(getWidth()/6)+6,getHeight()/ 2.5f);
+			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
+			if (!running) {
+				animate(PLAYER_ANIMATE, 20, 23, true);
+			} else {
+				animate(PLAYER_ANIMATE, 48, 51, true);
+			}
 			directionMove = Direction.RIGHT;
 			directionPointing = Direction.RIGHT;
 		}
-		body.setLinearVelocity(speed, 0);
+		if (running) {
+			body.setLinearVelocity(speed * 2, 0);
+		} else {
+			body.setLinearVelocity(speed, 0);
+		}
 	}
 
 	public void stopRunning() {
 		body.setLinearVelocity(0, 0);
-		stopAnimation();
+		if (!attacking) {
+			stopAnimation();
+		}
 		shadow.stopAnimation();
 		if (directionMove != null)
 			switch (directionMove) {
 			case UP:
-				setCurrentTileIndex(13);
-				shadow.setCurrentTileIndex(13);
+				setCurrentTileIndex(31);
+				shadow.setCurrentTileIndex(31);
 				break;
 			case DOWN:
-				setCurrentTileIndex(3);
-				shadow.setCurrentTileIndex(3);
-				break;
-			case RIGHT:
-				setCurrentTileIndex(8);
-				shadow.setCurrentTileIndex(8);
-				break;
-			case LEFT:
 				setCurrentTileIndex(7);
 				shadow.setCurrentTileIndex(7);
+				break;
+			case RIGHT:
+				setCurrentTileIndex(23);
+				shadow.setCurrentTileIndex(23);
+				break;
+			case LEFT:
+				setCurrentTileIndex(15);
+				shadow.setCurrentTileIndex(15);
 				break;
 			case UPRIGHT:
 				setCurrentTileIndex(23);
@@ -218,6 +235,58 @@ public abstract class Player extends AnimatedSprite {
 				break;
 			}
 		directionMove = Direction.NONE;
+	}
+
+	public void attack() {
+		if (!attacking) {
+			attacking = true;
+
+			final long[] PLAYER_ANIMATE = new long[] { speedAttackFrame, speedAttackFrame, speedAttackFrame, speedAttackFrame, speedAttackFrame };
+			int[] FRAMES;
+
+			IAnimationListener animationListener = new IAnimationListener() {
+				@Override
+				public void onAnimationFinished(AnimatedSprite pAnimatedSprite) {
+					attacking = false;
+					directionMove = Direction.NONE;
+					stopRunning();
+				}
+
+				@Override
+				public void onAnimationStarted(AnimatedSprite pAnimatedSprite, int pInitialLoopCount) {
+				}
+
+				@Override
+				public void onAnimationFrameChanged(AnimatedSprite pAnimatedSprite, int pOldFrameIndex, int pNewFrameIndex) {
+				}
+
+				@Override
+				public void onAnimationLoopFinished(AnimatedSprite pAnimatedSprite, int pRemainingLoopCount, int pInitialLoopCount) {
+				}
+			};
+
+			switch (directionPointing) {
+			case UP:
+				FRAMES = new int[] { 24, 25, 26, 27, 29 };
+				animate(PLAYER_ANIMATE, FRAMES, false, animationListener);
+				break;
+			case DOWN:
+				FRAMES = new int[] { 0, 1, 2, 3, 5 };
+				animate(PLAYER_ANIMATE, FRAMES, false, animationListener);
+				break;
+			case LEFT:
+				FRAMES = new int[] { 8, 9, 10, 11, 13 };
+				animate(PLAYER_ANIMATE, FRAMES, false, animationListener);
+				break;
+			case RIGHT:
+				FRAMES = new int[] { 16, 17, 18, 19, 21 };
+				animate(PLAYER_ANIMATE, FRAMES, false, animationListener);
+				break;
+			default:
+				break;
+
+			}
+		}
 	}
 
 	@Override

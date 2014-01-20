@@ -154,7 +154,7 @@ public class ResourcesManager {
 		gameTextureAtlas.clearTextureAtlasSources();
 		gameTextureAtlas.addEmptyTextureAtlasSource(0, 0, 1024, 1024);
 
-		player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 4, 4);
+		player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 8, 8);
 
 		enemies_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "zombies.png", 12, 8);
 

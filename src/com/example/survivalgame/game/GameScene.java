@@ -29,17 +29,12 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.LineJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
 import com.example.survivalgame.SceneManager.SceneType;
@@ -135,16 +130,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			public void onDie() {
 			}
 		};
-		player.setCurrentTileIndex(8);
+		player.setCurrentTileIndex(19);
 
 		// player.shadow.setPosition(player);
 		player.shadow.setPosition(player.getX(), player.getY() + player.getHeight() * 1.3f);
 		attachChild(player.shadow);
 
 		attachChild(player);
-
-		Rectangle sword = new Rectangle(Util.playerSpawn.x + 10, Util.playerSpawn.y, 10, 4, vbom);
-		attachChild(sword);
 
 		// final Body redBody = PhysicsFactory.createBoxBody(mPhysicsWorld,
 		// sword, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(5, 0.5f,
@@ -158,7 +150,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// mPhysicsWorld.createJoint(j);
 
 		// Attach box2d debug renderer if you want to see debug.
-//		attachChild(new DebugRenderer(mPhysicsWorld, vbom));
+//		 attachChild(new DebugRenderer(mPhysicsWorld, vbom));
 
 	}
 
@@ -200,7 +192,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 							} else if (pValueX < 0 && pValueY < 0) {
 								if (pValueX < pValueY) {
 									player.setRunningLeft();
-								} else {
 									player.setRunningDown();
 								}
 							} else {
@@ -211,6 +202,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 						} else {
 							x = 0;
 							y = 0;
+							player.stopRunning();
 						}
 
 					}
@@ -502,9 +494,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 						MoveTask task = new MoveTask(player.body, new PointF(beforeEntrancePosition.x, beforeEntrancePosition.y - 5));
 						Util.taskList.add(task);
 					} else if ((userDataA.equals("Enemy") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.equals("Enemy"))) {
-						MoveTask task = new MoveTask(player.body, new PointF(1f, 0), true);
+//						MoveTask task = new MoveTask(player.body, new PointF(1f, 0), true);
 						damagePlayer();
-						Util.taskList.add(task);
+//						Util.taskList.add(task);
 					}
 				}
 
@@ -573,7 +565,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 						Util.taskList.get(i).move();
 						if (!Util.taskList.get(i).hitByEnemy) {
 							blockScreenToTeleport();
-						}else{
+						} else {
 							camera.setChaseEntity(player);
 						}
 
@@ -686,20 +678,37 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	}
 
+	public void checkHitEnemy() {
+		for (int i = 0; i < enemiesPool.enemies.size(); i++) {
+			Enemy enemy = enemiesPool.enemies.get(i);
+			if (!enemy.isFree()) {
+				if(player.sword.collidesWith(enemy)){
+					enemy.release();
+					Log.v("SWORD","Golpea enemigo");
+				}
+			}
+		}
+	}
+
 	public void actionButtonA() {
 
 		// float[] popupPosition =
 		// camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() +
 		// player.getWidth() / 2, player.getY());
 		// gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
-		player.speed = 2.0f;
+		
+		player.running= true;
+		player.stopRunning();
 	}
 
 	public void releaseButtonA() {
-		player.speed = 1f;
+		player.running= false;
+		player.stopRunning();
 	}
 
 	public void actionButtonB() {
+		player.attack();
+		checkHitEnemy();
 		// fireBullet();
 	}
 

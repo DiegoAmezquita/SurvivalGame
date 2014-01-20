@@ -33,7 +33,7 @@ public class MoveTask {
 			body.setTransform(v2, angle);
 			Vector2Pool.recycle(v2);
 		}else if(impulseToAdd!=null){
-			body.setLinearVelocity(impulseToAdd.x, impulseToAdd.y);
+//			body.setLinearVelocity(impulseToAdd.x, impulseToAdd.y);
 		}
 	}
 

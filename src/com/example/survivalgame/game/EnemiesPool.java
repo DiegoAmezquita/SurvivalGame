@@ -8,7 +8,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 public class EnemiesPool {
 
-	private ArrayList<Enemy> enemies;
+	public ArrayList<Enemy> enemies;
 
 	private VertexBufferObjectManager vbom;
 	

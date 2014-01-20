@@ -307,6 +307,10 @@ public class Enemy extends AnimatedSprite {
 
 	public void release() {
 		free = true;
+		final PhysicsConnector facePhysicsConnector = mWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(this);
+		mWorld.unregisterPhysicsConnector(facePhysicsConnector);
+		mWorld.destroyBody(facePhysicsConnector.getBody());
+		detachSelf();
 	}
 
 }
