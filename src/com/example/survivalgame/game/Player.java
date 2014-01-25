@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.example.survivalgame.ResourcesManager;
+import com.example.survivalgame.util.Util;
 import com.example.survivalgame.util.Util.Direction;
 
 /**
@@ -29,6 +30,8 @@ public abstract class Player extends AnimatedSprite {
 	// ---------------------------------------------
 
 	// private boolean canRun = false;
+
+	GameScene mGameScene;
 
 	private int footContacts = 0;
 
@@ -47,7 +50,7 @@ public abstract class Player extends AnimatedSprite {
 	float speed = 1f;
 
 	long speedFrame = 200;
-	long speedAttackFrame = 50;
+	long speedAttackFrame = 60;
 
 	LoopEntityModifier swordMovement;
 
@@ -56,18 +59,22 @@ public abstract class Player extends AnimatedSprite {
 	boolean running;
 
 	Rectangle sword;
+	
+	AnimatedSprite cut;
 
 	// ---------------------------------------------
 	// CONSTRUCTOR
 	// ---------------------------------------------
 
-	public Player(float pX, float pY, VertexBufferObjectManager vbom, Camera camera, PhysicsWorld mWorld) {
+	public Player(float pX, float pY, GameScene gameScene, VertexBufferObjectManager vbom, Camera camera, PhysicsWorld mWorld) {
 		super(pX, pY, ResourcesManager.getInstance().player_region, vbom);
 		// setScale(2);
 
-		playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+		this.mGameScene = gameScene;
+		playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0);
 
-		feet = new Rectangle(this.getWidth() / 2, this.getHeight() / 3 - (this.getHeight() / 6), this.getWidth() - 10, this.getHeight() / 3, vbom);
+		
+		feet = new Rectangle(getWidth() / 2, getHeight() / 2 - (getHeight() / 6), getWidth() / 3, getHeight() / 4, vbom);
 		attachChild(feet);
 		feet.setVisible(false);
 		camera.setChaseEntity(this);
@@ -82,19 +89,29 @@ public abstract class Player extends AnimatedSprite {
 		// body = PhysicsFactory.createBoxBody(mWorld, this,
 		// BodyType.DynamicBody, playerFixtureDef);
 
-		body = PhysicsFactory.createBoxBody(mWorld, getX(), getY(), getWidth() / 3, getHeight()/2, BodyType.DynamicBody, playerFixtureDef);
+		body = PhysicsFactory.createBoxBody(mWorld, getX(), getY(), getWidth() / 4, getHeight() / 2, BodyType.DynamicBody, playerFixtureDef);
 
 		body.setUserData("Player");
 		mWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, true));
 
 		attacking = false;
-		running = false;
+		running = true;
 
+		
+//		cut = new AnimatedSprite(getWidth()/2-5,getHeight(), ResourcesManager.getInstance().cut_region, vbom);
+//		cut.setFlippedHorizontal(true);
+//		cut.setWidth(getWidth()+20);
+//		cut.setHeight(getHeight()/2);
+//		cut.setY(getHeight()-cut.getHeight()/2-5);
+//		cut.setVisible(false);
+//		attachChild(cut);
+		
+		
 		createSword(vbom);
 	}
 
 	public void createSword(VertexBufferObjectManager vbom) {
-		sword = new Rectangle(getWidth()/2+(getWidth()/6)+6, getHeight() / 2.5f, 12, 2, vbom);
+		sword = new Rectangle(getWidth() / 2 + (getWidth() / 6) + 6, getHeight() / 2.5f, 12, 2, vbom);
 		sword.setVisible(false);
 		attachChild(sword);
 	}
@@ -105,9 +122,9 @@ public abstract class Player extends AnimatedSprite {
 
 	public void setRunningUp() {
 		if (directionMove != Direction.UP && !attacking) {
-			
-			sword.setSize(2, 12);
-			sword.setPosition(getWidth()/2,getHeight()/2+10);
+
+			sword.setSize(2, 10);
+			sword.setPosition(getWidth() / 2, getHeight() / 2 + 10);
 			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
 			if (!running) {
 				animate(PLAYER_ANIMATE, 28, 31, true);
@@ -128,11 +145,10 @@ public abstract class Player extends AnimatedSprite {
 
 	public void setRunningDown() {
 		if (directionMove != Direction.DOWN && !attacking) {
-			
-			sword.setSize(2, 12);
-			sword.setPosition(getWidth()/2,getHeight()/2-14);
-			
-			
+
+			sword.setSize(2, 10);
+			sword.setPosition(getWidth() / 2, getHeight() / 2 - 14);
+
 			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
 			if (!running) {
 				animate(PLAYER_ANIMATE, 4, 7, true);
@@ -151,9 +167,9 @@ public abstract class Player extends AnimatedSprite {
 
 	public void setRunningLeft() {
 		if (directionMove != Direction.LEFT && !attacking) {
-			sword.setSize(12, 2);
-			sword.setPosition(getWidth()/2-(getWidth()/6)-6,getHeight()/ 2.5f);
-			
+			sword.setSize(10, 2);
+			sword.setPosition(getWidth() / 2 - (getWidth() / 6) - 6, getHeight() / 2.5f);
+
 			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
 			if (!running) {
 				animate(PLAYER_ANIMATE, 12, 15, true);
@@ -173,8 +189,8 @@ public abstract class Player extends AnimatedSprite {
 	public void setRunningRight() {
 
 		if (directionMove != Direction.RIGHT && !attacking) {
-			sword.setSize(12, 2);
-			sword.setPosition(getWidth()/2+(getWidth()/6)+6,getHeight()/ 2.5f);
+			sword.setSize(10, 2);
+			sword.setPosition(getWidth() / 2 + (getWidth() / 6) + 6, getHeight() / 2.5f);
 			final long[] PLAYER_ANIMATE = new long[] { speedFrame, speedFrame, speedFrame, speedFrame };
 			if (!running) {
 				animate(PLAYER_ANIMATE, 20, 23, true);
@@ -250,6 +266,8 @@ public abstract class Player extends AnimatedSprite {
 					attacking = false;
 					directionMove = Direction.NONE;
 					stopRunning();
+//					cut.setVisible(false);
+					mGameScene.checkHitEnemy();
 				}
 
 				@Override
@@ -276,10 +294,16 @@ public abstract class Player extends AnimatedSprite {
 				break;
 			case LEFT:
 				FRAMES = new int[] { 8, 9, 10, 11, 13 };
+//				cut.setVisible(true);
+//				cut.setFlippedHorizontal(false);
+//				cut.animate(100,false);
 				animate(PLAYER_ANIMATE, FRAMES, false, animationListener);
 				break;
 			case RIGHT:
 				FRAMES = new int[] { 16, 17, 18, 19, 21 };
+//				cut.setVisible(true);
+//				cut.setFlippedHorizontal(true);
+//				cut.animate(100,false);
 				animate(PLAYER_ANIMATE, FRAMES, false, animationListener);
 				break;
 			default:

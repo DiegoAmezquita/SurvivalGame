@@ -58,13 +58,13 @@ public class Enemy extends AnimatedSprite {
 
 		directionMove = Direction.NONE;
 
-		enemyFixture = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+		enemyFixture = PhysicsFactory.createFixtureDef(0, 0.1f, 0.0f);
 		this.mWorld = mWorld;
 
 	}
 
 	public void createEnemyBody() {
-		bodyEnemy = PhysicsFactory.createBoxBody(mWorld, this, BodyType.DynamicBody, enemyFixture);
+		bodyEnemy = PhysicsFactory.createBoxBody(mWorld, getX(),getY()-50,getWidth()*0.5f,getHeight()*0.7f, BodyType.DynamicBody, enemyFixture);
 		bodyEnemy.setUserData("Enemy");
 
 		mWorld.registerPhysicsConnector(new PhysicsConnector(this, bodyEnemy, true, true));
@@ -142,11 +142,9 @@ public class Enemy extends AnimatedSprite {
 
 	public void chaseEntity(Shape shape) {
 
-		// Path pathToEntity = new
-		// Path(2).to(getX(),getY()).to(shape.getX(),shape.getY());
 
-		// registerEntityModifier(new PathModifier(30, pathToEntity));
-
+		setZIndex(10000-(int)getY());
+		
 		float distanceX = Math.abs(shape.getX() - getX());
 		float distanceY = Math.abs(shape.getY() - getY());
 

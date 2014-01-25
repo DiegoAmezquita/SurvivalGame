@@ -11,7 +11,7 @@ public class Util {
 		UP, DOWN, LEFT, RIGHT, UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT, NONE;
 	}
 
-	public static float centerX = 0;
+	public static float centerX= 0;
 	public static float centerY = 0;
 
 	public static float widthScreen;
@@ -33,9 +33,11 @@ public class Util {
 	
 	public static ArrayList<PointF> enemiesSpawn;
 	
-	public static PointF playerSpawn;
+	public static PointF playerSpawn = new PointF();
 	
-	public static ArrayList<MoveTask> taskList;
+	public static ArrayList<MoveTask> moveTaskList;
+	
+	public static ArrayList<Task> taskList;
 	
 	public static boolean moveAllowed = true;
 }

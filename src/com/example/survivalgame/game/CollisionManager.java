@@ -3,6 +3,7 @@ package com.example.survivalgame.game;
 import java.util.ArrayList;
 
 import org.andengine.entity.shape.Shape;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.util.adt.color.Color;
 
 import android.util.Log;
@@ -12,6 +13,9 @@ public class CollisionManager {
 
 	ArrayList<Shape> obstacles;
 	ArrayList<Shape> items;
+	
+	
+	public ArrayList<Sprite> arrayTrees;
 
 	ArrayList<Shape> doors;
 	
@@ -24,6 +28,7 @@ public class CollisionManager {
 		items = new ArrayList<Shape>();
 		doors = new ArrayList<Shape>();
 		enemies = new ArrayList<Enemy>();
+		arrayTrees = new ArrayList<Sprite>();
 	}
 
 	public static CollisionManager getInstance() {
@@ -77,6 +82,19 @@ public class CollisionManager {
 		}
 		return null;
 	}
+	
+	
+	public Sprite checkPickItem(ArrayList<Sprite> itemsToCheck,Shape shape) {
+		for (int i = 0; i < itemsToCheck.size(); i++) {
+			if (shape.collidesWith(itemsToCheck.get(i)) && itemsToCheck.get(i).hasParent()) {
+				return itemsToCheck.get(i);
+			}
+		}
+		return null;
+	}
+	
+	
+	
 
 	public Shape checkDoor(Shape shape) {
 		for (int i = 0; i < doors.size(); i++) {

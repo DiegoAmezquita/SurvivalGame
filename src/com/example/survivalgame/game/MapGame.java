@@ -51,7 +51,7 @@ public class MapGame {
 		try {
 			Util.enemiesSpawn = new ArrayList<PointF>();
 
-			final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.5f, 0.5f);
+			final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.0f, 0.0f);
 			final TMXLoader tmxLoader = new TMXLoader(activity.getAssets(), engine.getTextureManager(), TextureOptions.BILINEAR_PREMULTIPLYALPHA, vbom, new ITMXTilePropertiesListener() {
 
 				@Override
@@ -63,18 +63,19 @@ public class MapGame {
 						Sprite item = new Sprite(pTMXLayer.getTileX(pTMXTile.getTileColumn()) + pTMXTile.getTileWidth() / 2,
 								(pTMXLayer.getTileY(pTMXTile.getTileRow()) + pTMXTile.getTileHeight() / 2), pTMXTile.getTextureRegion(), vbom);
 						item.setUserData(nameProperty);
-						if (pTMXTileProperties.containsTMXProperty("tree", "true") || pTMXTileProperties.containsTMXProperty("house", "true")
-								|| pTMXTileProperties.containsTMXProperty("water", "true") || pTMXTileProperties.containsTMXProperty("obstacle", "true")) {
+						if (pTMXTileProperties.containsTMXProperty("house", "true") || pTMXTileProperties.containsTMXProperty("water", "true")
+								|| pTMXTileProperties.containsTMXProperty("obstacle", "true")) {
+//							item.setWidth(item.getWidth()/2);
+//							item.setHeight(item.getHeight()/2);
 							mWorld.registerPhysicsConnector(new PhysicsConnector(item, PhysicsFactory.createBoxBody(mWorld, item, BodyType.KinematicBody, wallFixtureDef), true, true));
-
-							collisionManager.addObstacle(item);
 						} else if (pTMXTileProperties.containsTMXProperty("door", "true")) {
 							Log.v("GAME", "Door Finded");
-
-							item.setY(item.getY() + 5);
+//							item.setY(item.getY() - 1);
+							item.setWidth(item.getWidth()/3);
+//							item.setHeight(item.getHeight()/2);
 							Body doorBody = PhysicsFactory.createBoxBody(mWorld, item, BodyType.StaticBody, wallFixtureDef);
 							doorBody.setUserData("door-");
-
+//
 							for (TMXProperty property : pTMXTileProperties) {
 								if (!property.getName().equals("door")) {
 									doorBody.setUserData("door-" + property.getName());
@@ -88,9 +89,10 @@ public class MapGame {
 							Util.enemiesSpawn.add(new PointF(item.getX(), item.getY()));
 						} else if (pTMXTileProperties.containsTMXProperty("PlayerSpawn", "true")) {
 							Util.playerSpawn = new PointF(item.getX(), item.getY());
-						} else {
+						}else if(pTMXLayer.getName().equals("Items")){
 							collisionManager.addItem(item);
 						}
+						
 					}
 				}
 			});

@@ -1,5 +1,6 @@
 package com.example.survivalgame;
 
+import java.io.IOException;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.SmoothCamera;
@@ -13,12 +14,15 @@ import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException;
+import org.andengine.opengl.texture.bitmap.AssetBitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.debug.Debug;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 
 /**
  * @author Mateusz Mysliwiec
@@ -63,6 +67,10 @@ public class ResourcesManager {
 
 	public ITiledTextureRegion player_region;
 
+	public ITiledTextureRegion blood_region;
+
+	public ITiledTextureRegion cut_region;
+
 	public ITiledTextureRegion enemies_region;
 
 	public ITiledTextureRegion explosion_region;
@@ -72,7 +80,8 @@ public class ResourcesManager {
 
 	public ITextureRegion mOnScreenButton;
 
-	
+	public ITextureRegion mGrass;
+
 	public ITextureRegion mBuildingFront1;
 	public ITextureRegion mBuildingFront2;
 	public ITextureRegion mBuildingFront3;
@@ -82,8 +91,7 @@ public class ResourcesManager {
 	public ITextureRegion mBuildingFront7;
 	public ITextureRegion mBuildingFront8;
 	public ITextureRegion mBuildingFront9;
-	
-	
+
 	public ITextureRegion mCar;
 
 	public ITextureRegion mFirstAid;
@@ -139,7 +147,13 @@ public class ResourcesManager {
 		FontFactory.setAssetBasePath("font/");
 		final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
-		font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "font.ttf", 50, true, Color.WHITE, 2, Color.BLACK);
+		
+		
+//		font = new Font(activity.getFontManager(), mainFontTexture, Typeface.create("verdana", Typeface.NORMAL), 50, true, Color.WHITE);
+//		font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "font.ttf", 50, true, Color.WHITE, 2, Color.BLACK);
+		
+		font = FontFactory.createStroke(activity.getFontManager(),activity.getTextureManager(),512,256,Typeface.create("verdana", Typeface.NORMAL),50,true,Color.WHITE,2,Color.BLACK);
+		
 		font.load();
 	}
 
@@ -156,12 +170,17 @@ public class ResourcesManager {
 
 		player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 8, 8);
 
+		blood_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "blood.png", 3, 2);
+		cut_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "cut.png", 5, 1);
+
 		enemies_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "zombies.png", 12, 8);
 
 		explosion_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "explosion.png", 3, 4);
 
 		mOnScreenControlBaseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");
 		mOnScreenControlKnobTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
+
+
 
 		mOnScreenButton = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "button.png");
 		mBuildingFront1 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building.png");
@@ -173,20 +192,21 @@ public class ResourcesManager {
 		mBuildingFront7 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building7.png");
 		mBuildingFront8 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building8.png");
 		mBuildingFront9 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "building9.png");
-		
+
 		mCar = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "car.png");
-		
 
 		light_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "light.png");
 
-//		try {
-//			mBuildingTexture = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "gfx/game/building.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-//			mBuildingFront = TextureRegionFactory.extractFromTexture(mBuildingTexture);
-//			light_region = TextureRegionFactory.extractFromTexture(this.lightTest);
-//		} catch (IOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		try {
+			mBuildingTexture = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "gfx/game/grass.png", TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			
+			mGrass = TextureRegionFactory.extractFromTexture(mBuildingTexture);
+			
+			mBuildingTexture.load();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		mFirstAid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "first_aid.png");
 		//

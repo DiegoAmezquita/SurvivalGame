@@ -2,9 +2,9 @@ package com.example.survivalgame.game;
 
 import java.util.ArrayList;
 
-import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
-import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl.IAnalogOnScreenControlListener;
 import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
+import org.andengine.engine.camera.hud.controls.BaseOnScreenControl.IOnScreenControlListener;
+import org.andengine.engine.camera.hud.controls.DigitalOnScreenControl;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
@@ -13,6 +13,8 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.shape.Shape;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.AnimatedSprite.IAnimationListener;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.debugdraw.DebugRenderer;
@@ -37,9 +39,12 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.example.survivalgame.BaseScene;
 import com.example.survivalgame.SceneManager;
+import com.example.survivalgame.TextureGameManager;
 import com.example.survivalgame.SceneManager.SceneType;
 import com.example.survivalgame.util.MoveTask;
+import com.example.survivalgame.util.Task;
 import com.example.survivalgame.util.Util;
+import com.example.survivalgame.util.Util.Direction;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
@@ -56,9 +61,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	boolean gameOver = false;
 	Sprite light;
 
-	public AnalogOnScreenControl movementOnScreenControl;
+	public DigitalOnScreenControl movementOnScreenControl;
 	// private static final String TAG = "GAME";
-	float x = 0, y = 0;
 	float speed = 1.85f;
 
 	PointF beforeEntrancePosition;
@@ -86,6 +90,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	ArrayList<Building> arrayBuildings;
 
+	Building buildingActive;
+
+	boolean checkCollidePlayer = false;
+
+	AnimatedSprite blood;
+
+	int framesElapsed = 0;
+
 	private void createBackground() {
 		setBackground(new Background(Color.BLACK));
 	}
@@ -94,7 +106,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		gameHUD = new GameHUD(camera, vbom, this);
 		bulletCounter = 20;
 		Log.v("GAME", "Bullets " + bulletCounter);
-		gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+		gameHUD.bulletCounter.setText("Balas: " + bulletCounter);
 	}
 
 	private void createInventoryHUD() {
@@ -107,10 +119,32 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		for (int i = 0; i < map.getNumberLayers(); i++) {
 			map.getLayer(i).detachSelf();
 			if (!map.getLayer(i).getName().equals("Items")) {
+				if (map.getLayer(i).getName().equals("trees")) {
+					// map.getLayer(i).setZIndex(10000-(int)map.getLayer(i).getY());
+					// Log.v("ZINDEX","Trees layer "+map.getLayer(i).getZIndex());
+				}
 				attachChild(map.getLayer(i));
 			}
-
 		}
+
+		Log.v("Map", collisionManager.arrayTrees.size() + "");
+
+		// ACA ESTA EL PROBLEMA DE RENDIMIENTO CARGAR LA TEXTURA QUE ES PARA
+		// PODER USAR UN BATCH
+
+		// final SpriteBatch staticSpriteBatch = new
+		// SpriteBatch(resourcesManager.mBuildingTexture, 4000, vbom);
+		//
+		// for (int i = 0; i < collisionManager.arrayTrees.size(); i++) {
+		// collisionManager.arrayTrees.get(i).setZIndex(10000 - (int)
+		// collisionManager.arrayTrees.get(i).getY());
+		// staticSpriteBatch.draw(collisionManager.arrayTrees.get(i));
+		// }
+		//
+		// staticSpriteBatch.submit();
+		// staticSpriteBatch.setPosition(0, 0);
+		// attachChild(staticSpriteBatch);
+		// sortChildren();
 
 		// MapGame map2 = new MapGame("tmx/newDesert.tmx", activity, engine,
 		// vbom);
@@ -118,19 +152,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// map2.getLayer(0).setPosition(-500, 0);
 		// attachChild(map2.getLayer(0));
 
-		for (int i = 0; i < collisionManager.items.size(); i++) {
-			attachChild(collisionManager.items.get(i));
-		}
-
 	}
 
 	public void createPlayer() {
-		player = new Player(Util.playerSpawn.x, Util.playerSpawn.y, vbom, camera, mPhysicsWorld) {
+		player = new Player(Util.playerSpawn.x, Util.playerSpawn.y, this, vbom, camera, mPhysicsWorld) {
 			@Override
 			public void onDie() {
 			}
 		};
-		player.setCurrentTileIndex(19);
+		player.setCurrentTileIndex(7);
 
 		// player.shadow.setPosition(player);
 		player.shadow.setPosition(player.getX(), player.getY() + player.getHeight() * 1.3f);
@@ -150,18 +180,18 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// mPhysicsWorld.createJoint(j);
 
 		// Attach box2d debug renderer if you want to see debug.
-//		 attachChild(new DebugRenderer(mPhysicsWorld, vbom));
 
 	}
 
 	public void createControl() {
 		final float x1 = 80;
 		final float y1 = 80;
-		movementOnScreenControl = new AnalogOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion, 0.1f, vbom,
-				new IAnalogOnScreenControlListener() {
-					@Override
-					public void onControlChange(final BaseOnScreenControl pBaseOnScreenControl, final float pValueX, final float pValueY) {
 
+		movementOnScreenControl = new DigitalOnScreenControl(x1, y1, camera, resourcesManager.mOnScreenControlBaseTextureRegion, resourcesManager.mOnScreenControlKnobTextureRegion, 0.1f, vbom,
+				new IOnScreenControlListener() {
+
+					@Override
+					public void onControlChange(BaseOnScreenControl pBaseOnScreenControl, float pValueX, float pValueY) {
 						if (driveCar) {
 							float rotationInRad = (float) Math.atan2(pValueX, pValueY);
 							carRotation = MathUtils.radToDeg(rotationInRad);
@@ -171,50 +201,51 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 							}
 						}
 						if (Util.moveAllowed) {
-							if (pValueX > 0 && pValueY < 0) {
-								if (pValueX > (pValueY * -1)) {
-									player.setRunningRight();
-								} else {
-									player.setRunningDown();
-								}
-							} else if (pValueX > 0 && pValueY > 0) {
-								if (pValueX > pValueY) {
-									player.setRunningRight();
-								} else {
-									player.setRunningUp();
-								}
-							} else if (pValueX < 0 && pValueY > 0) {
-								if ((pValueX * -1) > pValueY) {
-									player.setRunningLeft();
-								} else {
-									player.setRunningUp();
-								}
-							} else if (pValueX < 0 && pValueY < 0) {
-								if (pValueX < pValueY) {
-									player.setRunningLeft();
-									player.setRunningDown();
-								}
+							if (pValueX > 0) {
+								player.setRunningRight();
+							} else if (pValueX < 0) {
+								player.setRunningLeft();
+							} else if (pValueY > 0) {
+								player.setRunningUp();
+							} else if (pValueY < 0) {
+								player.setRunningDown();
 							} else {
 								player.stopRunning();
 							}
-							x = pValueX * 1.5f;
-							y = pValueY * 1.5f;
-						} else {
-							x = 0;
-							y = 0;
-							player.stopRunning();
+
+							// if (pValueX > 0 && pValueY < 0) {
+							// if (pValueX > (pValueY * -1)) {
+							// player.setRunningRight();
+							// } else {
+							// player.setRunningDown();
+							// }
+							// } else if (pValueX > 0 && pValueY > 0) {
+							// if (pValueX > pValueY) {
+							// player.setRunningRight();
+							// } else {
+							// player.setRunningUp();
+							// }
+							// } else if (pValueX < 0 && pValueY > 0) {
+							// if ((pValueX * -1) > pValueY) {
+							// player.setRunningLeft();
+							// } else {
+							// player.setRunningUp();
+							// }
+							// } else if (pValueX < 0 && pValueY < 0) {
+							// if (pValueX < pValueY) {
+							// player.setRunningLeft();
+							// player.setRunningDown();
+							// }
+							// } else {
+							// player.stopRunning();
+							// }
 						}
 
-					}
-
-					@Override
-					public void onControlClick(final AnalogOnScreenControl pAnalogOnScreenControl) {
-						/* Nothing. */
 					}
 				});
 		movementOnScreenControl.getControlBase().setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 		movementOnScreenControl.getControlBase().setAlpha(0.5f);
-
+		movementOnScreenControl.refreshControlKnobPosition();
 		gameHUD.setChildScene(movementOnScreenControl);
 	}
 
@@ -248,14 +279,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		attachChild(rightLimit);
 	}
 
-	public void createInitialBuildings(int posX, int posY) {
-		Building building = new Building("tmx/houseOne.tmx", vbom, activity.getAssets(), engine, mPhysicsWorld);
+	public void createInitialBuildings() {
+		Building building = new Building("tmx/houseOne.tmx", -500, 0, vbom, activity.getAssets(), engine, mPhysicsWorld);
 		// layer.setPosition(posX, posY);
 		building.setUserData("houseOne");
 
 		for (int i = 0; i < building.getNumberLayers(); i++) {
 			TMXLayer layer = building.getLayer(i);
-			layer.setX(-500);
 			layer.detachSelf();
 			if (!building.getLayer(i).getName().equals("Items")) {
 				attachChild(building.getLayer(i));
@@ -264,13 +294,21 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		arrayBuildings.add(building);
 
+		Building buildingTwo = new Building("tmx/houseTwo.tmx", -1000, 0, vbom, activity.getAssets(), engine, mPhysicsWorld);
+		// layer.setPosition(posX, posY);
+		buildingTwo.setUserData("houseTwo");
+
+		for (int i = 0; i < buildingTwo.getNumberLayers(); i++) {
+			TMXLayer layer = buildingTwo.getLayer(i);
+			layer.detachSelf();
+			if (!buildingTwo.getLayer(i).getName().equals("Items")) {
+				attachChild(buildingTwo.getLayer(i));
+			}
+		}
+
+		arrayBuildings.add(buildingTwo);
+
 		// attachChild(building.buildingFront);
-	}
-
-	public void testBatch() {
-
-		createInitialBuildings(100, 600);
-
 	}
 
 	public void createCar() {
@@ -295,17 +333,28 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		inventoryPlayer = InventoryPlayer.getInstance();
 
-		Util.taskList = new ArrayList<MoveTask>();
+		Util.moveTaskList = new ArrayList<MoveTask>();
+
+		Util.taskList = new ArrayList<Task>();
 
 		arrayBuildings = new ArrayList<Building>();
+
+		buildingActive = null;
 
 	}
 
 	public void checkPickItem() {
-		itemToPick = collisionManager.checkPickItem(player.feet);
+		if (buildingActive == null) {
+			itemToPick = collisionManager.checkPickItem(player.feet);
+		} else {
+			itemToPick = collisionManager.checkPickItem(buildingActive.items, player.feet);
+		}
 		if (itemToPick != null) {
+			gameHUD.infoText.setVisible(true);
+			gameHUD.infoText.setText(itemToPick.getUserData() + "");
 			gameHUD.showButtonC();
 		} else {
+			gameHUD.infoText.setVisible(false);
 			gameHUD.hideButtonC();
 		}
 	}
@@ -348,8 +397,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 				if (blocking) {
 					float newAlpha = gameHUD.blockScreen.getAlpha() + 0.005f;
 					if (newAlpha >= 1) {
-						// player.setPosition(teleportToPosition.x,
-						// teleportToPosition.y);
 						camera.setCenterDirect(player.getX(), player.getY());
 						camera.setChaseEntity(player);
 						blocking = false;
@@ -428,6 +475,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		}));
 	}
 
+	public void loadItems() {
+		for (int i = 0; i < collisionManager.items.size(); i++) {
+			attachChild(collisionManager.items.get(i));
+		}
+	}
+
 	@Override
 	public void createScene() {
 
@@ -438,10 +491,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		createBackground();
 		createHUD();
 		createInventoryHUD();
+
 		createMap();
 		// createInitialBuildings();
 
-		testBatch();
+		createInitialBuildings();
+
+		loadItems();
 
 		createPlayer();
 
@@ -449,6 +505,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		createLimits();
 		startTimerDay();
 		createInitialEnemies();
+
+		blood = new AnimatedSprite(0, 0, resourcesManager.blood_region, vbom);
+		blood.animate(30);
+		attachChild(blood);
+
+		// attachChild(new DebugRenderer(mPhysicsWorld, vbom));
+
+		gameHUD.createPopupInformation("Busca un vehiculo", 7);
 
 		registerUpdateHandler(mPhysicsWorld);
 
@@ -479,69 +543,28 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 					}
 
 					if ((userDataA.contains("door") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.contains("door"))) {
-						Log.v("BODY", userDataA + " " + userDataB);
 						Building building = getBuilding(userDataA.split("-")[1]);
-						Log.v("BUILDING", building.playerSpawnEntrance.x + " -- " + building.playerSpawnEntrance.y);
-
-						MoveTask task = new MoveTask(player.body, new PointF(building.playerSpawnEntrance.x + building.getLayer(0).getX() - building.getLayer(0).getWidth() / 2,
-								building.playerSpawnEntrance.y + building.getLayer(0).getY() - building.getLayer(0).getHeight() / 2));
-						Util.taskList.add(task);
+						buildingActive = building;
+						if (player.directionMove == Direction.UP) {
+							MoveTask task = new MoveTask(player.body, new PointF(building.playerSpawnEntrance.x + building.getLayer(0).getX() - building.getLayer(0).getWidth() / 2,
+									building.playerSpawnEntrance.y + building.getLayer(0).getY() - building.getLayer(0).getHeight() / 2));
+							Util.moveTaskList.add(task);
+							beforeEntrancePosition.x = player.getX();
+							beforeEntrancePosition.y = player.getY();
+						}
 					} else if ((userDataA.equals("exit") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.equals("exit"))) {
-						Log.v("BODY", userDataA + " " + userDataB);
-
-						Log.v("BUILDING", "EXIT " + beforeEntrancePosition.x + " -- " + beforeEntrancePosition.y);
-
+						buildingActive = null;
 						MoveTask task = new MoveTask(player.body, new PointF(beforeEntrancePosition.x, beforeEntrancePosition.y - 5));
-						Util.taskList.add(task);
+						Util.moveTaskList.add(task);
 					} else if ((userDataA.equals("Enemy") && userDataB.equals("Player")) || (userDataA.equals("Player") && userDataB.equals("Enemy"))) {
-//						MoveTask task = new MoveTask(player.body, new PointF(1f, 0), true);
 						damagePlayer();
-//						Util.taskList.add(task);
 					}
+
+					// if (userDataA.equals("Player") ||
+					// userDataB.equals("Player")) {
+					checkCollidePlayer = true;
+					// }
 				}
-
-				// if (contact.getFixtureA().getBody().getUserData() != null &&
-				// contact.getFixtureA().getBody().getUserData().equals("Enemy"))
-				// {
-				// if (contact.getFixtureB().getBody().getUserData() != null &&
-				// contact.getFixtureB().getBody().getUserData().equals("Player"))
-				// {
-				// damagePlayer();
-				// }
-				// } else if (contact.getFixtureB().getBody().getUserData() !=
-				// null &&
-				// contact.getFixtureB().getBody().getUserData().equals("Enemy"))
-				// {
-				// if (contact.getFixtureA().getBody().getUserData() != null &&
-				// contact.getFixtureA().getBody().getUserData().equals("Player"))
-				// {
-				// damagePlayer();
-				// }
-				// }
-
-				// if (contact.getFixtureA().getBody().getUserData() != null &&
-				// contact.getFixtureA().getBody().getUserData().getClass() ==
-				// Bullet.class) {
-				// Log.v("GAME", "AAAAAAAAAAA");
-				// if (contact.getFixtureB().getBody().getUserData() != null) {
-				// Log.v("GAME", "" +
-				// contact.getFixtureB().getBody().getUserData());
-				// }
-				// bulletsPool.addBulletToRelease((Bullet)
-				// contact.getFixtureA().getBody().getUserData());
-				// } else if (contact.getFixtureB().getBody().getUserData() !=
-				// null &&
-				// contact.getFixtureB().getBody().getUserData().getClass() ==
-				// Bullet.class) {
-				// Log.v("GAME", "BBBBBBBBBBB");
-				//
-				// if (contact.getFixtureA().getBody().getUserData() != null) {
-				// Log.v("GAME", "" +
-				// contact.getFixtureA().getBody().getUserData());
-				// }
-				// bulletsPool.addBulletToRelease((Bullet)
-				// contact.getFixtureB().getBody().getUserData());
-				// }
 
 			}
 		});
@@ -552,27 +575,69 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			public void onUpdate(float pSecondsElapsed) {
 				checkPickItem();
 				player.setZIndex(10000 - (int) player.getY());
-				enemiesPool.updateEnemies(player);
+				sortChildren();
+				framesElapsed++;
+				// Log.v("ZINDEX","player "+player.getZIndex());
+				if (framesElapsed > 30) {
+					enemiesPool.updateEnemies(player);
+					framesElapsed = 0;
+				}
 
-				if (!Util.taskList.isEmpty()) {
-					for (int i = 0; i < Util.taskList.size(); i++) {
+				if (!Util.moveTaskList.isEmpty()) {
+					for (int i = 0; i < Util.moveTaskList.size(); i++) {
 						timeOut(1);
 						camera.setChaseEntity(null);
 						if (beforeEntrancePosition.x == 0 && beforeEntrancePosition.y == 0) {
 							beforeEntrancePosition.x = player.getX();
 							beforeEntrancePosition.y = player.getY();
 						}
-						Util.taskList.get(i).move();
-						if (!Util.taskList.get(i).hitByEnemy) {
+						Util.moveTaskList.get(i).move();
+						if (!Util.moveTaskList.get(i).hitByEnemy) {
 							blockScreenToTeleport();
 						} else {
 							camera.setChaseEntity(player);
 						}
 
 					}
+					Util.moveTaskList.clear();
+
+				}
+				if (!Util.taskList.isEmpty()) {
+					for (int i = 0; i < Util.taskList.size(); i++) {
+						Util.taskList.get(i).doTask();
+						blood.setPosition(Util.taskList.get(i).enemy.getX(), Util.taskList.get(i).enemy.getY());
+						blood.setZIndex(player.getZIndex() + 10);
+						blood.setVisible(true);
+						blood.animate(80, false, new IAnimationListener() {
+
+							@Override
+							public void onAnimationStarted(AnimatedSprite pAnimatedSprite, int pInitialLoopCount) {
+								// TODO Auto-generated method stub
+							}
+
+							@Override
+							public void onAnimationLoopFinished(AnimatedSprite pAnimatedSprite, int pRemainingLoopCount, int pInitialLoopCount) {
+								// TODO Auto-generated method stub
+							}
+
+							@Override
+							public void onAnimationFrameChanged(AnimatedSprite pAnimatedSprite, int pOldFrameIndex, int pNewFrameIndex) {
+								// TODO Auto-generated method stub
+							}
+
+							@Override
+							public void onAnimationFinished(AnimatedSprite pAnimatedSprite) {
+								blood.setVisible(false);
+
+							}
+						});
+					}
 					Util.taskList.clear();
 				}
 
+				if (checkCollidePlayer) {
+					checkBox();
+				}
 			}
 
 			@Override
@@ -583,108 +648,39 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 		});
 
-		// pScene.attachChild(light2);
-
-		// registerUpdateHandler(new IUpdateHandler() {
-		// @Override
-		// public void reset() {
-		// }
-		//
-		// @Override
-		// public void onUpdate(float pSecondsElapsed) {
-		//
-		// // player.playerBody.applyForce(new Vector2(0,10), new Vector2(0,0));
-		//
-		// // if (!gameOver) {
-		// //
-		// // PointF lastPosition = new PointF(player.getX(), player.getY());
-		// // boolean canMove = true;
-		// //
-		// // if (driveCar) {
-		// // car.setPosition(car.getX() + x * 1.5f, car.getY() + y * 1.5f);
-		// // } else {
-		// //
-		// // x = x * speed;
-		// // y = y * speed;
-		// //
-		// // if (moveAllowed) {
-		// // player.setX(player.getX() + x);
-		// // player.setY(player.getY() + y);
-		// // player.setZIndex(10000 - (int) player.getY());
-		// // player.shadow.setZIndex(10000 - (int) player.getY());
-		// // }
-		// //
-		// // Shape shape =
-		// collisionManager.checkCollisionObstacles(player.feet);
-		// //
-		// // if (shape != null) {
-		// // if (shape == car) {
-		// // // driveCar = true;
-		// // // camera.setChaseEntity(car);
-		// // // player.setVisible(false);
-		// // // player.shadow.setVisible(false);
-		// // }
-		// // canMove = false;
-		// // }
-		// //
-		// // if (!canMove && camera.getHUD() == gameHUD) {
-		// // player.setPosition(lastPosition.x, lastPosition.y);
-		// // player.setZIndex(10000 - (int) player.getY());
-		// // player.shadow.setZIndex(10000 - (int) player.getY());
-		// // }
-		// // sortChildren();
-		// //
-		// // checkPickItem();
-		// //
-		// // if (checkCollision) {
-		// // Shape door = (Shape) collisionManager.checkDoor(player.feet);
-		// // if (door != null) {
-		// // Log.v("GAME","DOOR");
-		// // checkCollision = false;
-		// // String[] relocation = ((String) door.getUserData()).split(",");
-		// // if (relocation[0].equals("teleport")) {
-		// // beforeEntrancePosition.x = player.getX();
-		// // beforeEntrancePosition.y = player.getY() - 10;
-		// // teleportToPosition.x = Float.parseFloat(relocation[1]);
-		// // teleportToPosition.y = Float.parseFloat(relocation[2]);
-		// // blockScreenToTeleport();
-		// // } else {
-		// // teleportToPosition.x = beforeEntrancePosition.x;
-		// // teleportToPosition.y = beforeEntrancePosition.y;
-		// // blockScreenToTeleport();
-		// // }
-		// // moveAllowed = false;
-		// // }
-		// // }
-		// //
-		// //// bulletsPool.updateBullets();
-		// //
-		// // Util.centerX = Util.centerX + 1;
-		// // Util.centerY = Util.centerY + 1;
-		// //
-		// // }
-		// //
-		// // if (driveCar) {
-		// // enemiesPool.updateEnemies(car);
-		// // } else {
-		// // enemiesPool.updateEnemies(player);
-		// // }
-		// //
-		// // }
-		// }
-		// });
-
 		setOnSceneTouchListener(this);
+	}
 
+	public void checkBox() {
+		if (buildingActive != null) {
+			boolean stopChecking = true;
+			for (int i = 0; i < buildingActive.boxes.size(); i++) {
+				if (player.sword.collidesWith(buildingActive.boxes.get(i))) {
+					stopChecking = false;
+					break;
+				}
+			}
+
+			if (stopChecking) {
+				// checkCollidePlayer = false;
+				gameHUD.infoText.setVisible(false);
+				gameHUD.hideButtonC();
+				gameHUD.hideBoxItems();
+			} else {
+				gameHUD.infoText.setVisible(true);
+				gameHUD.infoText.setText("Caja");
+				gameHUD.showButtonC();
+			}
+		}
 	}
 
 	public void checkHitEnemy() {
 		for (int i = 0; i < enemiesPool.enemies.size(); i++) {
 			Enemy enemy = enemiesPool.enemies.get(i);
 			if (!enemy.isFree()) {
-				if(player.sword.collidesWith(enemy)){
-					enemy.release();
-					Log.v("SWORD","Golpea enemigo");
+				if (player.sword.collidesWith(enemy)) {
+					Util.taskList.add(new Task(enemy));
+					return;
 				}
 			}
 		}
@@ -696,19 +692,19 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		// camera.getCameraSceneCoordinatesFromSceneCoordinates(player.getX() +
 		// player.getWidth() / 2, player.getY());
 		// gameHUD.createPopupConversation(popupPosition[0], popupPosition[1]);
-		
-		player.running= true;
+
+		// gameHUD.createPopupConversation();
+
+		player.running = !player.running;
 		player.stopRunning();
 	}
 
 	public void releaseButtonA() {
-		player.running= false;
 		player.stopRunning();
 	}
 
 	public void actionButtonB() {
 		player.attack();
-		checkHitEnemy();
 		// fireBullet();
 	}
 
@@ -726,30 +722,31 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void startTimerDay() {
-		registerUpdateHandler(new TimerHandler(0.01f, true, new ITimerCallback() {
-			@Override
-			public void onTimePassed(TimerHandler pTimerHandler) {
-				if (hourOfDay > 24) {
-					hourOfDay = 0;
-				}
-
-				if (hourOfDay > 18 || hourOfDay < 6) {
-					Util.oppacityScreen = Util.oppacityScreen + 0.005f;
-					if (Util.oppacityScreen > 0.95f) {
-						Util.oppacityScreen = 0.95f;
-					}
-
-				} else {
-					Util.oppacityScreen = Util.oppacityScreen - 0.005f;
-					if (Util.oppacityScreen < 0.0f) {
-						Util.oppacityScreen = 0.0f;
-					}
-				}
-
-				gameHUD.timeDay.setText("Hour: " + ((int) hourOfDay));
-				hourOfDay += 0.005f;
-			}
-		}));
+		// registerUpdateHandler(new TimerHandler(0.01f, true, new
+		// ITimerCallback() {
+		// @Override
+		// public void onTimePassed(TimerHandler pTimerHandler) {
+		// if (hourOfDay > 24) {
+		// hourOfDay = 0;
+		// }
+		//
+		// if (hourOfDay > 18 || hourOfDay < 6) {
+		// Util.oppacityScreen = Util.oppacityScreen + 0.005f;
+		// if (Util.oppacityScreen > 0.95f) {
+		// Util.oppacityScreen = 0.95f;
+		// }
+		//
+		// } else {
+		// Util.oppacityScreen = Util.oppacityScreen - 0.005f;
+		// if (Util.oppacityScreen < 0.0f) {
+		// Util.oppacityScreen = 0.0f;
+		// }
+		// }
+		//
+		// gameHUD.timeDay.setText("Hour: " + ((int) hourOfDay));
+		// hourOfDay += 0.005f;
+		// }
+		// }));
 	}
 
 	public void pickItem() {
@@ -758,14 +755,40 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			if (inventoryPlayer.inventory.containsKey(key)) {
 				int value = inventoryPlayer.inventory.get(key) + 1;
 				inventoryPlayer.inventory.put(key, value);
-			} else {
+			} else if (inventoryPlayer.inventory.size() < 16) {
 				inventoryPlayer.inventory.put(key, 1);
 			}
-			detachChild(itemToPick);
+			itemToPick.detachSelf();
 			itemToPick = null;
 			gameHUD.hideButtonC();
 			bulletCounter++;
-			gameHUD.bulletCounter.setText("Bullets: " + bulletCounter);
+			gameHUD.bulletCounter.setText("Balas: " + bulletCounter);
+		} else {
+//			gameHUD.createPopupInformation("Esta Vacio", 3);
+
+			ArrayList<Sprite> testBoxes = new ArrayList<Sprite>();
+
+			for (int i = 0; i < 8; i++) {
+
+				Sprite testPrueba = new Sprite(0, 0, TextureGameManager.getInstance().getTexture("shell"), vbom) {
+					@Override
+					public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+						if (pSceneTouchEvent.isActionUp()) {
+							Log.v("GAME", "DEBE QUITARLO DE LA BOLSA");
+							gameHUD.removeItemBox(this);
+							return true;
+						}
+
+						return false;
+					}
+				};
+				testPrueba.setUserData("shell");
+
+				testBoxes.add(testPrueba);
+			}
+
+			gameHUD.populateItemBox(testBoxes);
+
 		}
 	}
 
@@ -813,7 +836,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 	}
 
 	public void endGame() {
-		gameHUD.createPopupConversation(400, 240);
+		gameHUD.createPopupConversation();
 		gameOver = true;
 	}
 

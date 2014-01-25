@@ -291,7 +291,7 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 	}
 
 	public void clearItemSelected() {
-		if (mItemSelected != null) {
+		if (mItemSelected != null&&inventoryPlayer.inventory.get(mItemSelected.name)<=0) {
 			mItemSelected.setSelected(false);
 			mItemSelected.mSpriteItem.detachSelf();
 			mItemSelected = null;

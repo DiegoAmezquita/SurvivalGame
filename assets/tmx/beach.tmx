@@ -2,12 +2,38 @@
 <map version="1.0" orientation="orthogonal" width="60" height="60" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="2" margin="1">
   <image source="gfx/pokemon.png" width="1800" height="1800"/>
+  <tile id="1">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
   <tile id="2">
    <properties>
     <property name="tree" value="true"/>
    </properties>
   </tile>
+  <tile id="3">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="101">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
   <tile id="102">
+   <properties>
+    <property name="obstacle" value="true"/>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="103">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="201">
    <properties>
     <property name="tree" value="true"/>
    </properties>
@@ -17,14 +43,41 @@
     <property name="tree" value="true"/>
    </properties>
   </tile>
+  <tile id="203">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="1213">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="1214">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
   <tile id="1313">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="tree" value="true"/>
    </properties>
   </tile>
   <tile id="1314">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="1413">
+   <properties>
+    <property name="tree" value="true"/>
+   </properties>
+  </tile>
+  <tile id="1414">
+   <properties>
+    <property name="tree" value="true"/>
    </properties>
   </tile>
   <tile id="2009">
@@ -60,39 +113,92 @@
   <tile id="3107">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3108">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3109">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3207">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3209">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3307">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3308">
    <properties>
     <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
    </properties>
   </tile>
   <tile id="3309">
+   <properties>
+    <property name="obstacle" value="true"/>
+    <property name="wall" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3655">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3656">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3657">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3755">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3756">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3757">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3855">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3856">
+   <properties>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
+  <tile id="3857">
    <properties>
     <property name="obstacle" value="true"/>
    </properties>
@@ -107,11 +213,6 @@
     <property name="eyeTrepod" value="true"/>
    </properties>
   </tile>
-  <tile id="5568">
-   <properties>
-    <property name="house" value="true"/>
-   </properties>
-  </tile>
   <tile id="5666">
    <properties>
     <property name="house" value="true"/>
@@ -119,7 +220,7 @@
   </tile>
   <tile id="5667">
    <properties>
-    <property name="house" value=""/>
+    <property name="house" value="true"/>
    </properties>
   </tile>
   <tile id="5668">
@@ -174,7 +275,7 @@
   </tile>
   <tile id="6067">
    <properties>
-    <property name="door" value="true"/>
+    <property name="door" value="false"/>
    </properties>
   </tile>
   <tile id="6068">
@@ -268,25 +369,46 @@
     <property name="houseOne" value=""/>
    </properties>
   </tile>
+  <tile id="9901">
+   <properties>
+    <property name="door" value="true"/>
+    <property name="houseTwo" value=""/>
+   </properties>
+  </tile>
  </tileset>
  <layer name="Capa de Patrones 1" width="60" height="60">
   <data encoding="base64" compression="zlib">
    eJztmr0OgzAMhNmQUDeeum/dBSQUFSVO4px/bviWSkl8Pgcb0XPftpMQQggJxHGBjuOORVPj7P1H92tdLzlnps5j78vdaAySvESoXY06IIS0keVeafXBf2egtSLyKvUgY57QMRCSkZa7F+m5FEED9cbAkjcr7rclvas0RyRSP2jVio4jkqfonKLORuu2ROb3Xa98P3XQMXokW/3P/A6F1uIxb17IpDeTVgt6s80d2fRGpmfO8jSjlXUqjfmp04PeEX9LT63M5FrPmpoelOY3vSN5kNZBea729/y333ve62/fJGufa1b42/Nft1qetOtitseIOQLdt1Bzk8feZdXrkT01689CryaErOcHvnaArw==
   </data>
  </layer>
+ <layer name="terrainObstacles" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJzt1bENwjAQQNEbwIWzA2QCZoMVUGaFzAAdpAAsJxJy/J50haUr7leOAAAAAAAAAAC2dkgRxy8zpn9fuK3rj55Jb9P0Lu2t9/bsub/NOUdc8us9r+w9DWWzFyUtetult26nFXrrdlrRY29P/y8AAPDZAwLyF2g=
+  </data>
+ </layer>
+ <layer name="buildings" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJzt2EdSHEEQQNG8BMxM94BAeBDHwIgN3t4FCSPhkYCr4L07CXaDt2v+sll3Z2QFkT/ibWrTnRFTXVEj4t0VRO7xgEc84blgt57ssETkCMc4wWlJ+nm7I5Ee9KIP/RiI7NaTVZWKVKMGtagrTT/vOs/YwCa2sI2dyG492TTzzWAWc5jPYN5CLBIhRhFlKI/t1pPdMN8t7nCPhwzmHeUZv/AbYxjHRGy3nqwzJ9KFbvSgN5d+3jOecY4LXOIK17HderJV5lvDOjawmcG8LUWRVrShHT/RUbRbT5bLi+RRQIQ4n35ez/M8zwshjTtIyGncQUJO4w4Schp3kCzS2mcad5As0tpnGneQLNLaZ6HeQULdZ1qFus+0CnWfaRXqPvM8z/M8z7PI/yOyfiPd/D8i6zfSze+u1m/0uXp+bw1oRBN+oDnFbzD0u+sCsy3iH/5jCctY+aL77pG5nvCMF7ziDe/G82qd433sr34MYBBDGMaI8b7TOse3mGsbO9jFHvZxYDyv1jle5HtShnJ8QwUq8d34O6N9jk8w3yT+4C+mjOf1c9z6jXQL/Rz3PM/zPM/zvnYfHn8iNA==
+  </data>
+ </layer>
+ <layer name="vehicles" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJztz9sRQEAURMGbwK5HVIgVUSEONwpb6K46/zMRAAAAAAAA33KUiDO7Suslz5hqxJwttfWSZ6z5c8v2n/ztu4ghG7vWSwAAAAAAAIC3uQG5lgZt
+  </data>
+ </layer>
  <layer name="trees" width="60" height="60">
   <data encoding="base64" compression="zlib">
-   eJztm8lOVEEUhk+U3rHABT2DioizK1/BcaOMDg+gPoGuVEAFxNlXUWhAxWGJvoTjRroZHNZ+hnS86XQx3HNvV93b90++VHWFUPnSp5p7OsWCiHyAj7DQBPN6KedEKrAEy7ACqzl767V52y7yDt63GwQMKbXUX+/Ni/RBPwzAIAzl7a17syct0g17oQf2pfW+U+wxDSWYgVmYy9tb92Ycvwm4B5NwPwDfXEEkDwUoQgd0Fuyte/MDv0UoQwWWAvC9wR434RYMwwiMFuyte3M2I3IOeqEP+jN630/s8Rm+wFf4Bt8L9ta9eY7fC5iCaSgF4Hu8KHICTsIpOA1nivbWvclkRbKQgzwUsnrfuCbxjXea1Xee8U2LvbE2Ye1T9e1K8ZyWsjfWJqx9qr5jzMdT9sbahLXPeufXbw/icky+mh7E5Zh8NT2IyzH5anqQsKM5ZyZfTQ8SZrTnzOSr6UHCjPacmXw1PUiY0Z6zqD1Pas9Z1Hy15yxqvtpzFjVfbRLfeCfxjXcS33gn8XUv3a30Q+vQ07r539VoXz+968QGPpOO+vrtXaPq67d3Ddq3Ucp+e9egfa9u/sdV8du7LuJT9nCtTeR62//XlS361t7RObZjc2w1LnxHVK+eqy77qbcDcBAOwWE4AkfT/nxd+I6oXj1XXR7g9RAewWN4Ak/hmU9fF2Kq539ZxmsFVuEn/ILf8McBX819M1M9D3C+BmEIzsMFuAiXMnZ9tffNTPU8g9cszMFLeAWvYd6yr/a+mamei3yedEAn7IRdsBu6snZ9tffNTPU8jNcIjMJtuAN3Ycyyr/a+Wb16DuPvb1DR3jcz3Ql2Ndr7ZhFogQNLI5+fXUgU61mTpJ7jnaSe451mrOdtjNtl7X1uhvlluCJr73MzzF34H7dGzv8C3NsqMA==
+   eJztmzEOAjEMBC24fAT+BrwEnkQH/cGjcHS6Jn0SNLsjWXbnjLLp7taI+GR9s1aBWYnnMvsEY7EvG/uysS8b+7JR9X1lfy/zekuvPbvvqUScy7ze0mvP7nvP+VHm9ZZee1Tfrwr2ZWNfNvZlY1829mVjXzb2ZWNfNvZlY1821VdJufreZh9iINVX6Rsd55mN88zGeWbjPLNxntk4z2ycZzbOMxvFPB+yH2O7Z4X5knWN7Z4V5n/4x23k/AMXqPdu
   </data>
  </layer>
  <layer name="trees2" width="60" height="60">
   <data encoding="base64" compression="zlib">
-   eJzt1MEJgDAQAMFDrcXS1OZsRC3KBJHkKYJElh04CL4SbrGPiCHYujR9XO+c0yxtr/O5Kco79zRH2+t8bovyznvPZPbM9rTndfzX97fsmc3/M5s9s9kzmz2z2TObPbPZM5s9s9kzmz2z2TObPbPZM5s9s9kzmz2z2TObPbPZM5s9s9kzmz2z2TObPbPVPWf1vunnrN43/ZzV+6afTwkPvws=
+   eJzt2GEKgjAcQPE/2Vk6mnW5Okh5qDZEHPWhJsjc4/1gMPKLY6+JDhFxDrZTGkPM67ymcWt7O7sbY13nK42p7e3s7hnrOpd9JrNntn97vl+O9fvi8eP6J3tm83xms2c2e2azZzZ7ZrPnb7XvIEdmz2w9n89b/mf2zNZzz1vYM5s9s9kzmz2z2TObPbO16rnVNyJ7ZvN8ZrNnNnvuS+1z3J7Zeu+5lj2z2TObPbOVPWflftPnWbnf9HlW7jd9/gYAQ8Mv
   </data>
  </layer>
  <layer name="Items" width="60" height="60">
   <data encoding="base64" compression="zlib">
-   eJzt2EEOgjAQBVC2uuOk3MmDeDMTlqLRmqZFysx7K2DR9Lc/Dek0wTksl/J7VHISjb2Oy97y7nbdb2x9A1qNdI6MNBeO96kPvTtSO56Ovuq5HlnWNktO2vToSeaujZa9ZT6jZYESfQX4r9K5e9/xPvqXx1z3/ey2ub49AwDwdOS/KtBftjvBbHlrRV+f6PkAslkBUBAUKw==
+   eJztmk0OAiEMhcel7jypZ/EKHsSbmRgXEycT/in0tbxvhTqU9lE6QNw2QmzwuKY/e8VDnO9b/plznLk+JTYJJh5yOsfI/ETOfYS5ldAnZANZ953n5d8eVUNr+706dUuNh5BvhJAwWjWzdlykOhLyxcK7ZwYzdZAcq8dWKB+k87XWXuv4XvP4qEdvjD9bVupmDzU5VOIXYm4h+pTi6O/e1o5BotaV2NCOs4QWH0fvbUbstWI2kfZpVkjNT+w3C2vBAqX52nJXIz1HvHOXQeuMYnF+UM5Ymlj1WxpJHVJ1d5beoXE+9/Czse+1kNLoGFesTVgDJKGWZAYW8oznOx94my9v8bQw+07bouYWfS7Ba1waWNNytTvs1eKtZZY+NeukZ02d+8biQ163aP//RNaKELIeX7c9Sd0=
   </data>
  </layer>
 </map>

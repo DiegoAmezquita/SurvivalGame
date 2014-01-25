@@ -19,6 +19,7 @@ import com.example.survivalgame.util.SpotLight;
 import com.example.survivalgame.util.Util;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 
 /**
@@ -88,5 +89,11 @@ public class GameActivity extends BaseGameActivity {
 			SceneManager.getInstance().getCurrentScene().onBackKeyPressed();
 		}
 		return false;
+	}
+	
+	@Override
+	public synchronized void onResumeGame() {
+		Log.v("GAME","VUELVE EL JUEGO");
+		super.onResumeGame();
 	}
 }

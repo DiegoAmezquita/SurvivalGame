@@ -112,6 +112,12 @@
     <property name="obstacle" value="true"/>
    </properties>
   </tile>
+  <tile id="4504">
+   <properties>
+    <property name="box" value="true"/>
+    <property name="obstacle" value="true"/>
+   </properties>
+  </tile>
   <tile id="4604">
    <properties>
     <property name="eyeTrepod" value="true"/>

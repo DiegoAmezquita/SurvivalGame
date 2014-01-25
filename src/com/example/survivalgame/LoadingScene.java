@@ -9,7 +9,7 @@ import com.example.survivalgame.SceneManager.SceneType;
 public class LoadingScene extends BaseScene {
 	@Override
 	public void createScene() {
-		setBackground(new Background(Color.WHITE));
+		setBackground(new Background(Color.BLACK));
 		Text textLoading = new Text(400, 240, resourcesManager.font, "Loading...", vbom);
 		textLoading.setPosition(400, 240);
 		attachChild(textLoading);
