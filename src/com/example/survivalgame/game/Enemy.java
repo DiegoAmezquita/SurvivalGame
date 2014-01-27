@@ -58,7 +58,7 @@ public class Enemy extends AnimatedSprite {
 
 		directionMove = Direction.NONE;
 
-		enemyFixture = PhysicsFactory.createFixtureDef(0, 0.1f, 0.0f);
+		enemyFixture = PhysicsFactory.createFixtureDef(10, 0.1f, 0.0f);
 		this.mWorld = mWorld;
 
 	}
@@ -67,7 +67,7 @@ public class Enemy extends AnimatedSprite {
 		bodyEnemy = PhysicsFactory.createBoxBody(mWorld, getX(),getY()-50,getWidth()*0.5f,getHeight()*0.7f, BodyType.DynamicBody, enemyFixture);
 		bodyEnemy.setUserData("Enemy");
 
-		mWorld.registerPhysicsConnector(new PhysicsConnector(this, bodyEnemy, true, true));
+		mWorld.registerPhysicsConnector(new PhysicsConnector(this, bodyEnemy, true, false));
 	}
 
 	public void setRunningUp() {
@@ -107,6 +107,7 @@ public class Enemy extends AnimatedSprite {
 	}
 
 	public void stopRunning() {
+		bodyEnemy.setLinearVelocity(0, 0);
 		stopAnimation();
 		if (directionMove != null)
 			switch (directionMove) {

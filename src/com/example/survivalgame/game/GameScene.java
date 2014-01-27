@@ -200,7 +200,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 								car.setRotation(carRotation);
 							}
 						}
-						if (Util.moveAllowed) {
+						if (Util.moveAllowed && !gameOver) {
 							if (pValueX > 0) {
 								player.setRunningRight();
 							} else if (pValueX < 0) {
@@ -212,33 +212,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 							} else {
 								player.stopRunning();
 							}
-
-							// if (pValueX > 0 && pValueY < 0) {
-							// if (pValueX > (pValueY * -1)) {
-							// player.setRunningRight();
-							// } else {
-							// player.setRunningDown();
-							// }
-							// } else if (pValueX > 0 && pValueY > 0) {
-							// if (pValueX > pValueY) {
-							// player.setRunningRight();
-							// } else {
-							// player.setRunningUp();
-							// }
-							// } else if (pValueX < 0 && pValueY > 0) {
-							// if ((pValueX * -1) > pValueY) {
-							// player.setRunningLeft();
-							// } else {
-							// player.setRunningUp();
-							// }
-							// } else if (pValueX < 0 && pValueY < 0) {
-							// if (pValueX < pValueY) {
-							// player.setRunningLeft();
-							// player.setRunningDown();
-							// }
-							// } else {
-							// player.stopRunning();
-							// }
+						}else{
+							player.stopRunning();
+							enemiesPool.stopEnemies();
 						}
 
 					}
@@ -573,70 +549,72 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 			@Override
 			public void onUpdate(float pSecondsElapsed) {
-				checkPickItem();
-				player.setZIndex(10000 - (int) player.getY());
-				sortChildren();
-				framesElapsed++;
-				// Log.v("ZINDEX","player "+player.getZIndex());
-				if (framesElapsed > 30) {
-					enemiesPool.updateEnemies(player);
-					framesElapsed = 0;
-				}
+				if (!gameOver) {
+					checkPickItem();
+					player.setZIndex(10000 - (int) player.getY());
+					sortChildren();
+					framesElapsed++;
+					// Log.v("ZINDEX","player "+player.getZIndex());
+					if (framesElapsed > 30) {
+						enemiesPool.updateEnemies(player);
+						framesElapsed = 0;
+					}
 
-				if (!Util.moveTaskList.isEmpty()) {
-					for (int i = 0; i < Util.moveTaskList.size(); i++) {
-						timeOut(1);
-						camera.setChaseEntity(null);
-						if (beforeEntrancePosition.x == 0 && beforeEntrancePosition.y == 0) {
-							beforeEntrancePosition.x = player.getX();
-							beforeEntrancePosition.y = player.getY();
+					if (!Util.moveTaskList.isEmpty()) {
+						for (int i = 0; i < Util.moveTaskList.size(); i++) {
+							timeOut(1);
+							camera.setChaseEntity(null);
+							if (beforeEntrancePosition.x == 0 && beforeEntrancePosition.y == 0) {
+								beforeEntrancePosition.x = player.getX();
+								beforeEntrancePosition.y = player.getY();
+							}
+							Util.moveTaskList.get(i).move();
+							if (!Util.moveTaskList.get(i).hitByEnemy) {
+								blockScreenToTeleport();
+							} else {
+								camera.setChaseEntity(player);
+							}
+
 						}
-						Util.moveTaskList.get(i).move();
-						if (!Util.moveTaskList.get(i).hitByEnemy) {
-							blockScreenToTeleport();
-						} else {
-							camera.setChaseEntity(player);
-						}
+						Util.moveTaskList.clear();
 
 					}
-					Util.moveTaskList.clear();
+					if (!Util.taskList.isEmpty()) {
+						for (int i = 0; i < Util.taskList.size(); i++) {
+							Util.taskList.get(i).doTask();
+							blood.setPosition(Util.taskList.get(i).enemy.getX(), Util.taskList.get(i).enemy.getY());
+							blood.setZIndex(player.getZIndex() + 10);
+							blood.setVisible(true);
+							blood.animate(80, false, new IAnimationListener() {
 
-				}
-				if (!Util.taskList.isEmpty()) {
-					for (int i = 0; i < Util.taskList.size(); i++) {
-						Util.taskList.get(i).doTask();
-						blood.setPosition(Util.taskList.get(i).enemy.getX(), Util.taskList.get(i).enemy.getY());
-						blood.setZIndex(player.getZIndex() + 10);
-						blood.setVisible(true);
-						blood.animate(80, false, new IAnimationListener() {
+								@Override
+								public void onAnimationStarted(AnimatedSprite pAnimatedSprite, int pInitialLoopCount) {
+									// TODO Auto-generated method stub
+								}
 
-							@Override
-							public void onAnimationStarted(AnimatedSprite pAnimatedSprite, int pInitialLoopCount) {
-								// TODO Auto-generated method stub
-							}
+								@Override
+								public void onAnimationLoopFinished(AnimatedSprite pAnimatedSprite, int pRemainingLoopCount, int pInitialLoopCount) {
+									// TODO Auto-generated method stub
+								}
 
-							@Override
-							public void onAnimationLoopFinished(AnimatedSprite pAnimatedSprite, int pRemainingLoopCount, int pInitialLoopCount) {
-								// TODO Auto-generated method stub
-							}
+								@Override
+								public void onAnimationFrameChanged(AnimatedSprite pAnimatedSprite, int pOldFrameIndex, int pNewFrameIndex) {
+									// TODO Auto-generated method stub
+								}
 
-							@Override
-							public void onAnimationFrameChanged(AnimatedSprite pAnimatedSprite, int pOldFrameIndex, int pNewFrameIndex) {
-								// TODO Auto-generated method stub
-							}
+								@Override
+								public void onAnimationFinished(AnimatedSprite pAnimatedSprite) {
+									blood.setVisible(false);
 
-							@Override
-							public void onAnimationFinished(AnimatedSprite pAnimatedSprite) {
-								blood.setVisible(false);
-
-							}
-						});
+								}
+							});
+						}
+						Util.taskList.clear();
 					}
-					Util.taskList.clear();
-				}
 
-				if (checkCollidePlayer) {
-					checkBox();
+					if (checkCollidePlayer) {
+						checkBox();
+					}
 				}
 			}
 
@@ -764,7 +742,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 			bulletCounter++;
 			gameHUD.bulletCounter.setText("Balas: " + bulletCounter);
 		} else {
-//			gameHUD.createPopupInformation("Esta Vacio", 3);
+			// gameHUD.createPopupInformation("Esta Vacio", 3);
 
 			ArrayList<Sprite> testBoxes = new ArrayList<Sprite>();
 
@@ -816,8 +794,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 
 	public void damagePlayer() {
 		if (timeElapsedBetweenDamage == 2) {
-			life -= 10;
-			gameHUD.lifeText.setText("Life: " + life + "%");
+			removeLife(10);
 			if (life == 0) {
 				endGame();
 			} else {
@@ -857,9 +834,27 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener {
 		gameHUD.addItemQuickMenu(item);
 	}
 
-	public void addLife(int amount) {
-		life += amount;
-		gameHUD.lifeText.setText("Life: " + life + "%");
+	public void dropItem(ItemInventory item) {
+		item.drop();
+	}
+
+	public boolean removeLife(int amount) {
+		if ((life - amount) >= 0) {
+			life -= amount;
+			gameHUD.lifeText.setText("Vida: " + life + "%");
+			return true;
+		}
+		return false;
+	}
+	
+	
+	public boolean addLife(int amount) {
+		if ((life + amount) <= 100) {
+			life += amount;
+			gameHUD.lifeText.setText("Vida: " + life + "%");
+			return true;
+		}
+		return false;
 	}
 
 	@Override

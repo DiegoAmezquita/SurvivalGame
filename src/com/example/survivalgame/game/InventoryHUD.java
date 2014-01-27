@@ -216,7 +216,7 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 	// }
 
 	public void setItemSelected(ItemInventory item) {
-		
+
 		if (mItemSelected != null) {
 			mItemSelected.setSelected(false);
 			mItemSelected.mSpriteItem.detachSelf();
@@ -246,8 +246,10 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.isActionUp()) {
-						mGameScene.useItem(mItemSelected);
-						Log.v(TAG, "Item Added");
+						if (mItemSelected != null) {
+							mGameScene.useItem(mItemSelected);
+							Log.v(TAG, "Item Added");
+						}
 					}
 					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 				}
@@ -261,7 +263,9 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.isActionUp()) {
-						mGameScene.addItemQuickMenu(mItemSelected);
+						if (mItemSelected != null) {
+							mGameScene.addItemQuickMenu(mItemSelected);
+						}
 					}
 					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 				}
@@ -274,7 +278,9 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.isActionUp()) {
-						mGameScene.addItemQuickMenu(mItemSelected);
+						if (mItemSelected != null) {
+							mGameScene.dropItem(mItemSelected);
+						}
 					}
 					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 				}
@@ -291,7 +297,7 @@ public class InventoryHUD extends HUD implements IOnSceneTouchListener {
 	}
 
 	public void clearItemSelected() {
-		if (mItemSelected != null&&inventoryPlayer.inventory.get(mItemSelected.name)<=0) {
+		if (mItemSelected != null && inventoryPlayer.inventory.get(mItemSelected.name) <= 0) {
 			mItemSelected.setSelected(false);
 			mItemSelected.mSpriteItem.detachSelf();
 			mItemSelected = null;

@@ -86,15 +86,22 @@ public class ItemInventory extends Rectangle {
 
 	public void useItem() {
 		if (quantity > 0) {
-			decreaseQuantity();
 			switch (attribute) {
 			case SPEED:
-				mGameScene.addLife(20);
+				boolean increasedLife = mGameScene.addLife(20);
+				if (increasedLife) {
+					decreaseQuantity();
+				}
 				break;
-
 			default:
 				break;
 			}
+		}
+	}
+
+	public void drop() {
+		if (quantity > 0) {
+			decreaseQuantity();
 		}
 	}
 
